@@ -1,4 +1,4 @@
-class Word
+public class Word
 {
     /*CONSTANTS*/
     const int WORD_SIZE = 4;    //word size in bytes
