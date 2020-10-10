@@ -25,9 +25,15 @@ public static class RAM
         //pre-flight checklist
 
         //address needs to be proper format
-        if (ADDRESS_PATTERN.IsMatch(address))
+        if (!ADDRESS_PATTERN.IsMatch(address))
         {
             throw new Exception($"Improperly formatted address {address}");
+        }
+
+        //writeWord must be null if reading
+        if (rw == RWFlag.Read && writeWord != null)
+        {
+            throw new Exception("R/W Flag is set to read, but a write value is given.");
         }
 
         //writeWord can't be null if writing
