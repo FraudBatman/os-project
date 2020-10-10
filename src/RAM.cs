@@ -1,3 +1,10 @@
-public class RAM {
-    
+public class RAM
+{
+    /*CONSTANTS*/
+
+}
+
+public enum RWFlag
+{
+    Read, Write
 }
