@@ -1,4 +1,4 @@
-class Word
+public class Word
 {
     /*CONSTANTS*/
     const int WORD_SIZE = 4;    //word size in bytes
@@ -13,7 +13,7 @@ class Word
     private byte[] data = new byte[WORD_SIZE];
 
     /*PROPERTIES*/
-    byte[] Data
+    public byte[] Data
     {
         get { return data; }
         set { data = value; }
