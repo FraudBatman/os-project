@@ -13,7 +13,7 @@ public class Word
     private byte[] data = new byte[WORD_SIZE];
 
     /*PROPERTIES*/
-    byte[] Data
+    public byte[] Data
     {
         get { return data; }
         set { data = value; }
