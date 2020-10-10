@@ -8,9 +8,9 @@ public static class Utilities
     /// </summary>
     /// <param name="hex"></param>
     /// <returns></returns>
-    static int HexToDec(string hex)
+    public static int HexToDec(string hex)
     {
-
+        return 0;
     }
 
 }
