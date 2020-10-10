@@ -17,7 +17,7 @@ Step 2: Install .NET Core 3.1
 Step 3: Configure Visual Studio Code For C#
 - **https://code.visualstudio.com/docs/languages/csharp**
 - Configure per your machine for Windows or Mac (Linux requires 3rd party requirements)
-- Install the coding pack for Java - Windows / Mac
+- Install the C# extension for VSC
 - Runs shell scripts that configure your environment
 
 Step 4: Install the Git Extension Pack From Visual Studio Code
