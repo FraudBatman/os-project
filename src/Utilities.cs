@@ -1,3 +1,4 @@
+using System;
 public static class Utilities
 {
 
@@ -10,7 +11,7 @@ public static class Utilities
     /// <returns></returns>
     public static int HexToDec(string hex)
     {
-        return 0;
+        return Convert.ToInt32(hex, 16);
     }
 
 }
