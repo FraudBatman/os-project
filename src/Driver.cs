@@ -17,9 +17,13 @@ namespace os_project
 
         public static void Main(string[] args)
         {
-            Loader load = new Loader(jobFile);
-            load.LoadInstructions();
+            // Validate you can build :D
+            System.Console.WriteLine("You built your project, good job bitch!");
 
+            // Loader output
+            // Loader load = new Loader(jobFile);
+            // load.LoadInstructions();
+            
         }
     }
     #endregion
