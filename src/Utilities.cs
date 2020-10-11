@@ -13,7 +13,6 @@ public static class Utilities
     {
         return Convert.ToInt32(hex, 16);
     }
-<<<<<<< HEAD
 
     /// <summary>
     /// Removes characters at the specified range (e.g. [0, 1]), if not index
@@ -36,8 +35,7 @@ public static class Utilities
         else
             return instruct.Substring(range[0], range[1]);
     }
-}
-=======
+    
     public static string HexToBin(string hex)
     {
         return Convert.ToString(Convert.ToInt32(hex, 16), 2);
@@ -55,4 +53,4 @@ public static class Utilities
         return Convert.ToString(dec, 2);
     }
 }
->>>>>>> 3f43e0af7184f8acdf47977cd3bcfcd455aa1976
+
