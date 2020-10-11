@@ -26,13 +26,8 @@ namespace os_project
         {
             jobID = jobID;
 
-<<<<<<< HEAD
         }
         #endregion
-=======
-    //test comment
-    //other test comment
->>>>>>> f2731a17f74baaef63f36d78408dfc804b4e74de
 
         #region Getters & Setter
         #endregion
