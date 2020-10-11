@@ -1,3 +1,7 @@
-public class DMA {
-    
+namespace os_project
+{
+    public class DMA
+    {
+
+    }
 }

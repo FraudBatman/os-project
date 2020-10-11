@@ -1,3 +1,8 @@
-public class CPU {
-    
+namespace os_project
+{
+
+    public class CPU
+    {
+
+    }
 }

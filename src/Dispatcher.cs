@@ -1,3 +1,8 @@
-public class Dispatcher {
-    
+namespace os_project
+{
+    public class Dispatcher
+    {
+
+    }
+
 }

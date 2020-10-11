@@ -1,3 +1,7 @@
-public class MMU {
-    
+namespace
+{
+    public class MMU
+    {
+
+    }
 }
