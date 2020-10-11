@@ -1,3 +1,7 @@
-public class MMU {
-    
+namespace os_project
+{
+    public class MMU
+    {
+
+    }
 }
