@@ -6,11 +6,13 @@ namespace os_project
     public class PCB
     {
         #region Job Data
+        public enum STATUS {New, Ready, Waiting, Run, Terminate}
         private int jobID;
         private int jobInstructNum;
         private int jobPriortyNum;
         private int addToDiskPriority;
         private bool inMemory;
+        public STATUS jobStatus;
         #endregion
 
         #region Disk & Memory Data
@@ -24,15 +26,81 @@ namespace os_project
         // in the program-file, which must also be extracted and stored in disk
         public PCB(int _jobID, int _jobInstructNum, int _jobPriortyNum)
         {
-            jobID = jobID;
+            jobID = _jobID;
+            jobInstructNum = _jobInstructNum;
+            jobPriortyNum = _jobPriortyNum;
 
+            jobStatus = STATUS.New;
+            inMemory = false;
         }
         #endregion
 
         #region Getters & Setter
+        //Job ID
+        public int getJobID()
+        {
+            return jobID;
+        }
+
+        public void setJobID(int _jobID)
+        {
+            jobID = _jobID;
+        }
+
+        //Job Instruction Number
+        public int getJobInstructNum()
+        {
+            return jobInstructNum;
+        }
+
+        public void setJobInstructNum(int _jobInstructNum)
+        {
+            jobInstructNum = +jobInstructNum;
+        }
+
+        //Job Priority Number
+        public int getJobPriorityNum()
+        {
+            return jobPriortyNum;
+        }
+
+        public void setJobPriorityNum(int _jobPriortyNum)
+        {
+            jobPriortyNum = _jobPriortyNum;
+        }
+
+        //Job inMemory
+        public bool isInMemory()
+        {
+            return inMemory;
+        }
+
+        public void setInMemory(bool memoryStatus)
+        {
+            inMemory = memoryStatus;
+        }
+
+        //Job Status
+        public STATUS getJobStatus()
+        {
+            return jobStatus;
+        }
+
+        public void setJobStatus(STATUS newStatus)
+        {
+            jobStatus = newStatus;
+        }
         #endregion
 
         #region Functions
+        //toString
+        public string toString()
+        {
+            string output = String.Format("Job ID: {0} \nJob Instruction Number: {1} \nJob Priority Number: {2} \nJob InMemory: {3} \nJob Status: {4}",
+                jobID, jobInstructNum, jobPriortyNum, inMemory, jobStatus);
+
+            return output;
+        }
         #endregion
     }
 }
