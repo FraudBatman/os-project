@@ -52,5 +52,24 @@ public static class Utilities
     {
         return Convert.ToString(dec, 2);
     }
+    public static int[] parseControlCard(string jobName)
+    {
+        string trimmedString;
+        if (jobName.Contains("JOB"))
+        {
+            trimmedString = jobName.Replace("JOB ", "");
+        }
+        else
+            trimmedString = jobName.Replace("DATA ", "");
+        var strArr = trimmedString.Split(' ');
+        int [] intArr = new int[3];
+        int i = 0;
+        foreach(var hex in strArr)
+        {
+            intArr[i] = HexToDec(hex);
+            i++;
+        }
+        return intArr;
+    }
 }
 
