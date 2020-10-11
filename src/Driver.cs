@@ -10,13 +10,16 @@ namespace os_project
     #endregion
 
 
-
     #region Main thread
     public partial class Driver 
     {
-        static void Main(string[] args)
+        static string jobFile = System.IO.Directory.GetCurrentDirectory() + @"\resources\jobs-file.txt";
+
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Loader load = new Loader(jobFile);
+            load.LoadInstructions();
+
         }
     }
     #endregion
