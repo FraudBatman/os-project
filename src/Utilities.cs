@@ -1,75 +1,79 @@
 using System;
-public static class Utilities
+
+namespace os_project
 {
-
-    // Utility functions that will convert instructions to usable data
-
-    /// <summary>
-    /// Converts hex as string to decimal
-    /// </summary>
-    /// <param name="hex">string of hex value</param>
-    /// <returns>decimal value of hex</returns>
-    public static int HexToDec(string hex)
+    public static class Utilities
     {
-        return Convert.ToInt32(hex, 16);
-    }
 
-    /// <summary>
-    /// Removes characters at the specified range (e.g. [0, 1]), if not index
-    /// is specified, remove the first element in the instruct
-    /// </summary>
-    /// <param name="instruct">Instruction string</param>
-    /// <param name="range">Start index = [0], count = [1]</param>
-    /// <returns>String array object of instruction</returns>
-    public static string RemoveCharacters(string instruct, int[] range = null)
-    {   
-        if(range == null)
+        // Utility functions that will convert instructions to usable data
+
+        /// <summary>
+        /// Converts hex as string to decimal
+        /// </summary>
+        /// <param name="hex">string of hex value</param>
+        /// <returns>decimal value of hex</returns>
+        public static int HexToDec(string hex)
         {
-            range[0] = 0;
-            range[1] = 0;
+            return Convert.ToInt32(hex, 16);
         }
 
-        // remove special characters at the specified range
-        if (range[1] == 0)
-            return instruct.Substring(range[0]);
-        else
-            return instruct.Substring(range[0], range[1]);
-    }
-    
-    public static string HexToBin(string hex)
-    {
-        return Convert.ToString(Convert.ToInt32(hex, 16), 2);
-    }
-    public static string BinToHex(string bin)
-    {
-        return Convert.ToInt32(bin, 2).ToString("X");
-    }
-    public static int BinToDec(string bin)
-    {
-        return Convert.ToInt32(bin, 2);
-    }
-    public static string DecToBin(int dec)
-    {
-        return Convert.ToString(dec, 2);
-    }
-    public static int[] parseControlCard(string jobName)
-    {
-        string trimmedString;
-        if (jobName.Contains("JOB"))
-        {
-            trimmedString = jobName.Replace("JOB ", "");
+        /// <summary>
+        /// Removes characters at the specified range (e.g. [0, 1]), if not index
+        /// is specified, remove the first element in the instruct
+        /// </summary>
+        /// <param name="instruct">Instruction string</param>
+        /// <param name="range">Start index = [0], count = [1]</param>
+        /// <returns>String array object of instruction</returns>
+        public static string RemoveCharacters(string instruct, int[] range = null)
+        {   
+            if(range == null)
+            {
+                range[0] = 0;
+                range[1] = 0;
+            }
+
+            // remove special characters at the specified range
+            if (range[1] == 0)
+                return instruct.Substring(range[0]);
+            else
+                return instruct.Substring(range[0], range[1]);
         }
-        else
-            trimmedString = jobName.Replace("DATA ", "");
-        var strArr = trimmedString.Split(' ');
-        int [] intArr = new int[3];
-        int i = 0;
-        foreach(var hex in strArr)
+        
+        public static string HexToBin(string hex)
         {
-            intArr[i] = HexToDec(hex);
-            i++;
+            return Convert.ToString(Convert.ToInt32(hex, 16), 2);
         }
-        return intArr;
+        public static string BinToHex(string bin)
+        {
+            return Convert.ToInt32(bin, 2).ToString("X");
+        }
+        public static int BinToDec(string bin)
+        {
+            return Convert.ToInt32(bin, 2);
+        }
+        public static string DecToBin(int dec)
+        {
+            return Convert.ToString(dec, 2);
+        }
+        public static int[] parseControlCard(string controlCard)
+        {
+            string trimmedString;
+            
+            if (controlCard.Contains("JOB"))
+                trimmedString = controlCard.Replace("JOB ", "");
+            else
+                trimmedString = controlCard.Replace("Data ", "");
+
+            var strArr = trimmedString.Split(' ');
+            int [] intArr = new int[3];
+            int i = 0;
+            foreach(var hex in strArr)
+            {
+                intArr[i] = HexToDec(hex);
+                i++;
+            }
+            return intArr;
+        }
     }
 }
 

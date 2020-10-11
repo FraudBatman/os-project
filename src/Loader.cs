@@ -45,6 +45,8 @@ namespace os_project
                 else
                 {
                     instruction = instructionSet[currentPointer];
+                    // if (currentJobNumber == 23 && (instruction.Contains("JOB")))
+                    //     System.Console.WriteLine("Stop here");
 
                     if (instruction.Contains("JOB")) // => Job
                         JobHandler(instruction);
@@ -87,16 +89,18 @@ namespace os_project
         }
 
         // Loads job instruction into PCB
-        private int JobHandler(string job)
+        private int JobHandler(string _job)
         {
+            int[] job = Utilities.parseControlCard(_job);   
+                        
             
-
             return 0;
         }
 
         // Loads data instruction into PCB
-        private int DataHandler(string data) 
+        private int DataHandler(string _data) 
         {
+            int[] data = Utilities.parseControlCard(_data);
 
 
             return 0;
