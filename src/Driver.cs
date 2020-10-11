@@ -20,10 +20,9 @@ namespace os_project
             // Validate you can build :D
             System.Console.WriteLine("You built your project, good job bitch!");
 
-            // Loader output
             // Loader load = new Loader(jobFile);
             // load.LoadInstructions();
-            
+            // load.ReadJobFile();
         }
     }
     #endregion
