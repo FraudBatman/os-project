@@ -21,8 +21,12 @@ namespace os_project
             System.Console.WriteLine("You built your project, good job bitch!");
 
             Loader load = new Loader(jobFile);
+            
             // load.ReadJobFile();
             load.LoadInstructions();
+
+            // Read from the disk
+            Disk.ReadFromDisk(true, 5, 8);
         }
     }
     #endregion

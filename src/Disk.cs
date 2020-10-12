@@ -10,7 +10,21 @@ namespace os_project
 
         public static string ReadFromDisk(bool jobOrDataType, int jobNum, int instructionNum)
         {
-            return "";
+            if (jobOrDataType == true)
+            {
+                System.Console.WriteLine("Read Disk Partition " + jobNum + ": Job Instruction = " +
+                    diskPartition[jobNum]["Job_Instructions"][instructionNum]
+                );
+
+                return diskPartition[jobNum]["Job_Instructions"][instructionNum];
+            }
+            else
+            {
+                System.Console.WriteLine("Read Disk Partition " + jobNum + ": Job Instruction = " +
+                    diskPartition[jobNum]["Data_Instructions"][instructionNum]
+                );
+                return diskPartition[jobNum]["Data_Instructions"][instructionNum];
+            }
         }
 
         public static void WriteToDisk(int jobNum, Dictionary<string, List<string>> instructionList)
