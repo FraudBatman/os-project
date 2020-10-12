@@ -9,6 +9,9 @@ namespace os_project
         string absolutePath;
         string[] programFile;
         string[] instructionSet;
+        LinkedList<PCB> PCB_List = new LinkedList<PCB>();
+        List<Dictionary<string, List<string>>> Program_Data =
+                new List<Dictionary<string, List<string>>>();
 
         public Loader(string path = null)
         {
@@ -31,42 +34,94 @@ namespace os_project
         public void LoadInstructions() 
         {
             var isLoaded = false;
-            var currentPointer = 0;
-            var currentJobNumber = 1; 
+            var currentJobPointer = 0;
+            var printJobNumber = 0; 
             string instruction = "";
+            List<string> data = new List<string>();
+            
+            // Builds the PCB based on the control card attributes
+            Dictionary<string, Dictionary<string, int>> PCB_Builder = 
+                new Dictionary<string, Dictionary<string, int>>();
+            Dictionary<string, List<string>> Data_Builder =
+                new Dictionary<string, List<string>>();
 
-            System.Console.WriteLine("Loading Instructions...");
+            // Data = {
+            //   "Job Instructions": "list of shit"
+            //   "Data Instructions": "Piece of shit"
+            // }
+
+            System.Console.WriteLine("Loading Program...");
 
             while (isLoaded == false)
             {
-                if (currentPointer == instructionSet.Length - 1 )
+                if (currentJobPointer == instructionSet.Length - 1 )
                 {
                     isLoaded = true;
                 } 
                 else
                 {
-                    instruction = instructionSet[currentPointer];
+                    instruction = instructionSet[currentJobPointer];
 
                     if (instruction.Contains("JOB")) // => Job
-                        JobHandler(instruction);
+                    {
+                        // Initialize job data list
+                        data = new List<string>();
+
+                        PCB_Builder.Add("JobAttributes", JobHandler(instruction));
+                    }
                     else if (instruction.Contains("Data")) // => Data
-                        DataHandler(instruction);
+                    {
+                        // Insert the job data then initialize the data list
+                        Data_Builder.Add("Job_Instructions", data);
+
+                        // Initialize job data list
+                        data = new List<string>();
+
+                        PCB_Builder.Add("DataAttributes", DataHandler(instruction));
+                    }
                     else if (!instruction.Contains("END")) // => Instruction
-                        InstructionHandler(instruction);
+                    {
+                        // Build data list
+                         data.Add(instructionSet[currentJobPointer]);
+                    }
                     else // => End 
                     {
-                        // Add a PCB to the list
-                        
+                        // Add the start disk address to the current PCB
+                        PCB_Builder.Add("DiskAttributes", InstructionHandler(currentJobPointer));
+                        Data_Builder.Add("Data_Instructions", data);
 
-                        System.Console.WriteLine("Processed: Job " + currentJobNumber);
-                        currentJobNumber++;
+                        // Add program to the PCB linked list
+                        PCB_List.AddLast(new PCB(
+                            PCB_Builder["JobAttributes"]["processID"],
+                            PCB_Builder["JobAttributes"]["instructionCount"],
+                            PCB_Builder["JobAttributes"]["priority"],
+                            PCB_Builder["DataAttributes"]["inputBufferSize"],
+                            PCB_Builder["DataAttributes"]["outputBufferSize"],
+                            PCB_Builder["DataAttributes"]["temporaryBufferSize"],
+                            PCB_Builder["DiskAttributes"]["startDiskAddr"]
+                        ));
+
+                        // Program data stores the job and data instructions for each program
+                        Program_Data.Add(Data_Builder);
+
+                        // Re-initialize the builders for the next program
+                        PCB_Builder = new Dictionary<string, Dictionary<string, int>>();
+                        Data_Builder = new Dictionary<string, List<string>>();
+
+                        // Log program result
+                        System.Console.WriteLine("Processed: Program " + printJobNumber);
+                        printJobNumber++;
                     }
                 }
                 instruction = "";
-                currentPointer++;
+                currentJobPointer++;
             }
+            
+            // Proof of concept for getting data values from the Program data
+            System.Console.WriteLine(Program_Data[0]["Job_Instructions"][0]);
 
-            System.Console.WriteLine("Loading Complete");
+            // Print the loading complete once done
+            System.Console.WriteLine("Loading Complete: " + PCB_List.Count + " programs added");
         }
 
         public void ReadJobFile()
@@ -113,12 +168,12 @@ namespace os_project
             return data_attrs;
         }
 
-        // Loads instruction into PCB
-        private int InstructionHandler(string instruction)
+        // Loads the start of the data address for disk
+        private Dictionary<string, int> InstructionHandler(int _instructionAddr)
         {
-            // Write instructions to disk based on job number
-
-            return 0;
+            Dictionary<string, int> disk_attrs = new Dictionary<string, int>();
+            disk_attrs.Add("startDiskAddr", _instructionAddr);
+            return disk_attrs;
         }
     }
 }
