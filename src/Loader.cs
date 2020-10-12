@@ -10,8 +10,6 @@ namespace os_project
         string[] programFile;
         string[] instructionSet;
         LinkedList<PCB> PCB_List = new LinkedList<PCB>();
-        List<Dictionary<string, List<string>>> Program_Data =
-                new List<Dictionary<string, List<string>>>();
 
         public Loader(string path = null)
         {
@@ -37,6 +35,7 @@ namespace os_project
             var isLoaded = false;
             var currentJobPointer = 0;
             var printJobNumber = 0; 
+            var currentInstructionPointer = 0;
             string instruction = "";
             List<string> data = new List<string>();
             
@@ -78,7 +77,8 @@ namespace os_project
                     else if (!instruction.Contains("END")) // => Instruction
                     {
                         // Build data list
-                         data.Add(instructionSet[currentJobPointer]);
+                        data.Add(instructionSet[currentJobPointer]);
+                        currentInstructionPointer++;
                     }
                     else // => End - need to write the program data to the disk
                     {
@@ -97,8 +97,11 @@ namespace os_project
                             PCB_Builder["DiskAttributes"]["startDiskAddr"]
                         ));
 
-                        // Program data stores the job and data instructions for each program
-                        Program_Data.Add(Data_Builder);
+                        // Load Job instructions to disk
+                        Disk.WriteToDisk(
+                            printJobNumber,
+                            Data_Builder
+                        );
 
                         // Re-initialize the builders for the next program
                         PCB_Builder = new Dictionary<string, Dictionary<string, int>>();
@@ -107,6 +110,7 @@ namespace os_project
                         // Log program result
                         System.Console.WriteLine("Processed: Program " + printJobNumber);
                         printJobNumber++;
+                        currentInstructionPointer = 0;
                     }
                 }
                 instruction = "";
@@ -114,7 +118,7 @@ namespace os_project
             }
             
             // Proof of concept for getting data values from the Program data
-            // System.Console.WriteLine(Program_Data[0]["Job_Instructions"][0]);
+            // System.Console.WriteLine(Disk.diskPartition[0]["Job_Instructions"][0]);
 
             // Print the loading complete once done
             System.Console.WriteLine("Loading Complete: " + PCB_List.Count + " programs added");
