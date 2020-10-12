@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace os_project
 {
@@ -45,8 +46,6 @@ namespace os_project
                 else
                 {
                     instruction = instructionSet[currentPointer];
-                    // if (currentJobNumber == 23 && (instruction.Contains("JOB")))
-                    //     System.Console.WriteLine("Stop here");
 
                     if (instruction.Contains("JOB")) // => Job
                         JobHandler(instruction);
@@ -56,10 +55,12 @@ namespace os_project
                         InstructionHandler(instruction);
                     else // => End 
                     {
+                        // Add a PCB to the list
+                        
+
                         System.Console.WriteLine("Processed: Job " + currentJobNumber);
                         currentJobNumber++;
                     }
-                        
                 }
                 instruction = "";
                 currentPointer++;
@@ -88,30 +89,36 @@ namespace os_project
             return instructions;
         }
 
-        // Loads job instruction into PCB
-        private int JobHandler(string _job)
+        // Loads job control card attributes into PCB
+        // Extract Job ID, instruction word count, priority
+        private Dictionary<string, int> JobHandler(string _job)
         {
             int[] job = Utilities.parseControlCard(_job);   
-                        
-            
-            return 0;
+            Dictionary<string, int> job_attrs = new Dictionary<string, int>();
+            job_attrs.Add("processID", job[0]);
+            job_attrs.Add("instructionCount", job[1]);
+            job_attrs.Add("priority", job[2]);
+            return job_attrs;
         }
 
-        // Loads data instruction into PCB
-        private int DataHandler(string _data) 
+        // Loads job control card attributes into PCB
+        // Extract input, output, and temp buffer sizes
+        private Dictionary<string, int> DataHandler(string _data) 
         {
             int[] data = Utilities.parseControlCard(_data);
-
-
-            return 0;
+            Dictionary<string, int> data_attrs = new Dictionary<string, int>();
+            data_attrs.Add("inputBufferSize", data[0]);
+            data_attrs.Add("outputBufferSize", data[1]);
+            data_attrs.Add("temporaryBufferSize", data[2]);
+            return data_attrs;
         }
 
         // Loads instruction into PCB
         private int InstructionHandler(string instruction)
         {
-            
+            // Write instructions to disk based on job number
 
             return 0;
-        }   
+        }
     }
 }

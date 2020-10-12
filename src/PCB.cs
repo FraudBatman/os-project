@@ -5,102 +5,44 @@ namespace os_project
 {
     public class PCB
     {
-        #region Job Data
-        public enum STATUS {New, Ready, Waiting, Run, Terminate}
-        private int jobID;
-        private int jobInstructNum;
-        private int jobPriortyNum;
-        private int addToDiskPriority;
-        private bool inMemory;
-        public STATUS jobStatus;
-        #endregion
-
-        #region Disk & Memory Data
-        #endregion
-
-        #region Constructor
-        // For example, the ‘// Job 1 17 2’ control card of Job1 is processed by discarding the ‘//’, noting that
-        // the ‘1’ is the ID of the first job, noting that ‘17’ (or 23 in decimal) is the number of words that constitute
-        // the instructions of Job 1, and ‘2’ is the priority-number(to be used for scheduling) of Job 1. All the
-        // numbers are in hex.Following the Job-control card are the actual instructions – one instruction per line
-        // in the program-file, which must also be extracted and stored in disk
-        public PCB(int _jobID, int _jobInstructNum, int _jobPriortyNum)
-        {
-            jobID = _jobID;
-            jobInstructNum = _jobInstructNum;
-            jobPriortyNum = _jobPriortyNum;
-
-            jobStatus = STATUS.New;
-            inMemory = false;
-        }
-        #endregion
-
-        #region Getters & Setter
-        //Job ID
-        public int getJobID()
-        {
-            return jobID;
+        // Generic PCB attributes
+        public enum PROCESS_STATE { 
+            NEW,      // => Process: has been created, but not ready to run yet  
+            READY,    // => Process: has been loaded into RAM and ready to run
+            WAITING,  // => Process: is requring I/O execution to take place, waiting in queue
+            RUNNING,  // => Process: process is being executed by the CPU
+            TERMINATE // => Process: has finished its execution
         }
 
-        public void setJobID(int _jobID)
-        {
-            jobID = _jobID;
-        }
+        private int programCount;
+        private PROCESS_STATE state;
 
-        //Job Instruction Number
-        public int getJobInstructNum()
-        {
-            return jobInstructNum;
-        }
+        // Job PCB attributes
+        private int processID, instructionCount, priority;
 
-        public void setJobInstructNum(int _jobInstructNum)
-        {
-            jobInstructNum = +jobInstructNum;
-        }
+        // Data PCB attributes
+        private int inputBufferSize, outputBufferSize, tempBufferSize;
 
-        //Job Priority Number
-        public int getJobPriorityNum()
-        {
-            return jobPriortyNum;
-        }
+        // Disk information - PCB needs the start address of the instructions stored on the disk
+        private int startDiskAddr;
 
-        public void setJobPriorityNum(int _jobPriortyNum)
+        public PCB(int processID, int instructionCount, int priority, int inputBufferSize, int outputBufferSize, int tempBufferSize, int startDiskAddr)
         {
-            jobPriortyNum = _jobPriortyNum;
-        }
+            // => Initialize Generic PCB attributes
+            this.state = PROCESS_STATE.NEW;
 
-        //Job inMemory
-        public bool isInMemory()
-        {
-            return inMemory;
-        }
+            // => Initialize job attributes
+            this.processID = processID;
+            this.instructionCount = instructionCount;
+            this.priority = priority;
 
-        public void setInMemory(bool memoryStatus)
-        {
-            inMemory = memoryStatus;
-        }
+            // => Initialize data attributes
+            this.inputBufferSize = inputBufferSize;
+            this.outputBufferSize = outputBufferSize;
+            this.tempBufferSize = tempBufferSize;
 
-        //Job Status
-        public STATUS getJobStatus()
-        {
-            return jobStatus;
+            // => Initialize disk attributes
+            this.startDiskAddr = startDiskAddr;
         }
-
-        public void setJobStatus(STATUS newStatus)
-        {
-            jobStatus = newStatus;
-        }
-        #endregion
-
-        #region Functions
-        //toString
-        public string toString()
-        {
-            string output = String.Format("Job ID: {0} \nJob Instruction Number: {1} \nJob Priority Number: {2} \nJob InMemory: {3} \nJob Status: {4}",
-                jobID, jobInstructNum, jobPriortyNum, inMemory, jobStatus);
-
-            return output;
-        }
-        #endregion
     }
 }
