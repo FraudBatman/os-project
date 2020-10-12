@@ -18,7 +18,7 @@ namespace os_project
         public static void Main(string[] args)
         {
             // Validate you can build :D
-            // System.Console.WriteLine("You built your project, good job bitch!");
+            System.Console.WriteLine("You built your project, good job bitch!");
 
             Loader load = new Loader(jobFile);
             
@@ -27,6 +27,9 @@ namespace os_project
 
             // Read from the disk
             Disk.ReadFromDisk(true, 5, 8);
+
+            // Get the partition count
+            System.Console.WriteLine("Disk Partition Count = " + Disk.GetPartitionCount());
         }
     }
     #endregion

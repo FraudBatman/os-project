@@ -31,5 +31,10 @@ namespace os_project
         {
             diskPartition.Add(jobNum, instructionList);
         }
+
+        public static int GetPartitionCount()
+        {
+            return diskPartition.Count;
+        }
     }
 }

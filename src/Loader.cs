@@ -9,7 +9,7 @@ namespace os_project
         string absolutePath;
         string[] programFile;
         string[] instructionSet;
-        LinkedList<PCB> PCB_List = new LinkedList<PCB>();
+        public static LinkedList<PCB> PCB_List = new LinkedList<PCB>();
 
         public Loader(string path = null)
         {
