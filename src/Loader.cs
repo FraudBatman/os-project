@@ -33,22 +33,18 @@ namespace os_project
 
         public void LoadInstructions() 
         {
+            // 
             var isLoaded = false;
             var currentJobPointer = 0;
             var printJobNumber = 0; 
             string instruction = "";
             List<string> data = new List<string>();
             
-            // Builds the PCB based on the control card attributes
+            // Builds the PCB & Program data based on the control card attribute ranges
             Dictionary<string, Dictionary<string, int>> PCB_Builder = 
                 new Dictionary<string, Dictionary<string, int>>();
             Dictionary<string, List<string>> Data_Builder =
                 new Dictionary<string, List<string>>();
-
-            // Data = {
-            //   "Job Instructions": "list of shit"
-            //   "Data Instructions": "Piece of shit"
-            // }
 
             System.Console.WriteLine("Loading Program...");
 
@@ -84,7 +80,7 @@ namespace os_project
                         // Build data list
                          data.Add(instructionSet[currentJobPointer]);
                     }
-                    else // => End 
+                    else // => End - need to write the program data to the disk
                     {
                         // Add the start disk address to the current PCB
                         PCB_Builder.Add("DiskAttributes", InstructionHandler(currentJobPointer));
@@ -118,7 +114,7 @@ namespace os_project
             }
             
             // Proof of concept for getting data values from the Program data
-            System.Console.WriteLine(Program_Data[0]["Job_Instructions"][0]);
+            // System.Console.WriteLine(Program_Data[0]["Job_Instructions"][0]);
 
             // Print the loading complete once done
             System.Console.WriteLine("Loading Complete: " + PCB_List.Count + " programs added");
