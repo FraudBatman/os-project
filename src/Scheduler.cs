@@ -7,4 +7,14 @@ namespace os_project
     {
         
     }
+
+    public class LongTermScheduler : Scheduler
+    {
+
+    }
+
+    public class ShortTermScheduler : Scheduler
+    {
+
+    }
 }
