@@ -45,7 +45,7 @@ namespace os_project
             Dictionary<string, List<string>> Data_Builder =
                 new Dictionary<string, List<string>>();
 
-            System.Console.WriteLine("Loading Program...");
+            System.Console.WriteLine("Loading Programs...");
 
             while (isLoaded == false)
             {
