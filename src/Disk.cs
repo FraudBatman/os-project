@@ -5,36 +5,40 @@ namespace os_project
 {
     public class Disk
     {   
-        public static Dictionary<int, Dictionary<string, List<string>>> diskPartition = 
-            new Dictionary<int, Dictionary<string, List<string>>>(4096);
+        public static Dictionary<int, Dictionary<string, List<Word>>> diskPartitions = 
+            new Dictionary<int, Dictionary<string, List<Word>>>();
 
-        public static string ReadFromDisk(bool jobOrDataType, int jobNum, int instructionNum)
+        private Word[] word_List = new Word[2048];
+
+        public static Word ReadFromDisk(bool jobOrDataType, int jobNum, int instructionNum, bool printIO = false)
         {
             if (jobOrDataType == true)
             {
-                System.Console.WriteLine("Read Disk Partition " + jobNum + ": Job Instruction = " +
-                    diskPartition[jobNum]["Job_Instructions"][instructionNum]
-                );
+                if (printIO)
+                    System.Console.WriteLine("Read Disk Partition " + jobNum + ": Job Instruction " + instructionNum + " = " +
+                        diskPartitions[jobNum]["Job_Instructions"][instructionNum]
+                    );
 
-                return diskPartition[jobNum]["Job_Instructions"][instructionNum];
+                return diskPartitions[jobNum]["Job_Instructions"][instructionNum];
             }
             else
             {
-                System.Console.WriteLine("Read Disk Partition " + jobNum + ": Job Instruction = " +
-                    diskPartition[jobNum]["Data_Instructions"][instructionNum]
-                );
-                return diskPartition[jobNum]["Data_Instructions"][instructionNum];
+                if (printIO)
+                    System.Console.WriteLine("Read disk partition " + jobNum + ": Data instruction " + instructionNum + " = " +
+                        diskPartitions[jobNum]["Job_Instructions"][instructionNum]
+                    );
+                return diskPartitions[jobNum]["Data_Instructions"][instructionNum];
             }
         }
 
-        public static void WriteToDisk(int jobNum, Dictionary<string, List<string>> instructionList)
+        public static void WriteToDisk(int jobNum, Dictionary<string, List<Word>> instructionList)
         {
-            diskPartition.Add(jobNum, instructionList);
+            diskPartitions.Add(jobNum, instructionList);
         }
 
         public static int GetPartitionCount()
         {
-            return diskPartition.Count;
+            return diskPartitions.Count;
         }
     }
 }

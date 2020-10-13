@@ -26,10 +26,10 @@ namespace os_project
             load.LoadInstructions();
 
             // Read from the disk
-            Disk.ReadFromDisk(true, 5, 8);
+            Console.WriteLine(Disk.ReadFromDisk(false, 5, 8, false).ToString());
 
             // Get the partition count
-            System.Console.WriteLine("Disk Partition Count = " + Disk.GetPartitionCount());
+            //System.Console.WriteLine("Disk Partition Count = " + Disk.GetPartitionCount());
         }
     }
     #endregion

@@ -37,13 +37,15 @@ namespace os_project
             var printJobNumber = 0; 
             var currentInstructionPointer = 0;
             string instruction = "";
-            List<string> data = new List<string>();
+            List<Word> data = new List<Word>();
             
             // Builds the PCB & Program data based on the control card attribute ranges
             Dictionary<string, Dictionary<string, int>> PCB_Builder = 
                 new Dictionary<string, Dictionary<string, int>>();
-            Dictionary<string, List<string>> Data_Builder =
-                new Dictionary<string, List<string>>();
+
+            // ["Job_Data"], ["Data_Data"]
+            Dictionary<string, List<Word>> Data_Builder =
+                new Dictionary<string, List<Word>>();
 
             System.Console.WriteLine("Loading Programs...");
 
@@ -60,7 +62,7 @@ namespace os_project
                     if (instruction.Contains("JOB")) // => Job
                     {
                         // Initialize job data list
-                        data = new List<string>();
+                        data = new List<Word>();
 
                         PCB_Builder.Add("JobAttributes", JobHandler(instruction));
                     }
@@ -70,14 +72,15 @@ namespace os_project
                         Data_Builder.Add("Job_Instructions", data);
 
                         // Initialize job data list
-                        data = new List<string>();
+                        data = new List<Word>();
 
                         PCB_Builder.Add("DataAttributes", DataHandler(instruction));
                     }
                     else if (!instruction.Contains("END")) // => Instruction
                     {
                         // Build data list
-                        data.Add(instructionSet[currentJobPointer]);
+                        System.Console.WriteLine(instructionSet[currentJobPointer]);
+                        data.Add(new Word(currentInstructionPointer, instructionSet[currentJobPointer]));
                         currentInstructionPointer++;
                     }
                     else // => End - need to write the program data to the disk
@@ -105,7 +108,7 @@ namespace os_project
 
                         // Re-initialize the builders for the next program
                         PCB_Builder = new Dictionary<string, Dictionary<string, int>>();
-                        Data_Builder = new Dictionary<string, List<string>>();
+                        Data_Builder = new Dictionary<string, List<Word>>();
 
                         // Log program result
                         System.Console.WriteLine("Processed: Program " + printJobNumber);
@@ -121,7 +124,7 @@ namespace os_project
             // System.Console.WriteLine(Disk.diskPartition[0]["Job_Instructions"][0]);
 
             // Print the loading complete once done
-            System.Console.WriteLine("Loading Complete: " + PCB_List.Count + " programs added");
+            System.Console.WriteLine("Loading Complete: " + PCB_List.Count + " programs created");
         }
 
         public void ReadJobFile()

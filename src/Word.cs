@@ -3,38 +3,38 @@ namespace os_project
 {
     public class Word
     {
-        /*CONSTANTS*/
-        const int WORD_SIZE = 4;    //word size in bytes
+        const int WORD_SIZE = 8; 
+        int address;
+        string value;
 
-        /*CONSTRUCTORS*/
-        public Word()
+        public Word(int data_address, string data_value)
         {
-            data = new byte[WORD_SIZE];
-            for (int i = 0; i < WORD_SIZE; i++)
-            {
-                data[i] = 0;
-            }
+            System.Console.WriteLine(data_value);
+            if (data_value.Remove(0, 2).Length != WORD_SIZE
+                && !data_value.Remove(0, 2).Contains("x"))
+                throw new System.Exception($"Invalid Word size, expected {WORD_SIZE}, was {data_value.Length}");
+
+            this.value = data_value.Remove(0, 2);
         }
 
-        /// <summary>
-        /// Constructor for word straight from byte array, skipping some arbitrary steps
-        /// </summary>
-        /// <param name="input">byte array, should always be the size of the word</param>
-        public Word(byte[] input)
+        public int Address
         {
-            if (input.Length != WORD_SIZE)
-                throw new System.Exception($"Invalid Word size, expected {WORD_SIZE}, was {input.Length}");
-            data = input;
+            get { return this.address; }
         }
 
-        /*MEMBERS*/
-        private byte[] data = new byte[WORD_SIZE];
-
-        /*PROPERTIES*/
-        public byte[] Data
+        public string Value
         {
-            get { return data; }
-            set { data = value; }
+            get { return this.value; }
+        }
+
+        public string ToString()
+        {
+            return string.Format(
+                "Word: Address - {0} | " + 
+                "Value - {1}", 
+                this.Address,
+                this.Value
+            );
         }
     }
 }
