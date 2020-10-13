@@ -9,7 +9,6 @@ namespace os_project
 
         public Word(int data_address, string data_value)
         {
-            System.Console.WriteLine(data_value);
             if (data_value.Remove(0, 2).Length != WORD_SIZE
                 && !data_value.Remove(0, 2).Contains("x"))
                 throw new System.Exception($"Invalid Word size, expected {WORD_SIZE}, was {data_value.Length}");

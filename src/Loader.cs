@@ -79,7 +79,6 @@ namespace os_project
                     else if (!instruction.Contains("END")) // => Instruction
                     {
                         // Build data list
-                        System.Console.WriteLine(instructionSet[currentJobPointer]);
                         data.Add(new Word(currentInstructionPointer, instructionSet[currentJobPointer]));
                         currentInstructionPointer++;
                     }
