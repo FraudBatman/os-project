@@ -6,9 +6,7 @@ namespace os_project
     public class Disk
     {   
         public static Dictionary<int, Dictionary<string, List<Word>>> diskPartitions = 
-            new Dictionary<int, Dictionary<string, List<Word>>>();
-
-        private Word[] word_List = new Word[2048];
+            new Dictionary<int, Dictionary<string, List<Word>>>(4096);
 
         public static Word ReadFromDisk(bool jobOrDataType, int jobNum, int instructionNum, bool printIO = false)
         {

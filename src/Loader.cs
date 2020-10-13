@@ -29,9 +29,14 @@ namespace os_project
             instructionSet = RemoveSpecialCharacters(programFile);
         }
 
+        // Data_Builder
+
+        // PCB_Builder
+
+        // PCB_List
+
         public void LoadInstructions() 
         {
-            // 
             var isLoaded = false;
             var currentJobPointer = 0;
             var printJobNumber = 0; 
@@ -67,7 +72,10 @@ namespace os_project
                         PCB_Builder.Add("JobAttributes", JobHandler(instruction));
                     }
                     else if (instruction.Contains("Data")) // => Data
-                    {
+                    {   
+                        currentInstructionPointer = 0;
+
+
                         // Insert the job data then initialize the data list
                         Data_Builder.Add("Job_Instructions", data);
 

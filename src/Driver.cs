@@ -21,9 +21,16 @@ namespace os_project
             System.Console.WriteLine("You built your project, good job bitch!");
 
             Loader load = new Loader(jobFile);
-            
+
             // load.ReadJobFile();
             load.LoadInstructions();
+            System.Console.WriteLine("- LOADER -\n");
+
+            // Scheduler
+            System.Console.WriteLine("- SCHEDULER -");
+            LongTermScheduler LT_Scheduler = new LongTermScheduler();
+
+            LT_Scheduler.ReadFromDisk();
 
             // Read from the disk
             // Console.WriteLine(Disk.ReadFromDisk(false, 5, 8, false).ToString());
