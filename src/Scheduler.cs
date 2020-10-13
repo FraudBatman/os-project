@@ -8,17 +8,12 @@ namespace os_project
         
     }
 
+    // 
     public class LongTermScheduler : Scheduler
     {
-        // Reading
-
-        public void init()
-        {
-        }
-
-        // 
-
-        // Loads the program into disk - job/data instructions
+        // -> index 0
+        
+        // End -> .Length - 1
     }
 
     public class ShortTermScheduler : Scheduler

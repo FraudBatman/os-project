@@ -14,6 +14,7 @@ namespace os_project
                 throw new System.Exception($"Invalid Word size, expected {WORD_SIZE}, was {data_value.Length}");
 
             this.value = data_value.Remove(0, 2);
+            this.address = data_address;
         }
 
         public int Address
