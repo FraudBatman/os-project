@@ -28,13 +28,9 @@ namespace os_project
 
             foreach(var x in dataData)
             {       
-
                 System.Console.WriteLine(x.ToString());
-
             }
-
         }
-
         
     }
 

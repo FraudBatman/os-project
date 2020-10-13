@@ -1,14 +1,14 @@
 using System;
+using System.Collections.Generic;
 
 namespace os_project
 {
-    #region Driver functionality
+    #region Queues
     public partial class Driver 
     {
-        
+        public static LinkedList<PCB> READY_QUEUE = new LinkedList<PCB>();
     }
     #endregion
-
 
     #region Main thread
     public partial class Driver 
