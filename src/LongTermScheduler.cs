@@ -37,15 +37,22 @@ namespace os_project
     // RAM Loader Controller
     public partial class LongTermScheduler
     {
-        static int firstword = 0;
         // Load into RAM one job
         /// <summary>
         /// Loads info taken from disk into RAM
         /// </summary>
-        /// <param name="data">the data taken from disk</param>
+        /// <param name="data">the data taken from disk (word.value as string)</param>
         public void LoadMemory(string[] data)
         {
+            //clear the ram
+            for (int i = 0; i < RAM.RAM_SIZE; i++)
+            {
+                string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(i));
+                Word emptyWord = new Word(0, "0x00000000");
+                RAM.Memory(RWFlag.Write, address, emptyWord);
+            }
 
+            //write the new ram
         }
     }
 
