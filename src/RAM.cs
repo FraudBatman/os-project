@@ -6,7 +6,7 @@ namespace os_project
     public static class RAM
     {
         #region Constants
-        const int RAM_SIZE = 1024; //RAM size in words
+        public const int RAM_SIZE = 1024; //RAM size in words
         static Regex ADDRESS_PATTERN = new Regex("0x[0-9a-fA-f]{4}", RegexOptions.Compiled); //REGEX expression of address pattern
         #endregion
 
