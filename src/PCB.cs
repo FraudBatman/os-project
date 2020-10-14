@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace os_project 
+namespace os_project
 {
     // PCB initialization
     public partial class PCB
@@ -27,7 +27,7 @@ namespace os_project
     }
 
     // PCB: PCB controller
-    public partial class PCB 
+    public partial class PCB
     {
         public enum PROCESS_STATE
         {
@@ -41,24 +41,16 @@ namespace os_project
         private int programCount;
         private PROCESS_STATE state;
 
-        public int getProgramCount()
+        public int ProgramCount
         {
-            return this.programCount;
+            get { return programCount; }
+            set { programCount = value; }
         }
 
-        public void setProgramCount(int programCount)
+        public PROCESS_STATE State
         {
-            this.programCount = programCount;
-        }
-
-        public PROCESS_STATE getState()
-        {
-            return this.state;
-        }
-
-        public void setState(PROCESS_STATE state)
-        {
-            this.state = state;
+            get { return state; }
+            set { state = value; }
         }
     }
 
@@ -69,17 +61,23 @@ namespace os_project
         int instructionCount;
         int priority;
 
-        public int getProcessID() { return this.processID; }
+        public int ProcessID
+        {
+            get { return processID; }
+            set { processID = value; }
+        }
 
-        public void setProcessID(int processID) { this.processID = processID; }
+        public int InstructionCount
+        {
+            get { return instructionCount; }
+            set { InstructionCount = value; }
+        }
 
-        public int getInstructionCount(){ return this.instructionCount; }
-
-        public void setInstructionCount(int instructionCount) { this.instructionCount = instructionCount; }
-
-        public int getPriority(){ return this.priority; }
-
-        public void setPriority(int priority){ this.priority = priority; }
+        public int Priority
+        {
+            get { return priority; }
+            set { priority = value; }
+        }
     }
 
     // PCB: Data controller
@@ -87,17 +85,23 @@ namespace os_project
     {
         private int inputBufferSize, outputBufferSize, tempBufferSize;
 
-        public int getInputBufferSize() { return this.inputBufferSize; }
+        public int InputBufferSize
+        {
+            get { return inputBufferSize; }
+            set { inputBufferSize = value; }
+        }
 
-        public void setInputBufferSize(int inputBufferSize) { this.inputBufferSize = inputBufferSize; }
+        public int OutputBufferSize
+        {
+            get { return outputBufferSize; }
+            set { outputBufferSize = value; }
+        }
 
-        public int getOutputBufferSize() { return this.outputBufferSize; }
-
-        public void setOutputBufferSize(int outputBufferSize) { this.outputBufferSize = outputBufferSize; }
-
-        public int getTempBufferSize() { return this.tempBufferSize; }
-
-        public void setTempBufferSize(int tempBufferSize) { this.tempBufferSize = tempBufferSize; }
+        public int TempBufferSize
+        {
+            get { return tempBufferSize; }
+            set { tempBufferSize = value; }
+        }
     }
 
     // PCB: Disk controller
@@ -105,8 +109,10 @@ namespace os_project
     {
         private int startDiskAddr;
 
-        public int getStartDiskAddr() { return this.startDiskAddr; }
-
-        public void setStartDiskAddr(int startDiskAddr) { this.startDiskAddr = startDiskAddr; }
+        public int StartDiskAddr
+        {
+            get { return startDiskAddr; }
+            set { startDiskAddr = value; }
+        }
     }
 }
