@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace os_project
 {
     #region Queues
-    public partial class Driver 
+    public partial class Driver
     {
         public static LinkedList<PCB> NEW_QUEUE = new LinkedList<PCB>();
         public static LinkedList<PCB> READY_QUEUE = new LinkedList<PCB>();
@@ -14,12 +15,24 @@ namespace os_project
     #endregion
 
     #region Main thread
-    public partial class Driver 
+    public partial class Driver
     {
-        static string jobFile = System.IO.Directory.GetCurrentDirectory() + @"\resources\jobs-file.txt";
+        static string jobFile;
 
         public static void Main(string[] args)
         {
+            //cross-platform compatibility
+            bool isWin = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+            if (isWin)
+            {
+                jobFile = System.IO.Directory.GetCurrentDirectory() + @"\resources\jobs-file.txt";
+            }
+            else
+            {
+                jobFile = System.IO.Directory.GetCurrentDirectory() + @"/resources/jobs-file.txt";
+            }
+
             // Validate you can build :D
             System.Console.WriteLine("You built your project, good job bitch!");
 
