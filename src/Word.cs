@@ -3,7 +3,7 @@ namespace os_project
 {
     public class Word
     {
-        const int WORD_SIZE = 8; 
+        const int WORD_SIZE = 8;
         int address;
         string value;
 
@@ -27,11 +27,11 @@ namespace os_project
             get { return this.value; }
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return string.Format(
-                "Word: Address - {0} | " + 
-                "Value - {1}", 
+                "Word: Address - {0} | " +
+                "Value - {1}",
                 this.Address,
                 this.Value
             );
