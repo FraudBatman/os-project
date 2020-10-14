@@ -26,18 +26,32 @@ namespace os_project
             var jobData = Disk.diskPartitions[0]["Job_Instructions"];
             var dataData = Disk.diskPartitions[0]["Data_Instructions"];
 
-            foreach(var x in dataData)
-            {       
+            foreach (var x in dataData)
+            {
                 System.Console.WriteLine(x.ToString());
             }
         }
-        
+
     }
 
     // RAM Loader Controller
     public partial class LongTermScheduler
     {
+        static int firstword = 0;
         // Load into RAM one job
+        /// <summary>
+        /// Loads info taken from disk into RAM
+        /// </summary>
+        /// <param name="data">the data taken from disk</param>
+        public void LoadMemory(string[] data)
+        {
 
+        }
+    }
+
+    // PCB Adaptation Controller
+    public partial class LongTermScheduler
+    {
+        // Mingle with the PCB
     }
 }
