@@ -79,7 +79,8 @@ namespace os_project
 
             int dataEnd = currentWord;
 
-            UpdatePCB()
+            //update PCB with the starting points gathered on our magical journey
+            UpdatePCB(LoadPCB(), startWord, dataStart, dataEnd);
         }
     }
 
@@ -109,7 +110,8 @@ namespace os_project
         void UpdatePCB(PCB pcb, int jobStart, int dataStart, int outputStart)
         {
             pcb.ProgramCount = jobStart;
-            pcb.
+            pcb.InputBufferStart = dataStart;
+            pcb.OutputBufferStart = outputStart;
         }
     }
 }
