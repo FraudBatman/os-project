@@ -39,10 +39,12 @@ namespace os_project
     {
         // Load into RAM one job
         /// <summary>
-        /// Loads info taken from disk into RAM
+        /// Loads info taken from disk into RAM in order of
+        /// JOB, DATA, I BUFFER, O BUFFER
         /// </summary>
+        /// <param name="job">the job taken from the disk</param>
         /// <param name="data">the data taken from disk (word.value as string)</param>
-        public void LoadMemory(string[] data)
+        public void LoadMemory(string[] job, string[] data)
         {
             //clear the ram
             for (int i = 0; i < RAM.RAM_SIZE; i++)
@@ -53,6 +55,31 @@ namespace os_project
             }
 
             //write the new ram
+            var numer = job.GetEnumerator();
+            int currentWord = 0;
+            int startWord = currentWord;
+
+            //job info first
+            foreach (string jobline in job)
+            {
+                string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
+                RAM.Memory(RWFlag.Write, address, new Word(currentWord, jobline));
+                currentWord++;
+            }
+
+            int dataStart = currentWord;
+
+            //data info second
+            foreach (string dataline in data)
+            {
+                string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
+                RAM.Memory(RWFlag.Write, address, new Word(currentWord, dataline));
+                currentWord++;
+            }
+
+            int dataEnd = currentWord;
+
+            UpdatePCB()
         }
     }
 
@@ -60,5 +87,29 @@ namespace os_project
     public partial class LongTermScheduler
     {
         // Mingle with the PCB
+
+        /// <summary>
+        /// loads the first PCB from READY_QUEUE
+        /// </summary>
+        /// <returns></returns>
+        PCB LoadPCB()
+        {
+            var returnValue = Driver.READY_QUEUE.First.Value;
+            Driver.READY_QUEUE.RemoveFirst();
+            return returnValue;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="pcb"></param>
+        /// <param name="jobStart"></param>
+        /// <param name="dataStart"></param>
+        /// <param name="outputStart"></param>
+        void UpdatePCB(PCB pcb, int jobStart, int dataStart, int outputStart)
+        {
+            pcb.ProgramCount = jobStart;
+            pcb.
+        }
     }
 }
