@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace os_project
 {
@@ -17,12 +18,19 @@ namespace os_project
     // 7. Thus, the Scheduler works closely with the Memory manager and the
     // 8. Effective-Address method to load jobs into RAM.
 
-    // Long term scheduler execute
+    // Long term scheduler execution instructions
     public partial class LongTermScheduler
     {
+        // Executes the long term shceduler instructions - HAPPENS ONLY ONE TIME AT CALL
         public void Execute()
-        {
-            
+        {   
+            // Need to sort the queue based on the scheduling policy
+
+
+
+
+
+            // Validate the queue structure
         }
     }
 

@@ -9,8 +9,6 @@ namespace os_project
         string absolutePath;
         string[] programFile;
         string[] instructionSet;
-        public static LinkedList<PCB> PCB_List = new LinkedList<PCB>();
-
         public Loader(string path = null)
         {
             if (path == null)
@@ -97,7 +95,7 @@ namespace os_project
                         Data_Builder.Add("Data_Instructions", data);
 
                         // Add program to the PCB linked list
-                        PCB_List.AddLast(new PCB(
+                        Queue.New.AddLast(new PCB(
                             PCB_Builder["JobAttributes"]["processID"],
                             PCB_Builder["JobAttributes"]["instructionCount"],
                             PCB_Builder["JobAttributes"]["priority"],
@@ -131,7 +129,7 @@ namespace os_project
             // System.Console.WriteLine(Disk.diskPartition[0]["Job_Instructions"][0]);
 
             // Print the loading complete once done
-            System.Console.WriteLine("Loading Complete: " + PCB_List.Count + " programs created");
+            System.Console.WriteLine("Loading Complete: " + Queue.New.Count + " programs added to the 'New' queue");
         }
 
         public void ReadJobFile()
