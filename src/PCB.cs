@@ -60,7 +60,12 @@ namespace os_project
         int processID;
         int instructionCount;
         int priority;
+        int totalMemorySize;
 
+        public int TotalMemorySize
+        {
+            get { return inputBufferSize + outputBufferSize + tempBufferSize; }
+        }
         public int ProcessID
         {
             get { return processID; }
