@@ -24,13 +24,19 @@ namespace os_project
         // Executes the long term shceduler instructions - HAPPENS ONLY ONE TIME AT CALL
         public void Execute()
         {   
-            // Need to sort the queue based on the scheduling policy
+            System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
 
+            // Send the program data to the memory - First in first out
+            foreach (var program in Queue.New)
+            {
+                // Read the instructions from disk
+                var program_data = ReadFromDisk(program.ProcessID - 1);
 
+                // Load the instructions into memory
 
+            }
 
-
-            // Validate the queue structure
+            System.Console.WriteLine("Scheduler execution complete");
         }
     }
 
@@ -38,14 +44,32 @@ namespace os_project
     public partial class LongTermScheduler
     {
         // Read in one job
-        void ReadFromDisk()
+        string[][] ReadFromDisk(int partitionID)
         {
-            var jobData = Disk.diskPartitions[0]["Job_Instructions"];
-            var dataData = Disk.diskPartitions[0]["Data_Instructions"];
+            var job_i = Disk.diskPartitions[partitionID]["Job_Instructions"];
+            var data_i = Disk.diskPartitions[partitionID]["Data_Instructions"];
+            string[][] readInstructions = new string[2][];
+            readInstructions[0] = ParseInstructionList(job_i);
+            readInstructions[1] = ParseInstructionList(data_i);
+            return readInstructions;
+        }
+
+        // Parse the list of words by getting the values
+        string[] ParseInstructionList(List<Word> instructions)
+        {
+            string[] instruction_arr = new string[instructions.Count];
+            var data_i = 0;
+            foreach (var i in instructions)
+            {
+                instruction_arr[data_i] = i.Value;
+                data_i++;
+            }
+            return instruction_arr;
         }
     }
 
-    // RAM Loader Controller
+    // TODO: NEED TO ENCAPUSLATE THE RAM FROM EVERYTHING OTHER THAN LONGTERM SCHEDULER
+    // RAM Loader Controller - NEED TO ENCAPSULATE THE RAM FROM EVERYTHING ELSE!
     public partial class LongTermScheduler
     {
         // Load into RAM one job
@@ -55,7 +79,7 @@ namespace os_project
         /// </summary>
         /// <param name="job">the job taken from the disk</param>
         /// <param name="data">the data taken from disk (word.value as string)</param>
-        void LoadMemory(string[] job, string[] data)
+        void LoadMemory(int processID, string[] job, string[] data)
         {
             //clear the ram
             for (int i = 0; i < RAM.RAM_SIZE; i++)
