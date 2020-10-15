@@ -98,8 +98,8 @@ namespace os_project
         /// <returns></returns>
         PCB LoadPCB()
         {
-            var returnValue = Driver.READY_QUEUE.First.Value;
-            Driver.READY_QUEUE.RemoveFirst();
+            var returnValue = Queue.Ready.First.Value;
+            Queue.Ready.RemoveFirst();
             return returnValue;
         }
 

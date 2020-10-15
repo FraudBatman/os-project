@@ -36,8 +36,6 @@ namespace os_project
             System.Console.WriteLine("- SCHEDULER -");
             LongTermScheduler LT_Scheduler = new LongTermScheduler();
 
-            LT_Scheduler.ReadFromDisk();
-
             // Read from the disk
             // Console.WriteLine(Disk.ReadFromDisk(false, 5, 8, false).ToString());
 
