@@ -4,16 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace os_project
 {
-    #region Queues
-    public partial class Driver
-    {
-        public static LinkedList<PCB> NEW_QUEUE = new LinkedList<PCB>();
-        public static LinkedList<PCB> READY_QUEUE = new LinkedList<PCB>();
-        public static LinkedList<PCB> RUNNING_QUEUE = new LinkedList<PCB>();
-        public static LinkedList<PCB> TERMINATE_QUEUE = new LinkedList<PCB>();
-    }
-    #endregion
-
     #region Main thread
     public partial class Driver
     {
