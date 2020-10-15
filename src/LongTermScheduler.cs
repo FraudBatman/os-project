@@ -17,21 +17,24 @@ namespace os_project
     // 7. Thus, the Scheduler works closely with the Memory manager and the
     // 8. Effective-Address method to load jobs into RAM.
 
+    // Long term scheduler execute
+    public partial class LongTermScheduler
+    {
+        public void Execute()
+        {
+            
+        }
+    }
+
     // Disk Reader Controller
     public partial class LongTermScheduler
     {
         // Read in one job
-        public void ReadFromDisk()
+        void ReadFromDisk()
         {
             var jobData = Disk.diskPartitions[0]["Job_Instructions"];
             var dataData = Disk.diskPartitions[0]["Data_Instructions"];
-
-            foreach (var x in dataData)
-            {
-                System.Console.WriteLine(x.ToString());
-            }
         }
-
     }
 
     // RAM Loader Controller
@@ -44,7 +47,7 @@ namespace os_project
         /// </summary>
         /// <param name="job">the job taken from the disk</param>
         /// <param name="data">the data taken from disk (word.value as string)</param>
-        public void LoadMemory(string[] job, string[] data)
+        void LoadMemory(string[] job, string[] data)
         {
             //clear the ram
             for (int i = 0; i < RAM.RAM_SIZE; i++)
