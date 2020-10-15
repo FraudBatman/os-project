@@ -84,6 +84,7 @@ namespace os_project
     public partial class PCB
     {
         private int inputBufferSize, outputBufferSize, tempBufferSize;
+        private int inputBufferStart, outputBufferStart;
 
         public int InputBufferSize
         {
@@ -101,6 +102,18 @@ namespace os_project
         {
             get { return tempBufferSize; }
             set { tempBufferSize = value; }
+        }
+
+        public int InputBufferStart
+        {
+            get { return inputBufferStart; }
+            set { inputBufferStart = value; }
+        }
+
+        public int OutputBufferStart
+        {
+            get { return outputBufferStart; }
+            set { outputBufferStart = value; }
         }
     }
 
