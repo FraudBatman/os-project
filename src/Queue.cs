@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace os_project
 {
-
     /// <summary>
     /// Manages the queues that will be used throughout the CPU simulator
     /// 

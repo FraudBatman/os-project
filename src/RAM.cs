@@ -1,86 +1,102 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace os_project
-{
-    public static class RAM
+{   
+    // Acts as the middle man between the system schedulers and RAM by managing the logical addresses
+    public static class MemoryManager
     {
-        #region Constants
-        public const int RAM_SIZE = 1024; //RAM size in words
-        static Regex ADDRESS_PATTERN = new Regex("0x[0-9a-fA-f]{4}", RegexOptions.Compiled); //REGEX expression of address pattern
-        #endregion
+        private static RAM _RAM = new RAM();
 
-        #region Members
-        static Word[] data = new Word[RAM_SIZE];
-        #endregion
-
-        #region Memory Method
-        /// <summary>
-        /// Memory method, used for both reading and writng words
-        /// </summary>
-        /// <param name="rw">RWFlag, read or write</param>
-        /// <param name="address">Formatted 0xHHHH, where HHHH is hex</param>
-        /// <param name="writeWord">Word to be written if write is called, otherwise null</param>
-        /// <returns>The word read or written.</returns>
-        public static Word Memory(RWFlag rw, string address, Word writeWord = null)
+        public static bool IsFull()
         {
-            //pre-flight checklist
-
-            //address needs to be proper format
-            if (!ADDRESS_PATTERN.IsMatch(address))
-            {
-                throw new Exception($"Improperly formatted address {address}");
-            }
-
-            //writeWord must be null if reading
-            if (rw == RWFlag.Read && writeWord != null)
-            {
-                throw new Exception("R/W Flag is set to read, but a write value is given.");
-            }
-
-            //writeWord can't be null if writing
-            if (rw == RWFlag.Write && writeWord == null)
-            {
-                throw new Exception("Can not write null word");
-            }
-
-            //make sure address is valid size while also converting the address to decimal for index
-            int addressIndex = convertAddress(address);
-            if (addressIndex < 0 || addressIndex >= RAM_SIZE)
-            {
-                throw new Exception($"Address {address} is out of bounds. Converts to {addressIndex}, must be between 0 and {RAM_SIZE - 1}");
-            }
-
-            //pre-flight checklist complete!
-            //begin reading and writing
-            if (rw == RWFlag.Read)
-            {
-                return data[addressIndex];
-            }
-            else
-            {
-                data[addressIndex] = writeWord;
-                return writeWord;
-            }
+            return _RAM.AllocatedSpace() == 0? false : true;
         }
-        #endregion
-
-        #region Functions
-        /// <summary>
-        /// Address string to decimal
-        /// </summary>
-        /// <param name="address">Address string</param>
-        /// <returns>decimal value of address</returns>
-        private static int convertAddress(string address)
-        {
-            return Utilities.HexToDec(address.Substring(2));
-        }
-        #endregion
-
     }
 
-    public enum RWFlag
+    // Just a class container that has a bank of register objects stored in an array
+    // No class has acess to registers other than RAM 
+    public class RAM
     {
-        Read, Write
+        Register[] PHYSICAL_RAM = new Register[1024];
+
+        // Creates a bank of registers for the memory
+        public RAM()
+        {
+            for (int i = 0; i < PHYSICAL_RAM.Length; i++)
+            {
+                PHYSICAL_RAM[i] = new Register(i);
+            }
+        }
+
+        // Read the instruction at the physical address in the register
+        public string ReadFromRegister(int p_address)
+        {
+            return PHYSICAL_RAM[p_address].Instruction.Value;
+        }
+
+        // Write the instruction to the register in RAM at the register
+        public void WriteToRegister(int p_address, Word word)
+        {
+            PHYSICAL_RAM[p_address].Register_Owner = word.OwnerOfWord;
+            PHYSICAL_RAM[p_address].Instruction = word;
+        }
+
+        public int AllocatedSpace()
+        {
+            var count = 0;
+            foreach(var reg in PHYSICAL_RAM)
+            {
+                if (reg.Instruction != null)
+                    count++;
+            }
+
+            System.Console.WriteLine(count);
+            return count;
+        }
+
+        public int EmptySpace()
+        {
+            var count = 0;
+            foreach (var reg in PHYSICAL_RAM)
+            {
+                if (reg.Instruction == null)
+                    count++;
+            }
+            return count;
+        }
+
+        private class Register
+        {
+            private int? reg_owner;
+            private int p_address;
+            private Word word;
+
+            public Register(int physical_address, int? reg_owner = null)
+            {
+                this.reg_owner = reg_owner;
+                this.p_address = physical_address;
+                this.word = null;
+            }
+
+            public int? Register_Owner
+            {
+                get { return this.reg_owner; }
+                set { this.reg_owner = value; }
+            }
+
+            public int P_Address
+            {
+                get { return this.p_address; }
+                set { this.p_address = value; }
+            }
+
+            public Word Instruction
+            {
+                get { return this.word; }
+                set { this.word = value; }
+            }
+        }
     }
 }

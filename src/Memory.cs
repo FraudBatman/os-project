@@ -1,0 +1,3 @@
+namespace os_project
+{
+}

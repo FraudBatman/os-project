@@ -26,15 +26,7 @@ namespace os_project
         {   
             System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
 
-            // Send the program data to the memory - First in first out
-            foreach (var program in Queue.New)
-            {
-                // Read the instructions from disk
-                var program_data = ReadFromDisk(program.ProcessID - 1);
-
-                // Load the instructions into memory
-
-            }
+            System.Console.WriteLine(MemoryManager.IsFull());
 
             System.Console.WriteLine("Scheduler execution complete");
         }
@@ -79,44 +71,44 @@ namespace os_project
         /// </summary>
         /// <param name="job">the job taken from the disk</param>
         /// <param name="data">the data taken from disk (word.value as string)</param>
-        void LoadMemory(int processID, string[] job, string[] data)
-        {
-            //clear the ram
-            for (int i = 0; i < RAM.RAM_SIZE; i++)
-            {
-                string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(i));
-                Word emptyWord = new Word(0, "0x00000000");
-                RAM.Memory(RWFlag.Write, address, emptyWord);
-            }
+        // void LoadMemory(int processID, string[] job, string[] data)
+        // {
+        //     //clear the ram
+        //     for (int i = 0; i < RAM.RAM_SIZE; i++)
+        //     {
+        //         string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(i));
+        //         Word emptyWord = new Word(0, "0x00000000");
+        //         RAM.Memory(RWFlag.Write, address, emptyWord);
+        //     }
 
-            //write the new ram
-            var numer = job.GetEnumerator();
-            int currentWord = 0;
-            int startWord = currentWord;
+        //     //write the new ram
+        //     var numer = job.GetEnumerator();
+        //     int currentWord = 0;
+        //     int startWord = currentWord;
 
-            //job info first
-            foreach (string jobline in job)
-            {
-                string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
-                RAM.Memory(RWFlag.Write, address, new Word(currentWord, jobline));
-                currentWord++;
-            }
+        //     //job info first
+        //     foreach (string jobline in job)
+        //     {
+        //         string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
+        //         RAM.Memory(RWFlag.Write, address, new Word(currentWord, jobline));
+        //         currentWord++;
+        //     }
 
-            int dataStart = currentWord;
+        //     int dataStart = currentWord;
 
-            //data info second
-            foreach (string dataline in data)
-            {
-                string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
-                RAM.Memory(RWFlag.Write, address, new Word(currentWord, dataline));
-                currentWord++;
-            }
+        //     //data info second
+        //     foreach (string dataline in data)
+        //     {
+        //         string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
+        //         RAM.Memory(RWFlag.Write, address, new Word(currentWord, dataline));
+        //         currentWord++;
+        //     }
 
-            int dataEnd = currentWord;
+        //     int dataEnd = currentWord;
 
-            //update PCB with the starting points gathered on our magical journey
-            UpdatePCB(LoadPCB(), startWord, dataStart, dataEnd);
-        }
+        //     //update PCB with the starting points gathered on our magical journey
+        //     UpdatePCB(LoadPCB(), startWord, dataStart, dataEnd);
+        // }
     }
 
     // PCB Adaptation Controller
