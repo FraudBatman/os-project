@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace os_project
-{   
+{
     // Acts as the middle man between the system schedulers and RAM by managing the logical addresses
     public static class MemoryManager
     {
@@ -11,7 +11,7 @@ namespace os_project
 
         public static bool IsFull()
         {
-            return _RAM.AllocatedSpace() == 0? false : true;
+            return _RAM.AllocatedSpace() == 0 ? false : true;
         }
     }
 
@@ -19,7 +19,8 @@ namespace os_project
     // No class has acess to registers other than RAM 
     public class RAM
     {
-        Register[] PHYSICAL_RAM = new Register[1024];
+        public const int RAM_SIZE = 1024;
+        Register[] PHYSICAL_RAM = new Register[RAM_SIZE];
 
         // Creates a bank of registers for the memory
         public RAM()
@@ -46,7 +47,7 @@ namespace os_project
         public int AllocatedSpace()
         {
             var count = 0;
-            foreach(var reg in PHYSICAL_RAM)
+            foreach (var reg in PHYSICAL_RAM)
             {
                 if (reg.Instruction != null)
                     count++;
