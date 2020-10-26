@@ -25,8 +25,8 @@ namespace os_project
         /// <param name="range">Start index = [0], count = [1]</param>
         /// <returns>String array object of instruction</returns>
         public static string RemoveCharacters(string instruct, int[] range = null)
-        {   
-            if(range == null)
+        {
+            if (range == null)
             {
                 range[0] = 0;
                 range[1] = 0;
@@ -38,7 +38,7 @@ namespace os_project
             else
                 return instruct.Substring(range[0], range[1]);
         }
-        
+
         public static string HexToBin(string hex)
         {
             return Convert.ToString(Convert.ToInt32(hex, 16), 2);
@@ -55,19 +55,23 @@ namespace os_project
         {
             return Convert.ToString(dec, 2);
         }
+        public static string DecToHex(int dec)
+        {
+            return BinToHex(DecToBin(dec));
+        }
         public static int[] parseControlCard(string controlCard)
         {
             string trimmedString;
-            
+
             if (controlCard.Contains("JOB"))
                 trimmedString = controlCard.Replace("JOB ", "");
             else
                 trimmedString = controlCard.Replace("Data ", "");
 
             var strArr = trimmedString.Split(' ');
-            int [] intArr = new int[3];
+            int[] intArr = new int[3];
             int i = 0;
-            foreach(var hex in strArr)
+            foreach (var hex in strArr)
             {
                 intArr[i] = HexToDec(hex);
                 i++;
