@@ -30,7 +30,7 @@ namespace os_project
         /// <summary>
         /// bool to make sure MMU is initialized prior to use
         /// </summary>
-        static bool hasInit = false;
+        static bool initialized = false;
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace os_project
         /// <param name="pcb">The PCB of the program to deallocate</param>
         public static void DeallocateMemory(PCB pcb)
         {
-
+            __init();
         }
 
         /// <summary>
@@ -76,7 +76,6 @@ namespace os_project
         /// <returns>A word array of size PAGE_SIZE</returns>
         public static Word[] ReadPage(int page, PCB program)
         {
-            __init();
             return null;
         }
 
@@ -99,7 +98,7 @@ namespace os_project
         /// <param name="values">An array of size PAGE_SIZE or less of the words to be written</param>
         public static void WritePage(int page, PCB program, Word[] values)
         {
-            __init();
+
         }
         #endregion
 
@@ -110,7 +109,21 @@ namespace os_project
         /// </summary>
         static void __init()
         {
+            //If init has happened already, abort immediately!
+            if (initialized) return;
 
+            //Sanity check to make sure all of RAM and no more is addressed by MMU
+            if (PAGE_COUNT * PAGE_SIZE != RAM.RAM_SIZE)
+                throw new System.Exception($"MMU doesn't address all RAM correctly! Please check RAM and MMU constants.");
+
+            //set all the pages as unallocated
+            for (int i = 0; i < PAGE_COUNT; i++)
+            {
+                pageList[i] = -1;
+            }
+
+            //make sure init isn't called again
+            initialized = true;
         }
         #endregion
 
