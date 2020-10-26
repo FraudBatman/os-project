@@ -23,10 +23,10 @@ namespace os_project
     {
         // Executes the long term shceduler instructions - HAPPENS ONLY ONE TIME AT CALL
         public void Execute()
-        {   
+        {
             System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
 
-            System.Console.WriteLine(MemoryManager.IsFull());
+            //ERROR HERE SINCE MemoryManager NO LONGER EXISTS            System.Console.WriteLine(MemoryManager.IsFull());
 
             System.Console.WriteLine("Scheduler execution complete");
         }

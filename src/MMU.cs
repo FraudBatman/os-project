@@ -104,7 +104,12 @@ namespace os_project
         {
             //needs to be called prior to any use of the MMU
             __init();
-            return null;
+
+            //get the physical address of the info provided
+            int physical = logicalToPhysical(address, program);
+
+            //return the word at that address
+            return RAM.Read(physical);
         }
 
         /// <summary>
@@ -115,7 +120,24 @@ namespace os_project
         /// <returns>A word array of size PAGE_SIZE</returns>
         public static Word[] ReadPage(int page, PCB program)
         {
-            return null;
+            //needs to be called prior to any use of the MMU
+            __init();
+
+            Word[] returnValue = new Word[PAGE_SIZE];
+
+            //convert the page number into a string
+            string pageaddress = $"0x{Utilities.DecToHex(page)}00";
+
+            //get the physical address of the page
+            int pagePhys = logicalToPhysical(pageaddress, program);
+
+            //for every RAM location in the page, add its word to the returnvalue
+            for (int i = 0; i < PAGE_SIZE; i++)
+            {
+                returnValue[i] = RAM.Read(pagePhys + i);
+            }
+
+            return returnValue;
         }
 
         /// <summary>
@@ -128,6 +150,12 @@ namespace os_project
         {
             //needs to be called prior to any use of the MMU
             __init();
+
+            //get the physical address of the info provided
+            int physical = logicalToPhysical(address, program);
+
+            //write the word at that address
+            RAM.Write(physical, value);
         }
 
         /// <summary>
@@ -138,7 +166,34 @@ namespace os_project
         /// <param name="values">An array of size PAGE_SIZE or less of the words to be written</param>
         public static void WritePage(int page, PCB program, Word[] values)
         {
+            Word[] updatedValues = new Word[PAGE_SIZE];
+            //convert values into the proper size if necessary
+            if (values.Length != PAGE_SIZE)
+            {
+                for (int i = 0; i < PAGE_SIZE; i++)
+                {
+                    if (values.Length <= i)
+                        updatedValues[i] = null;
+                    else
+                        updatedValues[i] = values[i];
+                }
+            }
+            else
+            {
+                updatedValues = values;
+            }
 
+            //convert the page number into a string
+            string pageaddress = $"0x{Utilities.DecToHex(page)}00";
+
+            //get the physical address of the page
+            int pagePhys = logicalToPhysical(pageaddress, program);
+
+            //for every RAM location in the page, overwrite that location with a new word
+            for (int i = 0; i < PAGE_SIZE; i++)
+            {
+                RAM.Write(pagePhys + i, updatedValues[i]);
+            }
         }
         #endregion
 
@@ -160,6 +215,12 @@ namespace os_project
             for (int i = 0; i < PAGE_COUNT; i++)
             {
                 pageList[i] = -1;
+            }
+
+            //set all process ids to unset
+            for (int i = 0; i < PAGE_COUNT; i++)
+            {
+                processIDS[i] = -1;
             }
 
             //make sure init isn't called again
@@ -185,6 +246,41 @@ namespace os_project
         }
 
         /// <summary>
+        /// Finds all pages allocated to a program
+        /// </summary>
+        /// <param name="pcb">The program to find pages for</param>
+        /// <returns>An array of pages allocated to the program</returns>
+        static int[] getPages(PCB pcb)
+        {
+            //holds the size of the return value
+            int pageCount = 0;
+            int processLocation = getProcessIDLocation(pcb);
+
+            //increases the pagecount for every page found to be allocated
+            for (int i = 0; i < PAGE_COUNT; i++)
+            {
+                if (pageList[i] == processLocation)
+                {
+                    pageCount++;
+                }
+            }
+
+            int[] returnValue = new int[pageCount];
+            int returnValueIndex = 0;
+
+            //adds all the allocated pages to the returnvalue
+            for (int i = 0; i < PAGE_COUNT; i++)
+            {
+                if (pageList[i] == processLocation)
+                {
+                    returnValue[returnValueIndex] = i;
+                    returnValueIndex++;
+                }
+            }
+            return returnValue;
+        }
+
+        /// <summary>
         /// The index of a PCB as it connects to its PID in processIDS
         /// </summary>
         /// <param name="pcb">The pcb to check for</param>
@@ -197,6 +293,28 @@ namespace os_project
                     return i;
             }
             return -1;
+        }
+
+        /// <summary>
+        /// Takes a logical address and returns a physical address in RAM
+        /// </summary>
+        /// <param name="logical">The logical address formatted 0xHII</param>
+        /// <param name="pcb">The PCB of the program</param>
+        /// <returns>A physical address that cooresponds to the logical address provided</returns>
+        static int logicalToPhysical(string logical, PCB pcb)
+        {
+            //get the pages of the program to use
+            int[] programPages = getPages(pcb);
+
+            //convert the logical address string into info we can use
+            string purehex = logical.Substring(2);
+
+            //first H in 0xHHH is the page number in hex
+            int pageNumber = Utilities.HexToDec(purehex.ToCharArray()[0].ToString());
+            int offset = Utilities.HexToDec(purehex.Substring(1)) / 4; // /4 accounts for the last two bits going unused.
+
+            //find the page number, convert it to physical, then offset
+            return (programPages[pageNumber] * PAGE_SIZE) + offset;
         }
 
         /// <summary>
@@ -227,13 +345,13 @@ namespace os_project
         {
             get
             {
-                int i = 0;
-                foreach (int page in pageList)
+                int returnValue = 0;
+                for (int i = 0; i < PAGE_COUNT; i++)
                 {
-                    if (!pageIsAllocated(page))
-                        i++;
+                    if (!pageIsAllocated(i))
+                        returnValue++;
                 }
-                return i;
+                return returnValue;
             }
         }
 
