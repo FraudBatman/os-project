@@ -23,9 +23,9 @@ namespace os_project
         static int[] pageList = new int[PAGE_COUNT];
 
         /// <summary>
-        /// The list of PCBs to be used for page determination
+        /// Array of PIDs to be used for page determination
         /// </summary>
-        static PCB[] programList = new PCB[PAGE_COUNT];
+        static int[] processIDS = new int[PAGE_COUNT];
 
         /// <summary>
         /// bool to make sure MMU is initialized prior to use
