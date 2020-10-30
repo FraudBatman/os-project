@@ -24,6 +24,9 @@ namespace os_project
         // Executes the long term shceduler instructions - HAPPENS ONLY ONE TIME AT CALL
         public void Execute()
         {
+            // Add deallocation here for terminated processes
+
+
             System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
 
             bool isMemFull = false;
@@ -31,7 +34,6 @@ namespace os_project
 
             while (!isMemFull)
             {
-                // Add deallocation here for terminated processes
 
                 System.Console.WriteLine("Schedule PCB: " + Queue.New.First.Value.ProcessID);
                 PCB currentPCB = Queue.New.First.Value;
