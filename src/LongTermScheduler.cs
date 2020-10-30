@@ -3,38 +3,27 @@ using System.Collections.Generic;
 
 namespace os_project
 {
-
-    // 1. The Scheduler loads programs from the disk into RAM according to the given scheduling policy.
-    // 2. The scheduler must note in the PCB, which physical addresses in RAM each program/job begins, and ends.
-    // 3. This ‘start’ address must be stored in the base-register(or program-counter) of the job). 
-    // 4. The Scheduler module must also use the Input/Output buffer size information(extracted from the control cards) for
-    //    allocating spaces in RAM for the input and output data.
-    // 5. It may be instructive to store the start addresses of the input-buffer and output-buffer 
-    //    spaces allocated in RAM as well. (Note that a job’s program-counter, 
-    //    which is a component of the PCB, is different from the virtual CPU’s program-counter
-    //    – see below). 
-    // 6. The Scheduler module either loads one program or multiple programs at a time(in a
-    //    multiprogramming system). 
-    // 7. Thus, the Scheduler works closely with the Memory manager and the
-    // 8. Effective-Address method to load jobs into RAM.
-
     // Long term scheduler execution instructions
-    public partial class LongTermScheduler
+    public static class LongTermScheduler
     {
         // Executes the long term shceduler instructions - HAPPENS ONLY ONE TIME AT CALL
-        public void Execute()
-        {
-            // Add deallocation here for terminated processes
 
+        public static void Execute()
+        {
+            var here = Queue.New.First;
+            Queue.New.RemoveFirst();
+            Queue.Terminated.AddLast(here);
+
+            // Add deallocation here for terminated processes
+            __init();
+            
 
             System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
 
             bool isMemFull = false;
-            int count = 0;
 
             while (!isMemFull)
             {
-
                 System.Console.WriteLine("Schedule PCB: " + Queue.New.First.Value.ProcessID);
                 PCB currentPCB = Queue.New.First.Value;
 
@@ -46,7 +35,7 @@ namespace os_project
                 
                 // Allocate the pages need in RAM for the PCB
                 MMU.AllocateMemory(currentPCB, bufferSize);
-                System.Console.WriteLine("Page Count = " + MMU.OpenPages);
+                Console.WriteLine("Page Count = " + MMU.OpenPages);
                 
                 // Write to memory
 
@@ -64,19 +53,41 @@ namespace os_project
             System.Console.WriteLine("Ready Queue Count = " + Queue.Ready.Count);
             System.Console.WriteLine("Scheduler execution complete");
         }
-    }
 
 
-    // PCB Adaptation Controller
-    public partial class LongTermScheduler
-    {
+        /// <summary>
+        /// Disposes the terminated PCBs page allocation and removes it from the queue?
+        /// 
+        /// Figure out if PCBs in the terminated queue actually need to be removed all together
+        /// </summary>
+        static void __init()
+        {
+            if (Queue.Terminated.Count == 0)
+                return;
+
+            foreach (PCB pcb in Queue.Terminated)
+            {
+                Queue.Terminated.RemoveLast();
+                System.Console.WriteLine("Hello");
+
+                if (Queue.Terminated.Count == 0)
+                    break;
+            }
+
+            if (Queue.Terminated.Count != 0)
+                throw new Exception("Terminated PCBs were not disposed");
+        }
+    
+
+        // PCB Adaptation Controller
+
         // Mingle with the PCB
 
         /// <summary>
         /// loads the first PCB from READY_QUEUE
         /// </summary>
         /// <returns></returns>
-        PCB LoadPCB()
+        static PCB LoadPCB()
         {
             var returnValue = Queue.Ready.First.Value;
             Queue.Ready.RemoveFirst();
@@ -90,7 +101,7 @@ namespace os_project
         /// <param name="jobStart"></param>
         /// <param name="dataStart"></param>
         /// <param name="outputStart"></param>
-        void UpdatePCB(PCB pcb, int jobStart, int dataStart, int outputStart)
+        static void UpdatePCB(PCB pcb, int jobStart, int dataStart, int outputStart)
         {
             pcb.ProgramCount = jobStart;
             pcb.InputBufferStart = dataStart;

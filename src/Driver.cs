@@ -35,8 +35,7 @@ namespace os_project
 
             // Scheduler
             System.Console.WriteLine("- SCHEDULER -");
-            LongTermScheduler LT_Scheduler = new LongTermScheduler();
-            LT_Scheduler.Execute();
+            LongTermScheduler.Execute();
         }
     }
     #endregion
