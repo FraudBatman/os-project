@@ -57,12 +57,9 @@ namespace os_project
     // PCB: Job controller 
     public partial class PCB
     {
-        int processID;
-        int instructionCount;
-        int priority;
-        int totalMemorySize;
+        int processID, instructionCount, priority, totalBufferSize;
 
-        public int TotalMemorySize
+        public int TotalBufferSize
         {
             get { return inputBufferSize + outputBufferSize + tempBufferSize; }
         }
@@ -125,12 +122,17 @@ namespace os_project
     // PCB: Disk controller
     public partial class PCB
     {
-        private int startDiskAddr;
+        private int startDiskAddr, diskAddress;
 
         public int StartDiskAddr
         {
             get { return startDiskAddr; }
             set { startDiskAddr = value; }
+        }
+
+        public int DiskAddress 
+        {
+            get { return processID - 1; }
         }
     }
 }

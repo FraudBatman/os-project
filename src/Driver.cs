@@ -32,17 +32,11 @@ namespace os_project
             load.LoadInstructions();
             System.Console.WriteLine("- LOADER -\n");
 
+
             // Scheduler
             System.Console.WriteLine("- SCHEDULER -");
             LongTermScheduler LT_Scheduler = new LongTermScheduler();
-
             LT_Scheduler.Execute();
-
-            // Read from the disk
-            // Console.WriteLine(Disk.ReadFromDisk(false, 5, 8, false).ToString());
-
-            // Get the partition count
-            // System.Console.WriteLine("Disk Partition Count = " + Disk.GetPartitionCount());
         }
     }
     #endregion

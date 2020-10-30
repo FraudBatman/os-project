@@ -8,6 +8,7 @@ namespace os_project
         /// Returns the size of each page in words
         /// </summary>
         public const int PAGE_SIZE = 64;
+
         /// <summary>
         /// Total number of pages in memory
         /// </summary>

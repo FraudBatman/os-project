@@ -26,90 +26,44 @@ namespace os_project
         {
             System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
 
-            //ERROR HERE SINCE MemoryManager NO LONGER EXISTS            System.Console.WriteLine(MemoryManager.IsFull());
+            bool isMemFull = false;
+            int count = 0;
 
+            while (!isMemFull)
+            {
+                // Add deallocation here for terminated processes
+
+                System.Console.WriteLine("Schedule PCB: " + Queue.New.First.Value.ProcessID);
+                PCB currentPCB = Queue.New.First.Value;
+
+                // Buffer Size = (Input + Output + Temp) + (Job word count) + (Data word count)
+                int bufferSize = currentPCB.TotalBufferSize                           
+                               + Disk.ReadFromDisk(currentPCB.DiskAddress)[0].Length  
+                               + Disk.ReadFromDisk(currentPCB.DiskAddress)[1].Length; 
+                System.Console.WriteLine("Memory needed = " + bufferSize);
+                
+                // Allocate the pages need in RAM for the PCB
+                MMU.AllocateMemory(currentPCB, bufferSize);
+                System.Console.WriteLine("Page Count = " + MMU.OpenPages);
+                
+                // Write to memory
+
+                // Queue handlers
+                Queue.New.RemoveFirst();
+                Queue.Ready.AddLast(currentPCB);
+
+                // Scheduling handlers
+                if (MMU.OpenPages == 0)
+                    isMemFull = true;
+
+                System.Console.WriteLine();
+            }
+
+            System.Console.WriteLine("Ready Queue Count = " + Queue.Ready.Count);
             System.Console.WriteLine("Scheduler execution complete");
         }
     }
 
-    // Disk Reader Controller
-    public partial class LongTermScheduler
-    {
-        // Read in one job
-        string[][] ReadFromDisk(int partitionID)
-        {
-            var job_i = Disk.diskPartitions[partitionID]["Job_Instructions"];
-            var data_i = Disk.diskPartitions[partitionID]["Data_Instructions"];
-            string[][] readInstructions = new string[2][];
-            readInstructions[0] = ParseInstructionList(job_i);
-            readInstructions[1] = ParseInstructionList(data_i);
-            return readInstructions;
-        }
-
-        // Parse the list of words by getting the values
-        string[] ParseInstructionList(List<Word> instructions)
-        {
-            string[] instruction_arr = new string[instructions.Count];
-            var data_i = 0;
-            foreach (var i in instructions)
-            {
-                instruction_arr[data_i] = i.Value;
-                data_i++;
-            }
-            return instruction_arr;
-        }
-    }
-
-    // TODO: NEED TO ENCAPUSLATE THE RAM FROM EVERYTHING OTHER THAN LONGTERM SCHEDULER
-    // RAM Loader Controller - NEED TO ENCAPSULATE THE RAM FROM EVERYTHING ELSE!
-    public partial class LongTermScheduler
-    {
-        // Load into RAM one job
-        /// <summary>
-        /// Loads info taken from disk into RAM in order of
-        /// JOB, DATA, I BUFFER, O BUFFER
-        /// </summary>
-        /// <param name="job">the job taken from the disk</param>
-        /// <param name="data">the data taken from disk (word.value as string)</param>
-        // void LoadMemory(int processID, string[] job, string[] data)
-        // {
-        //     //clear the ram
-        //     for (int i = 0; i < RAM.RAM_SIZE; i++)
-        //     {
-        //         string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(i));
-        //         Word emptyWord = new Word(0, "0x00000000");
-        //         RAM.Memory(RWFlag.Write, address, emptyWord);
-        //     }
-
-        //     //write the new ram
-        //     var numer = job.GetEnumerator();
-        //     int currentWord = 0;
-        //     int startWord = currentWord;
-
-        //     //job info first
-        //     foreach (string jobline in job)
-        //     {
-        //         string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
-        //         RAM.Memory(RWFlag.Write, address, new Word(currentWord, jobline));
-        //         currentWord++;
-        //     }
-
-        //     int dataStart = currentWord;
-
-        //     //data info second
-        //     foreach (string dataline in data)
-        //     {
-        //         string address = "0x" + Utilities.BinToHex(Utilities.DecToBin(currentWord));
-        //         RAM.Memory(RWFlag.Write, address, new Word(currentWord, dataline));
-        //         currentWord++;
-        //     }
-
-        //     int dataEnd = currentWord;
-
-        //     //update PCB with the starting points gathered on our magical journey
-        //     UpdatePCB(LoadPCB(), startWord, dataStart, dataEnd);
-        // }
-    }
 
     // PCB Adaptation Controller
     public partial class LongTermScheduler
