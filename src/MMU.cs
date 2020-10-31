@@ -282,6 +282,50 @@ namespace os_project
         }
 
         /// <summary>
+        /// Returns the page numbers mapped to the PCB
+        /// 
+        /// Returns null if no pages are allocated
+        /// </summary>
+        /// <param name="pcb"></param>
+        /// <returns></returns>
+        public static int?[] GetPageIds(PCB pcb)
+        {
+            //holds the size of the return value
+            int pageCount = 0;
+            int processLocation = getProcessIDLocation(pcb);
+
+            //increases the pagecount for every page found to be allocated
+            for (int i = 0; i < PAGE_COUNT; i++)
+            {
+                if (pageList[i] == processLocation)
+                {
+                    pageCount++;
+                }
+            }
+
+            int[] returnValue = new int[pageCount];
+            int returnValueIndex = 0;
+            var pageIds = new int?[pageCount];
+            int? id = null;
+            var pageIdx = 0;
+
+            //adds all the allocated pages to the returnvalue
+            for (int i = 0; i < PAGE_COUNT; i++)
+            {
+                if (pageList[i] == processLocation)
+                {
+                    returnValue[returnValueIndex] = i;
+                    returnValueIndex++;
+                    id = i;
+                    pageIds[pageIdx] = id;
+                    pageIdx++;
+                }
+            }
+            return pageIds;
+        }
+
+
+        /// <summary>
         /// The index of a PCB as it connects to its PID in processIDS
         /// </summary>
         /// <param name="pcb">The pcb to check for</param>

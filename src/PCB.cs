@@ -61,8 +61,21 @@ namespace os_project
 
         public int TotalBufferSize
         {
-            get { return inputBufferSize + outputBufferSize + tempBufferSize; }
+            get { return 
+                this.BufferSize +
+                (Disk.ReadFromDisk(this.ProcessID)[0].Length) +
+                (Disk.ReadFromDisk(this.ProcessID)[1].Length);
+            }
         }
+
+        public int BufferSize
+        {
+            get
+            {
+                return inputBufferSize + outputBufferSize + tempBufferSize;
+            }
+        }
+
         public int ProcessID
         {
             get { return processID; }
@@ -78,7 +91,6 @@ namespace os_project
         public int Priority
         {
             get { return priority; }
-            set { priority = value; }
         }
     }
 

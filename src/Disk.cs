@@ -10,24 +10,24 @@ namespace os_project
         public static Dictionary<int, Dictionary<string, List<Word>>> diskPartitions =
             new Dictionary<int, Dictionary<string, List<Word>>>(DISK_SIZE);
 
-        public static string[][] ReadFromDisk(int partitionID)
+        public static Word[][] ReadFromDisk(int partitionID)
         {
             var job_i = Disk.diskPartitions[partitionID]["Job_Instructions"];
             var data_i = Disk.diskPartitions[partitionID]["Data_Instructions"];
-            string[][] readInstructions = new string[2][];
+            Word[][] readInstructions = new Word[2][];
             readInstructions[0] = ParseInstructionList(job_i);
             readInstructions[1] = ParseInstructionList(data_i);
             return readInstructions;
         }
 
         // Parse the list of words by getting the values
-        static string[] ParseInstructionList(List<Word> instructions)
+        static Word[] ParseInstructionList(List<Word> instructions)
         {
-            string[] instruction_arr = new string[instructions.Count];
+            Word[] instruction_arr = new Word[instructions.Count];
             var data_i = 0;
             foreach (var i in instructions)
             {
-                instruction_arr[data_i] = i.Value;
+                instruction_arr[data_i] = i;
                 data_i++;
             }
             return instruction_arr;

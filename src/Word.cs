@@ -7,6 +7,12 @@ namespace os_project
         int ownerOfWord;
         string value;
 
+        public Word(int ownerOfWord)
+        {
+            this.value = null;
+            this.ownerOfWord = ownerOfWord;
+        }
+
         public Word(int ownerOfWord, string data_value)
         {
             if (data_value.Remove(0, 2).Length != WORD_SIZE

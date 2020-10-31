@@ -24,18 +24,21 @@ namespace os_project
             }
 
             // Validate you can build :D
-            System.Console.WriteLine("You built your project, good job bitch!");
+            System.Console.WriteLine("You built your project, good job!");
 
+            // Loader
             Loader load = new Loader(jobFile);
-
-            // load.ReadJobFile();
             load.LoadInstructions();
             System.Console.WriteLine("- LOADER -\n");
-
 
             // Scheduler
             System.Console.WriteLine("- SCHEDULER -");
             LongTermScheduler.Execute();
+            
+
+            int? x = null;
+            System.Console.WriteLine(x);
+
         }
     }
     #endregion
