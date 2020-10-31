@@ -49,8 +49,25 @@ namespace os_project
             //04: MOV
             //Yeah you see the notes from before? those by like a million. skipping for now...
 
-            //05 - 0A: ADD - OR
-            //This is gonna require additional operations for each of these, sounds like future us problem to me.
+            //05: ADD
+            //for 05-0A IDK if we'll have more than the two sRegs so keep that in mind
+            dReg = sReg[0] + sReg[1];
+
+            //06: SUB
+            dReg = sReg[0] - sReg[1];
+
+            //07: MUL
+            dReg = sReg[0] * sReg[1];
+
+            //08: DIV
+            dReg = sReg[0] / sReg[1];
+
+            //09: AND
+            dReg = sReg[0] & sReg[1];
+
+            //0A: OR
+            dReg = sReg[0] | sReg[1];
+
 
             //0B: MOVI
             //Not sure what the difference between 04 and 0B is, still skipping
