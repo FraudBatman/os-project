@@ -78,6 +78,24 @@ namespace os_project
             }
             return intArr;
         }
+
+        /// <summary>
+        /// Converts a hex value into the proper size and format required to be read as a word
+        /// </summary>
+        /// <param name="hexValue">The hex value to convert</param>
+        /// <returns>A word formatted properly</returns>
+        public static string WordFill(string hexValue)
+        {
+            string format = "0x";
+
+            //add leading 0's
+            for (int i = 1; i < (Word.WORD_SIZE / 2) - hexValue.Length; i++)
+            {
+                format += "0";
+            }
+
+            return format + hexValue;
+        }
     }
 }
 
