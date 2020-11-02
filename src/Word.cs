@@ -9,7 +9,7 @@ namespace os_project
 
         public Word(int ownerOfWord)
         {
-            this.value = null;
+            this.value = "null";
             this.ownerOfWord = ownerOfWord;
         }
 

@@ -35,55 +35,18 @@ namespace os_project
                 // Get instructions from disk
                 var jobList = Disk.ReadFromDisk(currentPCB.ProcessID)[0];
                 var dataList = Disk.ReadFromDisk(currentPCB.ProcessID)[1];
-                var words = ConcatWordLists(jobList, dataList);
+                var bufferList = BuildBufferList(currentPCB);
+                var words = ConcatWordLists(jobList, dataList, bufferList);
+                var sections = SectionWordList(words, MMU.getPages(currentPCB).Length);
 
-                // Load to memory
-                // var pageTracker = 1;
-                // foreach(var page in MMU.GetPageIds(currentPCB))
-                // {
-                //     if (page == null)
-                //         break;
-
-                //     Word[] wordSection;
-
-                //     if (words.Length % MMU.PAGE_SIZE != MMU.PAGE_SIZE)
-                //     {
-                //         wordSection = new Word[words.Length % MMU.PAGE_SIZE];
-
-                //         Array.Copy(
-                //             words,
-                //             words.Length - (words.Length % MMU.PAGE_SIZE),
-                //             wordSection,
-                //             0,
-                //             (words.Length % MMU.PAGE_SIZE)
-                //         );
-                //     }
-                //     else
-                //     {
-                //         wordSection = new Word[MMU.PAGE_SIZE];
-                //         Array.Copy(
-                //             words,
-                //             pageTracker * MMU.PAGE_SIZE,
-                //             wordSection,
-                //             0,
-                //             MMU.PAGE_SIZE
-                //         );
-
-                //         wordSection = new Word[words.Length % MMU.PAGE_SIZE];
-
-                //         Array.Copy(
-                //             words,
-                //             words.Length - (words.Length % MMU.PAGE_SIZE),
-                //             wordSection,
-                //             0,
-                //             (words.Length % MMU.PAGE_SIZE)
-                //         );
-                //     }
-
-                //     pageTracker += 1;
-
-                //     MMU.WritePage((int)page, currentPCB, wordSection);
-                // }
+                // Loads the sections to RAM
+                var pageSectionIdx = 0;
+                foreach(var page in MMU.getPages(currentPCB))
+                {
+                    System.Console.WriteLine(pageSectionIdx);
+                    MMU.WritePage(page, currentPCB, sections[pageSectionIdx]);
+                    pageSectionIdx++;
+                }
 
                 // Queue handlers
                 Queue.New.RemoveFirst();
@@ -99,6 +62,45 @@ namespace os_project
             System.Console.WriteLine("Ready Queue Count = " + Queue.Ready.Count);
             System.Console.WriteLine("Scheduler execution complete");
         }
+
+        /// <summary>
+        /// Sections out the list of words into parts for writing to pages
+        /// </summary>
+        /// <param name="words">List of concated words</param>
+        /// <param name="size">Page count determines the amount of sections</param>
+        /// <returns></returns>
+        static Word[][] SectionWordList(Word[] words, int size)
+        {
+            Word[][] sections = new Word[size][];
+            var pageIdx = 0;
+            for (int i = 0; i <= words.Length; i++) 
+            {
+                if (i % MMU.PAGE_SIZE == 0 && i != 0) {
+                    sections[pageIdx] = new Word[MMU.PAGE_SIZE];
+                    Array.Copy(
+                        words,
+                        i * pageIdx,
+                        sections[pageIdx],
+                        0,
+                        MMU.PAGE_SIZE
+                    );
+
+                    pageIdx++;
+                }
+                else if (i == words.Length)
+                {
+                    sections[pageIdx] = new Word[i % MMU.PAGE_SIZE];
+                    Array.Copy(
+                        words,
+                        (words.Length) - (i % MMU.PAGE_SIZE),
+                        sections[pageIdx],
+                        0,
+                        (i % MMU.PAGE_SIZE)
+                    );
+                }
+            }
+            return sections;
+        }
         
         /// <summary>
         /// Concats all the 
@@ -107,16 +109,17 @@ namespace os_project
         /// <param name="dataList">The data instruction's list of words</param>
         /// <param name="bufferList">The buffers null words that are used for writing to</param>
         /// <returns></returns>
-        static Word[] ConcatWordLists(Word[] jobList, Word[] dataList)
+        static Word[] ConcatWordLists(Word[] jobList, Word[] dataList, Word[] bufferList)
         {
             // Throws error if any of the lists are null which indicates non-created lists
             if (jobList == null && dataList == null)
                 throw new Exception("Instruction lists are null, expected words");
 
             // Concat all the lists togehter
-            var concatedWords = new Word[jobList.Length + dataList.Length];
+            var concatedWords = new Word[jobList.Length + dataList.Length + bufferList.Length];
             jobList.CopyTo(concatedWords, 0);
-            dataList.CopyTo(concatedWords, (jobList.Length - 1));
+            dataList.CopyTo(concatedWords, jobList.Length);
+            bufferList.CopyTo(concatedWords, (jobList.Length + dataList.Length));
 
             // Returns the list of concated words
             return concatedWords;
@@ -135,7 +138,7 @@ namespace os_project
                 return null;
 
             for (int i = 0; i < pcb.BufferSize; i++)
-                bufferWords[i] = new Word(pcb.Priority);
+                bufferWords[i] = new Word(pcb.ProcessID);
 
 
             return bufferWords;
