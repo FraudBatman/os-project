@@ -16,13 +16,17 @@ namespace os_project
         */
 
         #region Program Attributes
-        PCB program;
+        PCB activeProgram;
         public PCB ActiveProgram
         {
-            get { return program; }
-            set { 
-                program = value;
-                program.ProgramCount = 0; 
+            get { return activeProgram; }
+            set {
+                // Sets the active program to the CPU
+                activeProgram = value;
+
+                // Sets the program count at 0 at initialization
+                // Might need to be refactored
+                activeProgram.ProgramCount = 0; 
             }
         }
         #endregion
@@ -32,8 +36,16 @@ namespace os_project
         //accumulator, naming it just acc due to my former crippling addiction to Shenzhen IO
         Word acc;
 
+        // Save memory by not assigning if CPU is never instantiated
+        int id;
+        public int ID { get { return id; } }
+
         // Sets the active to program to notify it is waiting for a program
-        public CPU() { program = null; }
+        public CPU(int id = 0) 
+        { 
+            this.id = id;
+            activeProgram = null; 
+        }
         #endregion
 
         #region Fetch Module
@@ -41,6 +53,7 @@ namespace os_project
         {
             // May need to be set outside of the method
             int pc = ActiveProgram.ProgramCount;
+
             return "";
         }
         #endregion
@@ -138,7 +151,12 @@ namespace os_project
         #region Execute Module
         void Execute(string instruction)
         {
-            // Run the instruction
+            // Run the instructions
+            // Fetch
+
+            // Decode
+
+            // Either compute or DMA channel the instruction
         }
         #endregion
     }

@@ -26,7 +26,7 @@ namespace os_project
         /// </summary>
         static void load_FIFO()
         {
-            SendToList(Queue.Ready);
+            SendToDispatcher(Queue.Ready);
         }
 
         /// <summary>
@@ -36,18 +36,22 @@ namespace os_project
         {
             var toSort = Queue.Ready;
             InsertSort(toSort);
-            SendToList(toSort);
+            SendToDispatcher(toSort);
         }
 
         /// <summary>
-        /// Iterates the sent list to the dispatcher
+        /// Iterates sending pcbs from the ready queue to the dispatcher for loading to cores
         /// </summary>
         /// <param name="queuedList">the list to send</param>
-        static void SendToList(LinkedList<PCB> queuedList)
+        static void SendToDispatcher(LinkedList<PCB> queuedList)
         {
-            foreach (PCB pcb in queuedList)
+            var status = Dispatcher.Dispatch(queuedList.First.Value);
+
+            if (status != -1)
             {
-                Dispatcher.Dispatch(pcb);
+                // Recursively iterate through the ready queue list until all cores are full
+                if (queuedList.First.Value != null)
+                    SendToDispatcher(queuedList);
             }
         }
 

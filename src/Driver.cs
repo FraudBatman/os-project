@@ -59,8 +59,15 @@ namespace os_project
             // Short-term Scheduler -> FIFO policy
             System.Console.WriteLine("- SHORT-TERM SCHEDULER -");
             ShortTermScheduler.Start();
+            System.Console.Write("Ready Queue = " + Queue.Ready.Count);
+            System.Console.Write(" | Running Queue = " + Queue.Running.Count + "\n");
         }
 
+
+        /// <summary>
+        /// Starts the CPU cores
+        /// </summary>
+        /// <param name="isMulti">Toggle between single and multi core configuration</param>
         static void StartCPUs(bool isMulti)
         {
             isMultiCPU = isMulti;
@@ -76,11 +83,12 @@ namespace os_project
                 // Sets 4 cpus with empty active programs
                 Cores = new CPU[4];
                 for(int i = 0; i<Cores.Length; i++)
-                    Cores[i] = new CPU();
+                    Cores[i] = new CPU(i);
             }
         }
         
         /// <summary>
+        /// ERASE THIS BEFORE THE PROJECT IS DUE
         /// Used for proof of concept to terminate processes for running through the scheduler
         /// </summary>
         static void TerminateProcesses()
