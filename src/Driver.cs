@@ -10,8 +10,8 @@ namespace os_project
         #region CPU Configurations
         public static CPU[] singleCPU = new CPU[1];
         public static CPU[] multiCPU = new CPU[4];
-        static bool isMulti = false;
-        public static bool IsMulti { get { return isMulti; } }
+        static bool cpuIsMulti = false;
+        public static bool CPUIsMulti { get { return cpuIsMulti; } }
         #endregion
 
         #region Resource Configurations

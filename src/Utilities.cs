@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace os_project
 {
@@ -96,6 +97,27 @@ namespace os_project
 
             return format + hexValue;
         }
+
+        #region Timers
+        static Stopwatch timer;
+        public static Stopwatch Timer
+        {
+            get { return timer; }
+        }
+
+        public static void StartTimer() 
+        { 
+            // Start the timer
+            return;
+        }
+
+        public static void StopTimer()
+        {
+            // We want to convert this to milliseconds
+            return;
+        }
+
+        #endregion
     }
 }
 

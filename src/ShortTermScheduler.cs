@@ -45,10 +45,12 @@ namespace os_project
         /// <param name="queuedList">the list to send</param>
         static void SendToList(LinkedList<PCB> queuedList)
         {
-            foreach (PCB pcb in queuedList)
-            {
-                Dispatcher.Dispatch(pcb);
-            }
+            Dispatcher.Dispatch();
+
+            // foreach (PCB pcb in queuedList)
+            // {
+            //     Dispatcher.Dispatch(pcb);
+            // }
         }
 
         /// <summary>
