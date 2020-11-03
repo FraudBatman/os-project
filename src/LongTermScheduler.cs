@@ -3,21 +3,19 @@ using System.Collections.Generic;
 
 namespace os_project
 {
-    // Long term scheduler execution instructions
     public static class LongTermScheduler
     {
         /// <summary>
         /// Runs the long term scheduler tasks.
         /// Disposes of used memory by terminated processes.
         /// Allocates memory for processes in the 'NEW' queue.
-        ///Adds PCB to the 'READY' queue.
+        /// Adds PCB to the 'READY' queue.
         /// </summary>
         public static void Execute()
         {
             __init();
 
             System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
-
             bool isMemFull = false;
 
             while (!isMemFull)
@@ -40,12 +38,14 @@ namespace os_project
                 var sections = SectionWordList(words, MMU.getPages(currentPCB).Length);
 
                 // Loads the sections to RAM
+                System.Console.WriteLine("Loading program to memory...");
                 var pageSectionIdx = 0;
                 foreach(var page in MMU.getPages(currentPCB))
                 {
-                    System.Console.WriteLine(pageSectionIdx);
+                    System.Console.Write("Load to page: " + page);
                     MMU.WritePage(page, currentPCB, sections[pageSectionIdx]);
                     pageSectionIdx++;
+                    System.Console.WriteLine(" | Page " + page + " mapped");
                 }
 
                 // Queue handlers

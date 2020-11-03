@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+
 namespace os_project
 {
     public static class MMU
@@ -109,6 +112,12 @@ namespace os_project
             //get the physical address of the info provided
             int physical = logicalToPhysical(address, program);
 
+            if (physical == -1)
+                throw new System.Exception(
+                    "Physical page address was not assigned\n" +
+                    "Expected: 0x" + physical + "00 | Actual " + physical
+                );
+
             //return the word at that address
             return RAM.Read(physical);
         }
@@ -131,6 +140,12 @@ namespace os_project
 
             //get the physical address of the page
             int pagePhys = logicalToPhysical(pageaddress, program);
+
+            if (pagePhys == -1)
+                throw new System.Exception(
+                    "Physical page address was not assigned\n" +
+                    "Expected: 0x" + page + "00 | Actual " + pagePhys
+                );
 
             //for every RAM location in the page, add its word to the returnvalue
             for (int i = 0; i < PAGE_SIZE; i++)
@@ -315,7 +330,16 @@ namespace os_project
             int offset = Utilities.HexToDec(purehex.Substring(1)) / 4; // /4 accounts for the last two bits going unused.
 
             //find the page number, convert it to physical, then offset
-            return (programPages[pageNumber] * PAGE_SIZE) + offset;
+            foreach (var page in programPages)
+            {
+                if (page == pageNumber)
+                {
+                    return (page * PAGE_SIZE) + offset;
+                }
+            }
+
+            // Return -1 if the page was not found
+            return -1;
         }
 
         /// <summary>
