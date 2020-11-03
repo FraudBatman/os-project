@@ -15,26 +15,25 @@ namespace os_project
 
         #region Job File Configurations
         static string jobFile;
+
+        static void SetOSPlatform(bool isWin)
+        {
+            if (isWin)
+                jobFile = System.IO.Directory.GetCurrentDirectory() + @"\resources\jobs-file.txt";
+            else
+                jobFile = System.IO.Directory.GetCurrentDirectory() + @"/resources/jobs-file.txt";
+        }
         #endregion
 
 
         #region Main thread
         public static void Main(string[] args)
         {
-            // Cross-platform compatibility
-            bool isWin = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            if (isWin)
-            {
-                jobFile = System.IO.Directory.GetCurrentDirectory() + @"\resources\jobs-file.txt";
-            }
-            else
-            {
-                jobFile = System.IO.Directory.GetCurrentDirectory() + @"/resources/jobs-file.txt";
-            }
-
             // Validate you can build :D
             System.Console.WriteLine("You built your project, good job!\n");
+
+            // Cross-platform compatibility
+            SetOSPlatform(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
             // Start CPUs - false == single | true == multi
             StartCPUs(false);
