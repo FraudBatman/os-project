@@ -55,7 +55,7 @@ namespace os_project
             var counter = 0;
             while (isLoaded == false)
             {
-                if (currentJobPointer == instructionSet.Length - 1)
+                if (currentJobPointer == instructionSet.Length)
                 {
                     isLoaded = true;
                 } 
@@ -69,7 +69,6 @@ namespace os_project
                         data = new List<Word>();
 
                         PCB_Builder.Add("JobAttributes", JobHandler(instruction));
-                        System.Console.WriteLine(counter);
                         counter++;
                     }
                     else if (instruction.Contains("Data")) // => Data
@@ -128,9 +127,6 @@ namespace os_project
                 currentJobPointer++;
             }
             
-            // Proof of concept for getting data values from the Program data
-            // System.Console.WriteLine(Disk.diskPartition[0]["Job_Instructions"][0]);
-
             // Print the loading complete once done
             System.Console.WriteLine("Loading Complete: " + Queue.New.Count + " programs added to the 'New' queue");
         }

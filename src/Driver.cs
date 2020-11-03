@@ -8,10 +8,11 @@ namespace os_project
     public partial class Driver
     {
         static string jobFile;
+        static CPU[] cpus;
 
         public static void Main(string[] args)
         {
-            //cross-platform compatibility
+            // Cross-platform compatibility
             bool isWin = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
             if (isWin)
@@ -24,24 +25,27 @@ namespace os_project
             }
 
             // Validate you can build :D
-            System.Console.WriteLine("You built your project, good job!");
+            System.Console.WriteLine("You built your project, good job!\n");
 
             // Loader
+            System.Console.WriteLine("- LOADER -");
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
-            System.Console.WriteLine("- LOADER -\n");
 
             // Scheduler
-            System.Console.WriteLine("- SCHEDULER -");
+            System.Console.WriteLine("\n- SCHEDULER -");
             
             while(Queue.New.First != null)
             {
-                System.Console.WriteLine("Open Pages " + MMU.OpenPages);
                 LongTermScheduler.Execute();
                 TerminateProcesses();
             }
         }
-
+        
+        /// <summary>
+        /// Used for proof of concept to terminate processes 
+        /// for running through the scheduler
+        /// </summary>
         static void TerminateProcesses()
         {
             bool isDone = false;

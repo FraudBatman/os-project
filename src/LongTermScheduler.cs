@@ -6,29 +6,31 @@ namespace os_project
     public static class LongTermScheduler
     {
         /// <summary>
-        /// Runs the long term scheduler tasks.
-        /// Disposes of used memory by terminated processes.
-        /// Allocates memory for processes in the 'NEW' queue.
-        /// Adds PCB to the 'READY' queue.
+        /// Used to point to each individual process as it runs through the scheduling
+        /// </summary>
+        static int processPointer = 1;
+
+        /// <summary>
+        /// Runs the long term scheduler tasks
+        /// Disposes of used memory by terminated processes
+        /// Allocates memory for processes in the 'NEW' queue
+        /// Adds PCB to the 'READY' queue
         /// </summary>
         public static void Execute()
         {
             __init();
 
-            System.Console.WriteLine("Scheduling " + Queue.New.Count + " programs...");
+            System.Console.WriteLine("Scheduling from " + Queue.New.Count + " programs...");
             bool isMemFull = false;
 
-            while (!isMemFull)
+            while (!isMemFull && processPointer <= 30)
             {
+                // Points to the first pcb in the new list
                 System.Console.WriteLine("Schedule PCB: " + Queue.New.First.Value.ProcessID);
                 PCB currentPCB = Queue.New.First.Value;
 
-                // Buffer Size = (Input + Output + Temp) + (Job word count) + (Data word count)
-                System.Console.WriteLine("Memory needed = " + currentPCB.TotalBufferSize);
-                
                 // Allocate the pages need in RAM for the PCB
                 MMU.AllocateMemory(currentPCB, currentPCB.TotalBufferSize);
-                Console.WriteLine("Page Count = " + MMU.OpenPages);
                 
                 // Get instructions from disk
                 var jobList = Disk.ReadFromDisk(currentPCB.ProcessID)[0];
@@ -38,12 +40,8 @@ namespace os_project
                 var sections = SectionWordList(words, MMU.getPages(currentPCB).Length);
 
                 // Loads the sections to RAM
-                System.Console.WriteLine("Loading program to memory...");
+                System.Console.WriteLine("Loading process to memory...");
                 var pageSectionIdx = 0;
-                System.Console.WriteLine(MMU.getPages(currentPCB).Length);
-
-                if (currentPCB.ProcessID == 17)
-                    System.Console.WriteLine();
 
                 foreach(var page in MMU.getPages(currentPCB))
                 {
@@ -61,11 +59,12 @@ namespace os_project
                 if (MMU.OpenPages == 0)
                     isMemFull = true;
 
+                processPointer++;
                 System.Console.WriteLine();
             }
 
             System.Console.WriteLine("Ready Queue Count = " + Queue.Ready.Count);
-            System.Console.WriteLine("Scheduler execution complete");
+            System.Console.WriteLine("Scheduler execution complete\n");
         }
 
         /// <summary>
