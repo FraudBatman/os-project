@@ -160,6 +160,9 @@ namespace os_project
 
             foreach (PCB pcb in Queue.Terminated)
             {
+                if (pcb.ProcessID == 9)
+                    System.Console.WriteLine();
+
                 // Dispoases of the memory
                 if (MMU.getPages(pcb).Length != 0)
                     MMU.DeallocateMemory(pcb);

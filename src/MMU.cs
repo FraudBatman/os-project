@@ -90,7 +90,7 @@ namespace os_project
             //scan for pages to deallocate
             for (int i = 0; i < PAGE_COUNT; i++)
             {
-                if (pageList[i] == processIDS[PIDindex] - 1)
+                if (pageList[i] == PIDindex)
                     pageList[i] = -1;
             }
 

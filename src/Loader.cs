@@ -52,9 +52,10 @@ namespace os_project
 
             System.Console.WriteLine("Loading Programs...");
 
+            var counter = 0;
             while (isLoaded == false)
             {
-                if (currentJobPointer == instructionSet.Length - 1 )
+                if (currentJobPointer == instructionSet.Length - 1)
                 {
                     isLoaded = true;
                 } 
@@ -68,6 +69,8 @@ namespace os_project
                         data = new List<Word>();
 
                         PCB_Builder.Add("JobAttributes", JobHandler(instruction));
+                        System.Console.WriteLine(counter);
+                        counter++;
                     }
                     else if (instruction.Contains("Data")) // => Data
                     {   
