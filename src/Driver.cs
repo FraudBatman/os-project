@@ -33,12 +33,27 @@ namespace os_project
 
             // Scheduler
             System.Console.WriteLine("- SCHEDULER -");
-            LongTermScheduler.Execute();
             
+            while(Queue.New.First != null)
+            {
+                System.Console.WriteLine("Open Pages " + MMU.OpenPages);
+                LongTermScheduler.Execute();
+                TerminateProcesses();
+            }
+        }
 
-            int? x = null;
-            System.Console.WriteLine(x);
+        static void TerminateProcesses()
+        {
+            bool isDone = false;
+            while (!isDone)
+            {
+                var pcb = Queue.Ready.First;
+                Queue.Ready.RemoveFirst();
+                Queue.Terminated.AddLast(pcb);
 
+                if (Queue.Ready.First == null)
+                    isDone = true;
+            }
         }
     }
     #endregion

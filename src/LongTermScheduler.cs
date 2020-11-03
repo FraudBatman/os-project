@@ -40,6 +40,11 @@ namespace os_project
                 // Loads the sections to RAM
                 System.Console.WriteLine("Loading program to memory...");
                 var pageSectionIdx = 0;
+                System.Console.WriteLine(MMU.getPages(currentPCB).Length);
+
+                if (currentPCB.ProcessID == 17)
+                    System.Console.WriteLine();
+
                 foreach(var page in MMU.getPages(currentPCB))
                 {
                     System.Console.Write("Load to page: " + page);
@@ -65,6 +70,7 @@ namespace os_project
 
         /// <summary>
         /// Sections out the list of words into parts for writing to pages
+        /// Does this at O(n^(n-1)) 
         /// </summary>
         /// <param name="words">List of concated words</param>
         /// <param name="size">Page count determines the amount of sections</param>
@@ -103,7 +109,7 @@ namespace os_project
         }
         
         /// <summary>
-        /// Concats all the 
+        /// Concats all the words needed to load to memory
         /// </summary>
         /// <param name="jobList">The job instruction's list of words</param>
         /// <param name="dataList">The data instruction's list of words</param>
@@ -115,7 +121,7 @@ namespace os_project
             if (jobList == null && dataList == null)
                 throw new Exception("Instruction lists are null, expected words");
 
-            // Concat all the lists togehter
+            // Concat all the lists together
             var concatedWords = new Word[jobList.Length + dataList.Length + bufferList.Length];
             jobList.CopyTo(concatedWords, 0);
             dataList.CopyTo(concatedWords, jobList.Length);
@@ -155,18 +161,9 @@ namespace os_project
             foreach (PCB pcb in Queue.Terminated)
             {
                 // Dispoases of the memory
-                MMU.DeallocateMemory(pcb);
-
-                // TODO: Figure out if we need to remove the PCB from the queue
-
-                // Remove from the terminated queue
-                Queue.Terminated.RemoveLast();
-                if (Queue.Terminated.Count == 0)
-                    break;
+                if (MMU.getPages(pcb).Length != 0)
+                    MMU.DeallocateMemory(pcb);
             }
-
-            if (Queue.Terminated.Count != 0)
-                throw new Exception("Terminated PCBs were not disposed");
         }
     }
 }
