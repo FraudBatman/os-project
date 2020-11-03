@@ -108,13 +108,16 @@ namespace os_project
         public static void StartTimer() 
         { 
             // Start the timer
+            timer.Start();
             return;
         }
 
-        public static void StopTimer()
+        public static TimeSpan StopTimer()
         {
             // We want to convert this to milliseconds
-            return;
+            timer.Stop();
+            TimeSpan ts = timer.Elapsed;
+            return ts;
         }
 
         #endregion
