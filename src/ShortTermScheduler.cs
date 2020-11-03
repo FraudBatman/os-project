@@ -34,7 +34,7 @@ namespace os_project
         /// </summary>
         static void load_PRIO()
         {
-            var toSort = Queue.New;
+            var toSort = Queue.Ready;
             InsertSort(toSort);
             SendToList(toSort);
         }
@@ -45,12 +45,10 @@ namespace os_project
         /// <param name="queuedList">the list to send</param>
         static void SendToList(LinkedList<PCB> queuedList)
         {
-            Dispatcher.Dispatch();
-
-            // foreach (PCB pcb in queuedList)
-            // {
-            //     Dispatcher.Dispatch(pcb);
-            // }
+            foreach (PCB pcb in queuedList)
+            {
+                Dispatcher.Dispatch(pcb);
+            }
         }
 
         /// <summary>

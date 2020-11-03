@@ -6,13 +6,13 @@ namespace os_project
         /// Base function that sends the PCB to the CPU(s)
         /// </summary>
         /// <param name="pcb">The PCB of the job to dispatch</param>
-        public static void Dispatch()
+        public static void Dispatch(PCB pcb)
         {
-            if (Driver.CPUIsMulti) // => Multi CPU dispatch
+            if (!Driver.IsMultiCPU) // => Single CPU dispatch
             {
                 
             }
-            else // => Single CPU dispatch
+            else // => Multi CPU dispatch
             {
                 
             }

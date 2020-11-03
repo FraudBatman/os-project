@@ -119,7 +119,6 @@ namespace os_project
             TimeSpan ts = timer.Elapsed;
             return ts;
         }
-
         #endregion
     }
 }

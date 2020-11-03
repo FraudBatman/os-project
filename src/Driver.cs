@@ -7,10 +7,9 @@ namespace os_project
     public partial class Driver
     {
         #region CPU Configurations
-        public static CPU[] singleCPU = new CPU[1];
-        public static CPU[] multiCPU = new CPU[4];
-        static bool cpuIsMulti = false;
-        public static bool CPUIsMulti { get { return cpuIsMulti; } }
+        public static CPU[] Cores;
+        static bool isMultiCPU = false;
+        public static bool IsMultiCPU { get { return isMultiCPU; } }
         #endregion
 
 
@@ -37,6 +36,9 @@ namespace os_project
             // Validate you can build :D
             System.Console.WriteLine("You built your project, good job!\n");
 
+            // Start CPUs - false == single | true == multi
+            StartCPUs(false);
+
             // Loader
             System.Console.WriteLine("- LOADER -");
             Loader load = new Loader(jobFile);
@@ -45,16 +47,38 @@ namespace os_project
             // Long-term Scheduler
             System.Console.WriteLine("\n- LONG-TERM SCHEDULER -");
             
+            //
+            // Uncommenting this schedules all the processes
+            // - dont do it -
+            //
             // while(Queue.New.First != null)
             // {
                 LongTermScheduler.Execute();
                 // TerminateProcesses();
             // }
 
-            // Short-term Scheduler
+            // Short-term Scheduler -> FIFO policy
             System.Console.WriteLine("- SHORT-TERM SCHEDULER -");
             ShortTermScheduler.Start();
+        }
 
+        static void StartCPUs(bool isMulti)
+        {
+            isMultiCPU = isMulti;
+
+            if (!IsMultiCPU) // => Single CPU 1 core
+            {
+                // Sets 1 cpu with empty active program
+                Cores = new CPU[1];
+                Cores[0] = new CPU();
+            }
+            else // => Multi CPU 4 Cores
+            {
+                // Sets 4 cpus with empty active programs
+                Cores = new CPU[4];
+                for(int i = 0; i<Cores.Length; i++)
+                    Cores[i] = new CPU();
+            }
         }
         
         /// <summary>
