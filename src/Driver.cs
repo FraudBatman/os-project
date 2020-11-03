@@ -8,7 +8,7 @@ namespace os_project
     {
         #region CPU Configurations
         public static CPU[] Cores;
-        static bool isMultiCPU = false;
+        static bool isMultiCPU;
         public static bool IsMultiCPU { get { return isMultiCPU; } }
         #endregion
 
