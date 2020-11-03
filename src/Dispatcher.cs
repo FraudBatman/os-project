@@ -1,8 +1,10 @@
+using System.Timers;
+using System.Diagnostics;
+
 namespace os_project
 {
     public static class Dispatcher
     {
-        //I dunno figure this shit out later 
         /// <summary>
         /// Base function that sends the PCB to the CPU(s)
         /// </summary>
@@ -15,7 +17,7 @@ namespace os_project
             }
             else // => Single CPU dispatch
             {
-
+                
             }
         }
     }
