@@ -9,8 +9,14 @@ namespace os_project
         /// <param name="pcb">The PCB of the job to dispatch</param>
         public static void Dispatch(PCB pcb)
         {
+            if (Driver.IsMulti) // => Multi CPU dispatch
+            {
+                
+            }
+            else // => Single CPU dispatch
+            {
 
+            }
         }
     }
-
 }

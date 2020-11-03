@@ -2,10 +2,10 @@ using System.Collections.Generic;
 
 namespace os_project
 {
-    public class ShortTermScheduler
+    public static class ShortTermScheduler
     {
         const SchedulerPolicy POLICY = SchedulerPolicy.FIFO;
-        public void Start()
+        public static void Start()
         {
             switch (POLICY)
             {
@@ -24,39 +24,38 @@ namespace os_project
         /// <summary>
         /// Sends to dispatcher with First In, First Out (so basically just a foreach lmao)
         /// </summary>
-        private void load_FIFO()
+        static void load_FIFO()
         {
-            sendToDispatch(Queue.New);
+            SendToList(Queue.Ready);
         }
 
         /// <summary>
         /// Sorts the list by priority, then send them to dispatcher (prolly with a foreach again lmao)
         /// </summary>
-        private void load_PRIO()
+        static void load_PRIO()
         {
             var toSort = Queue.New;
-
-            basicBitchInsertSort(toSort);
-
-            sendToDispatch(toSort);
+            InsertSort(toSort);
+            SendToList(toSort);
         }
 
         /// <summary>
-        /// foreaches the sent list to the dispatcher
+        /// Iterates the sent list to the dispatcher
         /// </summary>
-        /// <param name="kachow">the list to send</param>
-        private void sendToDispatch(LinkedList<PCB> kachow)
+        /// <param name="queuedList">the list to send</param>
+        static void SendToList(LinkedList<PCB> queuedList)
         {
-            foreach (PCB pcb in kachow)
+            foreach (PCB pcb in queuedList)
             {
                 Dispatcher.Dispatch(pcb);
             }
         }
 
         /// <summary>
-        /// Oh god please avert your eyes from this monstrosity
+        /// Sorts the queue based on priority from min to max values by insertion
+        /// - O(n^2) complexity
         /// </summary>
-        private LinkedList<PCB> basicBitchInsertSort(LinkedList<PCB> sortee)
+        static LinkedList<PCB> InsertSort(LinkedList<PCB> sortee)
         {
             //Jess, if you're looking at this, I apolgize for what you're about to see.
             //It's not pretty. I'm not proud.

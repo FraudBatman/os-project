@@ -7,8 +7,16 @@ namespace os_project
     #region Main thread
     public partial class Driver
     {
+        #region CPU Configurations
+        public static CPU[] singleCPU = new CPU[1];
+        public static CPU[] multiCPU = new CPU[4];
+        static bool isMulti = false;
+        public static bool IsMulti { get { return isMulti; } }
+        #endregion
+
+        #region Resource Configurations
         static string jobFile;
-        static CPU[] cpus;
+        #endregion
 
         public static void Main(string[] args)
         {
@@ -32,19 +40,23 @@ namespace os_project
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
 
-            // Scheduler
-            System.Console.WriteLine("\n- SCHEDULER -");
+            // Long-term Scheduler
+            System.Console.WriteLine("\n- LONG-TERM SCHEDULER -");
             
-            while(Queue.New.First != null)
-            {
+            // while(Queue.New.First != null)
+            // {
                 LongTermScheduler.Execute();
-                TerminateProcesses();
-            }
+                // TerminateProcesses();
+            // }
+
+            // Short-term Scheduler
+            System.Console.WriteLine("- SHORT-TERM SCHEDULER -");
+            ShortTermScheduler.Start();
+
         }
         
         /// <summary>
-        /// Used for proof of concept to terminate processes 
-        /// for running through the scheduler
+        /// Used for proof of concept to terminate processes for running through the scheduler
         /// </summary>
         static void TerminateProcesses()
         {
@@ -59,6 +71,8 @@ namespace os_project
                     isDone = true;
             }
         }
+
+
     }
     #endregion
 }
