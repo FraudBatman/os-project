@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace os_project
 {
-    #region Main thread
     public partial class Driver
     {
         #region CPU Configurations
@@ -14,10 +13,13 @@ namespace os_project
         public static bool CPUIsMulti { get { return cpuIsMulti; } }
         #endregion
 
-        #region Resource Configurations
+
+        #region Job File Configurations
         static string jobFile;
         #endregion
 
+
+        #region Main thread
         public static void Main(string[] args)
         {
             // Cross-platform compatibility
@@ -71,8 +73,7 @@ namespace os_project
                     isDone = true;
             }
         }
-
+        #endregion
 
     }
-    #endregion
 }

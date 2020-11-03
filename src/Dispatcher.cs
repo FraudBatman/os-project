@@ -1,6 +1,3 @@
-using System.Timers;
-using System.Diagnostics;
-
 namespace os_project
 {
     public static class Dispatcher
@@ -13,20 +10,11 @@ namespace os_project
         {
             if (Driver.CPUIsMulti) // => Multi CPU dispatch
             {
-                int[] numbers = new int[100];
-
-                Stopwatch timer = new Stopwatch();
-                timer.Start();
-
-
-                timer.Stop();
-                var time = timer.Elapsed;
-                System.Console.WriteLine(time);
+                
             }
             else // => Single CPU dispatch
             {
-                Utilities.StartTimer();
-                Utilities.StopTimer();
+                
             }
         }
     }
