@@ -14,6 +14,8 @@ namespace os_project
         mkay? mkay. -Nic
         */
 
+        const string NOPCODE = "13";
+
         #region Program Attributes
         PCB activeProgram;
         public PCB ActiveProgram
@@ -104,23 +106,64 @@ namespace os_project
 
 
         #region Decode Module
-        string Decode(Word instruction)
+        /// <summary>
+        /// Takes an instruction and converts it into a usable format before sending it to an execute
+        /// </summary>
+        /// <param name="instruction">The instruction to decode</param>
+        void Decode(Word instruction)
         {
-            // //any variables called here are used for some snippets, just temporary for now
-            // string outAddr = "";
-            // string inAddr = "";
-            // string jumpAddr = "";
-            // Word[] sReg = new Word[2]; //seriously this shit be temporary idk how many sregs are required
-            // Word dReg;
-            // Word compare;
+            string data = instruction.Value;
 
-            // //current info for which word to read in I buffer or write in O buffer is probably a PCB thing
-            // //will call it as PCB.In and PCB.Out
-            // //Also PCB.ProgramCounter is the ProgramCounter for what step the CPU needs to run next;
+            //NOP check
+            if (data.Substring(1) == NOPCODE)
+            {
+                // //13: NOP
+                // //Well that was easy.
+                return;
+            }
 
-            // //13: NOP
-            // //Well that was easy.
-            return "";
+            //gets first 2 bits of data
+            int formatData = Utilities.HexToDec(data.ToCharArray()[0].ToString()) / 4;
+
+            //gets the opcode. god knows how
+            int opCode = (((Utilities.HexToDec(data.ToCharArray()[0].ToString()) % 4) * 16))
+            + Utilities.HexToDec(data.ToCharArray()[1].ToString());
+
+            switch (formatData)
+            {
+                case 0:
+                    //Arithmetic
+                    //Hex[2] = sReg0;
+                    //Hex[3] = sReg1;
+                    //Hex[4] = dReg;
+                    ExecuteArith(opCode, Utilities.HexToDec(data.ToCharArray()[2].ToString()),
+                                    Utilities.HexToDec(data.ToCharArray()[3].ToString()),
+                                    Utilities.HexToDec(data.ToCharArray()[4].ToString()));
+                    break;
+                case 1:
+                    //Conditional
+                    //Hex[2] = bReg;
+                    //Hex[3] = dReg;
+                    //Hex[4-7] = addr;
+                    ExecuteCondi(opCode, Utilities.HexToDec(data.ToCharArray()[2].ToString()),
+                                    Utilities.HexToDec(data.ToCharArray()[3].ToString()),
+                                    Utilities.HexToDec(data.Substring(4, 4)));
+                    break;
+                case 2:
+                    //Uncon. Jump
+                    //Hex[2-7] = addr;
+                    ExecuteUJump(opCode, Utilities.HexToDec(data.Substring(2, 6)));
+                    break;
+                case 3:
+                    //IO
+                    //Hex[2] = Reg0;
+                    //Hex[3] = Reg1;
+                    //Hex[4-7] = addr;
+                    ExecuteIO(opCode, Utilities.HexToDec(data.ToCharArray()[2].ToString()),
+                                Utilities.HexToDec(data.ToCharArray()[3].ToString()),
+                                Utilities.HexToDec(data.Substring(4, 4)));
+                    break;
+            }
         }
         #endregion
 
