@@ -7,9 +7,15 @@ namespace os_project
         int ownerOfWord;
         string value;
 
+        public Word()
+        {
+            this.value = "00000000";
+        }
+
+
         public Word(int ownerOfWord)
         {
-            this.value = "null";
+            this.value = "00000000";
             this.ownerOfWord = ownerOfWord;
         }
 
@@ -108,9 +114,7 @@ namespace os_project
         public override string ToString()
         {
             return string.Format(
-                "Word: Job Owner - {0} | " +
-                "Value - {1}",
-                ownerOfWord,
+                "Value - {0}",
                 Value
             );
         }

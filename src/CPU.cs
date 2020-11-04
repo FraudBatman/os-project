@@ -56,6 +56,12 @@ namespace os_project
             // Initialize the registers
             registers = new Word[16];
 
+            // Initialize the registers
+            for (int i = 0; i < registers.Length; i++)
+            {
+                registers[i] = new Word();
+            }
+
         }
         #endregion
 
