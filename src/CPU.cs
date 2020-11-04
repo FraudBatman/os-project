@@ -187,8 +187,6 @@ namespace os_project
             OPCODE = (((Utilities.HexToDec(data.ToCharArray()[0].ToString()) % 4) * 16))
             + Utilities.HexToDec(data.ToCharArray()[1].ToString());
                         
-            System.Console.WriteLine(OPCODE);
-
             // If nopcode, do nothing, return
             if (OPCODE == Utilities.HexToDec(NOPCODE))
             {
@@ -247,6 +245,7 @@ namespace os_project
             switch (OPCODE)
             {
                 case 4: // MOV
+                    
                     break;
                 case 5:
                     System.Console.WriteLine();
@@ -266,8 +265,11 @@ namespace os_project
                 case 10:
                     System.Console.WriteLine();
                     break;
+                case 16:
+                    System.Console.WriteLine();
+                    break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
+                    throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
 
             // //04: MOV
@@ -345,7 +347,7 @@ namespace os_project
                     System.Console.WriteLine();
                     break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
+                    throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
         }
         private void ExecuteUJump()
@@ -362,7 +364,7 @@ namespace os_project
                     // PCB.ProgramCounter = jumpAddr;
                     break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
+                    throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
         }
         private void ExecuteIO()
@@ -379,7 +381,7 @@ namespace os_project
                     // PCB.Out = acc;
                     break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
+                    throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
                 
             }
 
