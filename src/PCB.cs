@@ -218,7 +218,7 @@ namespace os_project
         /// <value></value>
         public Word In
         {
-            get { return MMU.ReadWord(Utilities.DecToHexAddr(InputBufferStart + inputBufferIndex++), this); }
+            get { return MMU.ReadWord(Utilities.DecToHexFullAddr(InputBufferStart + inputBufferIndex++), this); }
         }
 
         /// <summary>

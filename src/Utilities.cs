@@ -42,7 +42,7 @@ namespace os_project
         }
 
         public static string HexToBin(string hex, bool fill = false)
-        {   
+        {
             if (fill == true)
             {
                 return String.Join(String.Empty, hex.Select(c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0'))); ;
@@ -74,6 +74,18 @@ namespace os_project
             if (num.Length == 1)
                 num = "0" + num;
             return num;
+        }
+
+        public static string DecToHexFullAddr(int dec)
+        {
+            string num = DecToHex(dec);
+            string format = "0x";
+            //add leading 0's
+            for (int i = 1; i < 3 - num.Length; i++)
+            {
+                format += "0";
+            }
+            return format + num;
         }
 
         public static int[] parseControlCard(string controlCard)
@@ -121,8 +133,8 @@ namespace os_project
             get { return timer; }
         }
 
-        public static void StartTimer() 
-        { 
+        public static void StartTimer()
+        {
             // Start the timer
             timer.Start();
             return;
