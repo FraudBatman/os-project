@@ -245,59 +245,39 @@ namespace os_project
             switch (OPCODE)
             {
                 case 4: // MOV
-                    
+                    registers[dReg] = registers[bReg];
                     break;
-                case 5:
-                    System.Console.WriteLine();
+                case 5: // ADD
+                    registers[dReg] = registers[sReg0];
+                    registers[dReg] += registers[sReg1];
                     break;
-                case 6:
-                    System.Console.WriteLine();
+                case 6: // SUB
+                    registers[dReg] = registers[sReg0];
+                    registers[dReg] -= registers[sReg1];
                     break;
-                case 7:
-                    System.Console.WriteLine();
+                case 7: // MUL
+                    registers[dReg] = registers[sReg0];
+                    registers[dReg] *= registers[sReg1];
                     break;
-                case 8:
-                    System.Console.WriteLine();
+                case 8: // DIV
+                    registers[dReg] = registers[sReg0];
+                    registers[dReg] /= registers[sReg1];
                     break;
-                case 9:
-                    System.Console.WriteLine();
+                case 9: // AND
+                    registers[dReg] = registers[sReg0] & registers[sReg1];
                     break;
-                case 10:
-                    System.Console.WriteLine();
+                case 10: // OR
+                    registers[dReg] = registers[sReg0] | registers[sReg1];
                     break;
-                case 16:
-                    System.Console.WriteLine();
+                case 16: // SLT
+                    registers[dReg] = (
+                        registers[sReg0] < registers[bReg]?
+                        1 : 0
+                    );
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
-
-            // //04: MOV
-            // //Yeah you see the notes from before? those by like a million. skipping for now...
-
-            // //05: ADD
-            // //for 05-0A IDK if we'll have more than the two sRegs so keep that in mind
-            // dReg = sReg[0] + sReg[1];
-
-            // //06: SUB
-            // dReg = sReg[0] - sReg[1];
-
-            // //07: MUL
-            // dReg = sReg[0] * sReg[1];
-
-            // //08: DIV
-            // dReg = sReg[0] / sReg[1];
-
-            // //09: AND
-            // dReg = sReg[0] & sReg[1];
-
-            // //0A: OR
-            // dReg = sReg[0] | sReg[1];
-
-            // //10: SLT
-            // //Ternaries make me wet
-            // //Also we should probably get onto a prop for turning value into an int
-            // dReg = (sReg[0].ValueToInt < 0 ? 1 : 0);
         }
 
         private void ExecuteCondi()
