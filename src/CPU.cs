@@ -177,7 +177,7 @@ namespace os_project
             var sreg1 = Utilities.DecToHexAddr(sReg1);
             var dreg = Utilities.DecToHexAddr(dReg);
 
-            switch(opcode)
+            switch (opcode)
             {
                 case "04":
                     System.Console.WriteLine(opcode);
@@ -201,7 +201,7 @@ namespace os_project
                     System.Console.WriteLine(opcode);
                     break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode); 
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
             }
 
             // //04: MOV
@@ -310,56 +310,35 @@ namespace os_project
             // //Branches probably just means jump to a spot for each of these functions
             // //Again, hard pass for right now
         }
-        public void ExecuteUJump(int OPCode, int Addr)
+        public void ExecuteUJump(int OPCode, int addr)
         {
-            var opcode = Utilities.DecToHexAddr(OPCode);
-            var addr = Utilities.DecToHexAddr(Addr);
-
-            switch (opcode)
+            switch (Utilities.DecToHex(OPCode))
             {
                 case "12":
-                    System.Console.WriteLine(opcode);
+                    // //12: HLT
+                    // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
                     break;
                 case "14":
-                    System.Console.WriteLine(opcode);
+                    // //14: JMP
+                    // //Takes the value given and sets the PCB's prog. count. to it
+                    // PCB.ProgramCounter = jumpAddr;
                     break;
-                default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
             }
-
-            // //12: HLT
-            // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
-
-            // //14: JMP
-            // //Takes the value given and sets the PCB's prog. count. to it
-            // PCB.ProgramCounter = jumpAddr;
         }
-
-        public void ExecuteIO(int OPCode, int Reg0, int Reg1, int Addr)
+        public void ExecuteIO(int OPCode, int Reg0, int Reg1, int addr)
         {
-            var opcode = Utilities.DecToHexAddr(OPCode);
-            var reg0 = Utilities.DecToHexAddr(Reg0);
-            var reg1 = Utilities.DecToHexAddr(Reg1);
-            var addr = Utilities.DecToHexAddr(Addr);
-
-            switch (opcode)
+            switch (OPCode)
             {
-                case "00":
-                    System.Console.WriteLine(opcode);
+                case 0:
+                    // //OPCD 00: INSTR RD
+                    // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
+                    // acc = PCB.In;
                     break;
-                case "WR":
-                    System.Console.WriteLine(opcode);
+                case 1:
+                    // //01: WR
+                    // PCB.Out = acc;
                     break;
-                default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
             }
-
-            // //OPCD 00: INSTR RD
-            // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-            // acc = PCB.In;
-
-            // //01: WR
-            // PCB.Out = acc;
         }
         #endregion
     }
