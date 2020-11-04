@@ -306,28 +306,36 @@ namespace os_project
                     System.Console.WriteLine();
                     break;
                 case 15: // 0F: LDI
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("LDI");
+                    registers[dReg] = new Word(activeProgram.ProcessID, Utilities.DecToHex(addr));
                     break;
                 case 17: // 11: SLTI
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("SALTY");
+                    dReg = sReg0 < addr ? 1 : 0;
                     break;
                 case 21: // 15: BEQ
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("BEQ");
+                    PC = registers[bReg] == registers[dReg] ? addr : PC;
                     break;
                 case 22: // 16: BNE
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("BNE");
+                    PC = registers[bReg] != registers[dReg] ? addr : PC;
                     break;
                 case 23: // 17: BEZ
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("BEZ");
+                    PC = registers[bReg].ValueAsInt == 0 ? addr : PC;
                     break;
                 case 24: // 18: BNZ
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("BNZ");
+                    PC = registers[bReg].ValueAsInt != 0 ? addr : PC;
                     break;
                 case 25: // 19: BGZ
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("BGZ");
+                    PC = registers[bReg].ValueAsInt > 0 ? addr : PC;
                     break;
                 case 26: // 1A: BLZ
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("BLZ");
+                    PC = registers[bReg].ValueAsInt < 0 ? addr : PC;
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
