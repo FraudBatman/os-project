@@ -168,7 +168,7 @@ namespace os_project
             var pageNumbers = MMU.getPages(this.activeProgram);
             var page = pageNumbers[0];
             var offset = Utilities.DecToHexAddr(addr);
-            
+
 
             if (addr >= MMU.PAGE_SIZE)
             {
@@ -299,15 +299,8 @@ namespace os_project
                     registers[dReg] = registers[sReg0] | registers[sReg1];
                     break;
                 case 16: // SLT
-<<<<<<< Updated upstream
                     Console.WriteLine("SALT");
                     registers[dReg].Value = registers[sReg0].ValueAsInt < registers[bReg].ValueAsInt ? "00000000" : "00000001";
-=======
-                    // registers[dReg] = (
-                    //     registers[sReg0] < registers[bReg] ?
-                    //      : 0
-                    // );
->>>>>>> Stashed changes
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
