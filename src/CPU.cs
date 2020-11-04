@@ -19,13 +19,14 @@ namespace os_project
         public PCB ActiveProgram
         {
             get { return activeProgram; }
-            set {
+            set
+            {
                 // Sets the active program to the CPU
                 activeProgram = value;
 
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
-                activeProgram.ProgramCount = 0; 
+                activeProgram.ProgramCount = 0;
             }
         }
         #endregion
@@ -40,10 +41,10 @@ namespace os_project
         public int ID { get { return id; } }
 
         // Sets the active to program to notify it is waiting for a program
-        public CPU(int id = 0) 
-        { 
+        public CPU(int id = 0)
+        {
             this.id = id;
-            activeProgram = null; 
+            activeProgram = null;
         }
         #endregion
 
@@ -74,7 +75,7 @@ namespace os_project
         {
             // May need to be set outside of the method
             int pc = activeProgram.ProgramCount;
-            
+
             // Grab the instruction from memory
             var physicalAddress = EffectiveAddress();
 
@@ -117,22 +118,16 @@ namespace os_project
             // //will call it as PCB.In and PCB.Out
             // //Also PCB.ProgramCounter is the ProgramCounter for what step the CPU needs to run next;
 
-            // //OPCD 00: INSTR RD
-            // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-            // acc = PCB.In;
+            // //13: NOP
+            // //Well that was easy.
+            return "";
+        }
+        #endregion
 
-            // //01: WR
-            // PCB.Out = acc;
 
-            // //02: ST
-            // //requires address to store it to, string outAddr
-            // //NOTE: in this snippet, it just writes the acc. addtional setup required to write from a different register
-            // MMU.WriteWord(outAddr, activeProgram, acc);
-
-            // //03: LW
-            // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-            // acc = MMU.ReadWord(inAddr, activeProgram);
-
+        #region Execute Module
+        public void ExecuteArith(int OPCode, int sReg0, int sReg1, int dReg)
+        {
             // //04: MOV
             // //Yeah you see the notes from before? those by like a million. skipping for now...
 
@@ -155,6 +150,22 @@ namespace os_project
             // //0A: OR
             // dReg = sReg[0] | sReg[1];
 
+            // //10: SLT
+            // //Ternaries make me wet
+            // //Also we should probably get onto a prop for turning value into an int
+            // dReg = (sReg[0].ValueToInt < 0 ? 1 : 0);
+
+        }
+        public void ExecuteCondi(int OPCode, int bReg, int dReg, int addr)
+        {
+            // //02: ST
+            // //requires address to store it to, string outAddr
+            // //NOTE: in this snippet, it just writes the acc. addtional setup required to write from a different register
+            // MMU.WriteWord(outAddr, activeProgram, acc);
+
+            // //03: LW
+            // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
+            // acc = MMU.ReadWord(inAddr, activeProgram);
 
             // //0B: MOVI
             // //Not sure what the difference between 04 and 0B is, still skipping
@@ -162,10 +173,8 @@ namespace os_project
             // //0C - 0E: ADDI - DIVI
             // //Cross the issue of 05-0A with the issue of 04 and you get one hell of a skip from me
 
-            // //10: SLT
-            // //Ternaries make me wet
-            // //Also we should probably get onto a prop for turning value into an int
-            // dReg = (sReg[0].ValueToInt < 0 ? 1 : 0);
+            // //0F: LDI
+            // //Imma be honest I have no clue here
 
             // //11: SLTI
             // //I'm calling this one "Salty". That's my nickname for it now.
@@ -173,30 +182,28 @@ namespace os_project
             // //also word comparison operators
             // dReg = (sReg[0] < compare ? 1 : 0);
 
-            // //12: HLT
-            // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
-
-            // //13: NOP
-            // //Well that was easy.
-
-            // //14: JMP
-            // //Takes the value given and sets the PCB's prog. count. to it
-            // PCB.ProgramCounter = jumpAddr;
 
             // //15-1A: BEQ - BLZ
             // //Branches probably just means jump to a spot for each of these functions
             // //Again, hard pass for right now
-            return "";
         }
-        #endregion
-
-
-        #region Execute Module
-        public void Execute()
+        public void ExecuteUJump(int OPCode, int addr)
         {
-            // Run the instructions
+            // //12: HLT
+            // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
 
-            // Either compute or DMA channel the instruction
+            // //14: JMP
+            // //Takes the value given and sets the PCB's prog. count. to it
+            // PCB.ProgramCounter = jumpAddr;
+        }
+        public void ExecuteIO(int OPCode, int Reg0, int Reg1, int addr)
+        {
+            // //OPCD 00: INSTR RD
+            // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
+            // acc = PCB.In;
+
+            // //01: WR
+            // PCB.Out = acc;
         }
         #endregion
     }
