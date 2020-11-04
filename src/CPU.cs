@@ -33,10 +33,13 @@ namespace os_project
 
 
         //accumulator, naming it just acc due to my former crippling addiction to Shenzhen IO
-        int acc, PC, IOOperationCount;
+        int PC, IOOperationCount;
+
+        // Acc to word        
+        Word acc;
 
         // CPU registers
-        int?[] registers;
+        Word[] registers;
 
         // Save memory by not assigning if CPU is never instantiated
         int id;
@@ -49,14 +52,14 @@ namespace os_project
             activeProgram = null;
 
             // Initialize the registers
-            acc = 0;
-            registers = new int?[16];
+            acc = new Word(activeProgram.ProcessID);
+            registers = new Word[16];
 
             // Set the acc
             registers[0] = acc;
 
             // Set the zero register
-            registers[1] = 0;
+            registers[1] = new Word();
         }
         #endregion
 
@@ -270,10 +273,10 @@ namespace os_project
                     registers[dReg] = registers[sReg0] | registers[sReg1];
                     break;
                 case 16: // SLT
-                    registers[dReg] = (
-                        registers[sReg0] < registers[bReg] ?
-                        1 : 0
-                    );
+                    // registers[dReg] = (
+                    //     registers[sReg0] < registers[bReg] ?
+                    //     1 : 0
+                    // );
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
