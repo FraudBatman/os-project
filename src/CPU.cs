@@ -24,6 +24,12 @@ namespace os_project
                 PC = 0;
                 IOOperationCount = 0;
                 registers = new Word[16];
+
+                for (int i = 0; i < registers.Length; i++)
+                {
+                    registers[i] = new Word();
+                }
+
                 acc = new Word(activeProgram.ProcessID, "0x00000000");
                 registers[1] = new Word(activeProgram.ProcessID, "0x00000001");
             }
@@ -53,16 +59,6 @@ namespace os_project
         {
             this.id = id;
             activeProgram = null;
-
-            // Initialize the registers
-            registers = new Word[16];
-
-            // Initialize the registers
-            for (int i = 0; i < registers.Length; i++)
-            {
-                registers[i] = new Word();
-            }
-
         }
         #endregion
 
