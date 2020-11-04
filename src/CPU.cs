@@ -278,10 +278,8 @@ namespace os_project
                     registers[dReg] = registers[sReg0] | registers[sReg1];
                     break;
                 case 16: // SLT
-                    // registers[dReg] = (
-                    //     registers[sReg0] < registers[bReg] ?
-                    //     1 : 0
-                    // );
+                    Console.WriteLine("SALT");
+                    registers[dReg].Value = registers[sReg0].ValueAsInt < registers[bReg].ValueAsInt ? "00000000" : "00000001";
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
