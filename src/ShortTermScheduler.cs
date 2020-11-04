@@ -45,6 +45,9 @@ namespace os_project
         /// <param name="queuedList">the list to send</param>
         static void SendToDispatcher(LinkedList<PCB> queuedList)
         {
+            if (queuedList.First == null)
+                return;
+
             var status = Dispatcher.Dispatch(queuedList.First.Value);
 
             if (status != -1)

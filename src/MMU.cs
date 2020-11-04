@@ -327,7 +327,7 @@ namespace os_project
 
             //first H in 0xHHH is the page number in hex
             int pageNumber = Utilities.HexToDec(purehex.ToCharArray()[0].ToString());
-            int offset = Utilities.HexToDec(purehex.Substring(1)) / 4; // /4 accounts for the last two bits going unused.
+            int offset = Utilities.HexToDec(purehex.Substring(1));
 
             //find the page number, convert it to physical, then offset
             foreach (var page in programPages)

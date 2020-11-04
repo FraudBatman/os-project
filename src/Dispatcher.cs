@@ -18,10 +18,11 @@ namespace os_project
                     Driver.Cores[0].ActiveProgram = pcb;
                     Queue.Ready.Remove(pcb);
                     Queue.Running.AddLast(pcb);
+                    pcb.State = PCB.PROCESS_STATE.RUNNING;
                     return FindOpenCore();
                 }
 
-                return -1;
+                return 0;
             }
             else // => Multi CPU dispatch
             {
@@ -34,6 +35,7 @@ namespace os_project
                 Driver.Cores[openCoreId].ActiveProgram = pcb;
                 Queue.Ready.Remove(pcb);
                 Queue.Running.AddLast(pcb);
+                pcb.State = PCB.PROCESS_STATE.RUNNING;
 
                 if (Driver.Cores[openCoreId].ActiveProgram == null)
                     throw new System.Exception("Dispatcher never sent pcb to core, check dispatcher open core logic");

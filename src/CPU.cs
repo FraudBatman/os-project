@@ -1,6 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace os_project
@@ -48,19 +47,63 @@ namespace os_project
         }
         #endregion
 
+        #region Threads
+        public int Run()
+        {
+            // Fetch();
+            System.Console.WriteLine(Fetch().Value);
+
+            // Decode
+            return 0;
+        }
+
+        private async Task IOOperation(Word word)
+        {
+            // Add functionality for the DMA channel
+        }
+
+        private async Task Block()
+        {
+            // Blocking functionality for multi-core
+        }
+
+        #endregion
+
         #region Fetch Module
-        string Fetch()
+        Word Fetch()
         {
             // May need to be set outside of the method
-            int pc = ActiveProgram.ProgramCount;
+            int pc = activeProgram.ProgramCount;
+            
+            // Grab the instruction from memory
+            var physicalAddress = EffectiveAddress();
 
-            return "";
+            if (physicalAddress == "" || physicalAddress == null)
+                throw new Exception("Invalid address, validate effective address for PC");
+
+            // Return the instruction
+            return MMU.ReadWord(physicalAddress, activeProgram);
+        }
+
+        string EffectiveAddress()
+        {
+            // Converts the logical addresses to physical
+            var pageNumber = ActiveProgram.ProgramCount.ToString();
+            var offset = "00";
+
+            string directAddress =
+                "0x" +
+                pageNumber +
+                offset
+            ;
+
+            return directAddress;
         }
         #endregion
 
 
         #region Decode Module
-        string Decode(string instruction)
+        string Decode(Word instruction)
         {
             // //any variables called here are used for some snippets, just temporary for now
             // string outAddr = "";
@@ -149,12 +192,9 @@ namespace os_project
 
 
         #region Execute Module
-        void Execute(string instruction)
+        public void Execute()
         {
             // Run the instructions
-            // Fetch
-
-            // Decode
 
             // Either compute or DMA channel the instruction
         }

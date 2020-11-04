@@ -42,11 +42,79 @@ namespace os_project
                 // Loads the sections to RAM
                 System.Console.WriteLine("Loading process to memory...");
                 var pageSectionIdx = 0;
+                
+                var offsetHandler = jobList.Length + dataList.Length;
 
                 foreach(var page in MMU.getPages(currentPCB))
                 {
                     System.Console.Write("Load to page: " + page);
                     MMU.WritePage(page, currentPCB, sections[pageSectionIdx]);
+
+                    if (pageSectionIdx == 0)
+                    {
+                        // Grab the job addresses
+                        currentPCB.JobStartAddress = "0x" + Utilities.DecToHex(page) + "00";
+                        currentPCB.JobEndAddress = "0x" + Utilities.DecToHex(page) + Utilities.DecToHexAddr(jobList.Length - 1).ToString();
+
+                        // Grab the data addresses if it doesn't go over pages
+                        if (offsetHandler <= MMU.PAGE_SIZE)
+                        {
+                            currentPCB.DataStartAddress = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr((jobList.Length))
+                            ;
+                            currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr((offsetHandler - 1))
+                            ;
+                        }
+                        else
+                        {
+                            currentPCB.DataStartAddress = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(jobList.Length)
+                            ;
+                        }
+
+                        // Grab the start-buffer addresses
+                        if (offsetHandler < MMU.PAGE_SIZE)
+                        {
+                            currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(MMU.PAGE_SIZE - offsetHandler)
+                            ;
+                        }
+                    }
+                    else
+                    {
+                        var tempOffset = offsetHandler - MMU.PAGE_SIZE;
+
+                        // Grab the overhead data addresses on next pages
+                        if (offsetHandler > MMU.PAGE_SIZE)
+                        {
+                            currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset - 1)
+                            ;
+                        }
+
+                        // Grab the overhead input end-buffer address
+                        if (offsetHandler > MMU.PAGE_SIZE)
+                        {
+                            currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset)
+                            ;
+
+                            currentPCB.InputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize - 1)
+                            ;
+                        }
+
+                        // Grab the output buffer addresses on the next pages
+                        currentPCB.OutputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize)
+                            ;
+
+                        currentPCB.OutputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize)
+                            ;
+                    }
+
                     pageSectionIdx++;
                     System.Console.WriteLine(" | Page " + page + " mapped");
                 }
@@ -54,6 +122,8 @@ namespace os_project
                 // Queue handlers
                 Queue.New.RemoveFirst();
                 Queue.Ready.AddLast(currentPCB);
+                currentPCB.State = PCB.PROCESS_STATE.READY;
+                currentPCB.MemoryPages = MMU.getPages(currentPCB);
 
                 // Scheduling handlers
                 if (MMU.OpenPages == 0)

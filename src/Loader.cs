@@ -87,7 +87,7 @@ namespace os_project
                     else if (!instruction.Contains("END")) // => Instruction
                     {
                         // Build data list
-                        data.Add(new Word(currentInstructionPointer, instructionSet[currentJobPointer]));
+                        data.Add(new Word(printJobNumber + 1, instructionSet[currentJobPointer]));
                         currentInstructionPointer++;
                     }
                     else // => End - need to write the program data to the disk

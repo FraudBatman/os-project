@@ -40,6 +40,7 @@ namespace os_project
 
         private int programCount;
         private PROCESS_STATE state;
+        private int[] memoryPages;
 
         public int ProgramCount
         {
@@ -52,12 +53,31 @@ namespace os_project
             get { return state; }
             set { state = value; }
         }
+
+        public int[] MemoryPages
+        {
+            get { return memoryPages; }
+            set { memoryPages = value; }
+        }
     }
 
     // PCB: Job controller 
     public partial class PCB
     {
         int processID, instructionCount, priority, totalBufferSize;
+        string jobStartAddress, jobEndAddress;
+
+        public string JobStartAddress
+        {
+            get { return jobStartAddress; }
+            set { jobStartAddress = value; }
+        }
+
+        public string JobEndAddress
+        {
+            get { return jobEndAddress; }
+            set { jobEndAddress = value; }
+        }
 
         public int TotalBufferSize
         {
@@ -94,11 +114,56 @@ namespace os_project
         }
     }
 
+    // PCB: Buffer controller
+    public partial class PCB
+    {
+        public string startInputBufferAddr, endInputBufferAddr;
+
+        public string InputBufferStartAddr
+        {
+            get { return startInputBufferAddr; }
+            set { startInputBufferAddr = value; }
+        }
+
+        public string InputBufferEndAddr
+        {
+            get { return endInputBufferAddr; }
+            set { endInputBufferAddr = value; }
+        }
+
+        public string startOutputBufferAddr, endOutputBufferAddr;
+
+        public string OutputBufferStartAddr
+        {
+            get { return startInputBufferAddr; }
+            set { startInputBufferAddr = value; }
+        }
+
+        public string OutputBufferEndAddr
+        {
+            get { return endOutputBufferAddr; }
+            set { endOutputBufferAddr = value; }
+        }
+    }
+
     // PCB: Data controller
     public partial class PCB
     {
         private int inputBufferSize, outputBufferSize, tempBufferSize;
         private int inputBufferStart, outputBufferStart;
+        string dataStartAddress, dataEndAddress;
+
+        public string DataStartAddress
+        {
+            get { return dataStartAddress; }
+            set { dataStartAddress = value; }
+        }
+
+        public string DataEndAddress
+        {
+            get { return dataEndAddress; }
+            set { dataEndAddress = value; }
+        }
 
         public int InputBufferSize
         {

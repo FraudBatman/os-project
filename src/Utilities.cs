@@ -60,6 +60,15 @@ namespace os_project
         {
             return BinToHex(DecToBin(dec));
         }
+
+        public static string DecToHexAddr(int dec)
+        {
+            var num = BinToHex(DecToBin(dec));
+            if (num.Length == 1)
+                num = "0" + num;
+            return num;
+        }
+
         public static int[] parseControlCard(string controlCard)
         {
             string trimmedString;
