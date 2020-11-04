@@ -23,6 +23,8 @@ namespace os_project
                 // Might need to be refactored
                 PC = 0;
                 IOOperationCount = 0;
+                acc = new Word(activeProgram.ProcessID, "0x00000000");
+                registers[1] = new Word(activeProgram.ProcessID, "0x00000001");
             }
         }
         #endregion
@@ -52,14 +54,8 @@ namespace os_project
             activeProgram = null;
 
             // Initialize the registers
-            acc = new Word(activeProgram.ProcessID);
             registers = new Word[16];
 
-            // Set the acc
-            registers[0] = acc;
-
-            // Set the zero register
-            registers[1] = new Word();
         }
         #endregion
 
