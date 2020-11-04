@@ -8,13 +8,6 @@ namespace os_project
     // One way communication from dispatcher to driver, driver sends commands to the CPU
     public class CPU
     {
-        /* So look we all know that the opcode stuff isn't gonna be fun for anyone
-        I'm just gonna write a bunch of snippets for each instruction
-        And Jess can figure out how to implement them when we get there
-        mkay? mkay. -Nic
-        */
-
-        const string NOPCODE = "13";
 
         #region Program Attributes
         PCB activeProgram;
@@ -29,19 +22,21 @@ namespace os_project
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
                 PC = 0;
+                IOOperationCount = 0;
             }
         }
         #endregion
 
 
         #region CPU Attributes
+        const string NOPCODE = "13";
+
+
         //accumulator, naming it just acc due to my former crippling addiction to Shenzhen IO
-        Word acc;
+        int acc, PC, IOOperationCount;
 
-        // Program counter
-        int PC;
-
-        int IOOperationCount = 0;
+        // CPU registers
+        int?[] registers;
 
         // Save memory by not assigning if CPU is never instantiated
         int id;
@@ -52,13 +47,40 @@ namespace os_project
         {
             this.id = id;
             activeProgram = null;
+
+            // Initialize the registers
+            acc = 0;
+            registers = new int?[16];
+
+            // Set the acc
+            registers[0] = acc;
+
+            // Set the zero register
+            registers[1] = 0;
         }
         #endregion
 
         #region Threads
         public int Run()
         {
-            var currentInstruction = Fetch();
+            Queue.Ready.Remove(activeProgram);
+            Queue.Running.AddLast(activeProgram);
+            activeProgram.State = PCB.PROCESS_STATE.RUNNING;
+
+            while (PC < activeProgram.InstructionCount)
+            {
+                // Fetch data
+                var instruction = Fetch();
+                System.Console.WriteLine(instruction.Value);
+
+                // Decode data
+                Decode(instruction);
+
+                // Execute data
+               Execute();
+            }
+
+            EndProcess();
 
             // Decode
             return 0;
@@ -74,95 +96,118 @@ namespace os_project
             // Blocking functionality for multi-core
         }
 
+        // Ends the process
+        private void EndProcess()
+        {
+            // Adds the pcb to the terminated queue
+            var pcb = activeProgram;
+            Queue.Running.Remove(pcb);
+            Queue.Terminated.AddLast(pcb);
+
+            // Clears the CPU & PCB attributes
+            this.registers = null;
+            this.activeProgram = null;
+            this.PC = 0;
+            this.ExecutionPointer = null;
+            this.OPCODE = -1;
+        }
+
         #endregion
 
         #region Fetch Module
-        Word Fetch()
-        {
+        public Word Fetch()
+        {   
+            int[] pageNumbers = MMU.getPages(activeProgram);
+            int page = pageNumbers[0];
+            var offset = Utilities.DecToHexAddr(PC);
+
+            if(PC >= MMU.PAGE_SIZE)
+            {
+                page = pageNumbers[1];
+                offset = (PC - MMU.PAGE_SIZE).ToString();
+            }
+
             // Grab the instruction from memory
-            var physicalAddress = EffectiveAddress();
+            var physicalAddress = EffectiveAddress(true, page, offset);
 
             if (physicalAddress == "" || physicalAddress == null)
                 throw new Exception("Invalid address, validate effective address for PC");
 
-            // Return the instruction
+            PC++;
+
             return MMU.ReadWord(physicalAddress, activeProgram);
         }
 
-        string EffectiveAddress()
+        string EffectiveAddress(bool isDirect, int pageNumber, string offset = "00")
         {
-            // Converts the logical addresses to physical
-            var pageNumber = ActiveProgram.ProgramCount.ToString();
-            var offset = "00";
+            if(isDirect)
+            {
+                // Converts the logical addresses to physical
+                string directAddress =
+                    "0x" +
+                    Utilities.DecToHex(pageNumber) +
+                    offset
+                ;
 
-            string directAddress =
-                "0x" +
-                pageNumber +
-                offset
-            ;
+                return directAddress;
+            }
+            else
+            {
+                // Converts to physical indirect address
+            }
 
-            return directAddress;
+            return null;
         }
         #endregion
 
 
         #region Decode Module
+        private int OPCODE, sReg0, sReg1, dReg, addr, bReg, reg1, reg2;
+        private string ExecutionPointer, jumpToAddr;
+
         /// <summary>
         /// Takes an instruction and converts it into a usable format before sending it to an execute
         /// </summary>
         /// <param name="instruction">The instruction to decode</param>
-        void Decode(Word instruction)
+        public void Decode(Word instruction)
         {
-            string data = instruction.Value;
+            // Convert to binary
+            string data = Utilities.HexToBin(instruction.Value);
+            System.Console.WriteLine(data);
+            
+            // Parse the instruction type
+            ExecutionPointer = data.Substring(0, 2);
 
-            //NOP check
-            if (data.Substring(1) == NOPCODE)
+            // Parse the opcode - always 6 bits
+            OPCODE = Utilities.BinToDec(data.Substring(2, 6));
+            System.Console.WriteLine(OPCODE);
+
+            // If nopcode, do nothing, return
+            if (OPCODE == Utilities.HexToDec(NOPCODE))
             {
-                // //13: NOP
-                // //Well that was easy.
+                ExecutionPointer = null;
                 return;
             }
 
-            //gets first 2 bits of data
-            int formatData = Utilities.HexToDec(data.ToCharArray()[0].ToString()) / 4;
-
-            //gets the opcode. god knows how
-            int opCode = (((Utilities.HexToDec(data.ToCharArray()[0].ToString()) % 4) * 16))
-            + Utilities.HexToDec(data.ToCharArray()[1].ToString());
-
-            switch (formatData)
+            switch (ExecutionPointer)
             {
-                case 0:
-                    //Arithmetic
-                    //Hex[2] = sReg0;
-                    //Hex[3] = sReg1;
-                    //Hex[4] = dReg;
-                    ExecuteArith(opCode, Utilities.HexToDec(data.ToCharArray()[2].ToString()),
-                                    Utilities.HexToDec(data.ToCharArray()[3].ToString()),
-                                    Utilities.HexToDec(data.ToCharArray()[4].ToString()));
+                case "00": // => Arithmetic
+                    sReg0 = Utilities.BinToDec(data.Substring(8, 4));
+                    sReg1 = Utilities.BinToDec(data.Substring(12, 4));
+                    dReg = Utilities.BinToDec(data.Substring(16, 4));
                     break;
-                case 1:
-                    //Conditional
-                    //Hex[2] = bReg;
-                    //Hex[3] = dReg;
-                    //Hex[4-7] = addr;
-                    ExecuteCondi(opCode, Utilities.HexToDec(data.ToCharArray()[2].ToString()),
-                                    Utilities.HexToDec(data.ToCharArray()[3].ToString()),
-                                    Utilities.HexToDec(data.Substring(4, 4)));
+                case "01": // => Conditional
+                    bReg = Utilities.BinToDec(data.Substring(8, 4));
+                    dReg = Utilities.BinToDec(data.Substring(8, 4));
+                    addr = Utilities.BinToDec(data.Substring(16));
                     break;
-                case 2:
-                    //Uncon. Jump
-                    //Hex[2-7] = addr;
-                    ExecuteUJump(opCode, Utilities.HexToDec(data.Substring(2, 6)));
+                case "10": // => Uncon. Jump -> may need to refactor
+                    jumpToAddr = data.Substring(8);
                     break;
-                case 3:
-                    //IO
-                    //Hex[2] = Reg0;
-                    //Hex[3] = Reg1;
-                    //Hex[4-7] = addr;
-                    ExecuteIO(opCode, Utilities.HexToDec(data.ToCharArray()[2].ToString()),
-                                Utilities.HexToDec(data.ToCharArray()[3].ToString()),
-                                Utilities.HexToDec(data.Substring(4, 4)));
+                case "11": // => IO
+                    reg1 = Utilities.BinToDec(data.Substring(8, 4));
+                    reg2 = Utilities.BinToDec(data.Substring(8, 4));
+                    addr = Utilities.BinToDec(data.Substring(16));
                     break;
             }
         }
@@ -170,38 +215,53 @@ namespace os_project
 
 
         #region Execute Module
-        public void ExecuteArith(int OPCode, int sReg0, int sReg1, int dReg)
+        public void Execute(int opCode)
         {
-            var opcode = Utilities.DecToHexAddr(OPCode);
-            var sreg0 = Utilities.DecToHexAddr(sReg0);
-            var sreg1 = Utilities.DecToHexAddr(sReg1);
-            var dreg = Utilities.DecToHexAddr(dReg);
-
-            switch (opcode)
+            switch (ExecutionPointer)
             {
-                case "04":
-                    System.Console.WriteLine(opcode);
+                case "00": // => Arithmetic
+                    ExecuteArith();
                     break;
-                case "05":
-                    System.Console.WriteLine(opcode);
+                case "01": // => Conditional
+                    ExecuteCondi();
                     break;
-                case "06":
-                    System.Console.WriteLine(opcode);
+                case "10": // => Uncon. Jump
+                    ExecuteUJump();
                     break;
-                case "08":
-                    System.Console.WriteLine(opcode);
-                    break;
-                case "09":
-                    System.Console.WriteLine(opcode);
-                    break;
-                case "0A":
-                    System.Console.WriteLine(opcode);
-                    break;
-                case "10":
-                    System.Console.WriteLine(opcode);
+                case "11": // => IO
+                    ExecuteIO();
                     break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
+                    return;
+            }
+        }
+
+        private void ExecuteArith()
+        {
+            switch (OPCODE)
+            {
+                case 4: // MOV
+                    break;
+                case 5:
+                    System.Console.WriteLine();
+                    break;
+                case 6:
+                    System.Console.WriteLine();
+                    break;
+                case 7:
+                    System.Console.WriteLine();
+                    break;
+                case 8:
+                    System.Console.WriteLine();
+                    break;
+                case 9:
+                    System.Console.WriteLine();
+                    break;
+                case 10:
+                    System.Console.WriteLine();
+                    break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
             }
 
             // //04: MOV
@@ -232,113 +292,89 @@ namespace os_project
             // dReg = (sReg[0].ValueToInt < 0 ? 1 : 0);
         }
 
-        public void ExecuteCondi(int OPCode, int bReg, int dReg, int Addr)
+        private void ExecuteCondi()
         {
-            var opcode = Utilities.DecToHexAddr(OPCode);
-            var breg = Utilities.DecToHexAddr(bReg);
-            var dreg = Utilities.DecToHexAddr(dReg);
-            var addr = Utilities.DecToHexAddr(Addr);
-
-            switch (opcode)
+            switch (OPCODE)
             {
-                case "02":
-                    System.Console.WriteLine(opcode);
+                case 2: // 02: ST
+                    System.Console.WriteLine();
                     break;
-                case "03":
-                    System.Console.WriteLine(opcode);
+                case 3: // 03: LW
+                    System.Console.WriteLine();
                     break;
-                case "08":
-                    System.Console.WriteLine(opcode);
+                case 11: // 0B: MOVI
+                    System.Console.WriteLine();
                     break;
-                case "0C":
-                    System.Console.WriteLine(opcode);
+                case 12: // 0C: ADDI
+                    System.Console.WriteLine();
                     break;
-                case "0F":
-                    System.Console.WriteLine(opcode);
+                case 13: // 0D: MULI
+                    System.Console.WriteLine();
                     break;
-                case "11":
-                    System.Console.WriteLine(opcode);
+                case 14: // 0E: DIVI
+                    System.Console.WriteLine();
                     break;
-                case "15":
-                    System.Console.WriteLine(opcode);
+                case 15: // 0F: LDI
+                    System.Console.WriteLine();
                     break;
-                case "16":
-                    System.Console.WriteLine(opcode);
+                case 17: // 11: SLTI
+                    System.Console.WriteLine();
                     break;
-                case "17":
-                    System.Console.WriteLine(opcode);
+                case 21: // 15: BEQ
+                    System.Console.WriteLine();
                     break;
-                case "18":
-                    System.Console.WriteLine(opcode);
+                case 22: // 16: BNE
+                    System.Console.WriteLine();
                     break;
-                case "19":
-                    System.Console.WriteLine(opcode);
+                case 23: // 17: BEZ
+                    System.Console.WriteLine();
                     break;
-                case "1A":
-                    System.Console.WriteLine(opcode);
+                case 24: // 18: BNZ
+                    System.Console.WriteLine();
+                    break;
+                case 25: // 19: BGZ
+                    System.Console.WriteLine();
+                    break;
+                case 26: // 1A: BLZ
+                    System.Console.WriteLine();
                     break;
                 default:
-                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
             }
-
-            // //02: ST
-            // //requires address to store it to, string outAddr
-            // //NOTE: in this snippet, it just writes the acc. addtional setup required to write from a different register
-            // MMU.WriteWord(outAddr, activeProgram, acc);
-
-            // //03: LW
-            // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-            // acc = MMU.ReadWord(inAddr, activeProgram);
-
-            // //0B: MOVI
-            // //Not sure what the difference between 04 and 0B is, still skipping
-
-            // //0C - 0E: ADDI - DIVI
-            // //Cross the issue of 05-0A with the issue of 04 and you get one hell of a skip from me
-
-            // //0F: LDI
-            // //Imma be honest I have no clue here
-
-            // //11: SLTI
-            // //I'm calling this one "Salty". That's my nickname for it now.
-            // //Salty requires another word to compare to
-            // //also word comparison operators
-            // dReg = (sReg[0] < compare ? 1 : 0);
-
-
-            // //15-1A: BEQ - BLZ
-            // //Branches probably just means jump to a spot for each of these functions
-            // //Again, hard pass for right now
         }
-        public void ExecuteUJump(int OPCode, int addr)
+        private void ExecuteUJump()
         {
-            switch (Utilities.DecToHex(OPCode))
+            switch (OPCODE)
             {
-                case "12":
-                    // //12: HLT
+                case 18: // 12: HLT
+                    System.Console.WriteLine();
                     // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
                     break;
-                case "14":
-                    // //14: JMP
+                case 20: // 14: JMP
+                    System.Console.WriteLine();
                     // //Takes the value given and sets the PCB's prog. count. to it
                     // PCB.ProgramCounter = jumpAddr;
                     break;
             }
         }
-        public void ExecuteIO(int OPCode, int Reg0, int Reg1, int addr)
+        private void ExecuteIO()
         {
-            switch (OPCode)
+            switch (OPCODE)
             {
-                case 0:
-                    // //OPCD 00: INSTR RD
+                case 0: // 00: RD
+                    System.Console.WriteLine();
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
                     // acc = PCB.In;
                     break;
-                case 1:
-                    // //01: WR
+                case 1: // 01: WR
+                    System.Console.WriteLine();
                     // PCB.Out = acc;
                     break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
+                
             }
+
         }
         #endregion
     }

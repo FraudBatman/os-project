@@ -16,9 +16,6 @@ namespace os_project
                 {
                     System.Console.WriteLine("Dispatching PCB: " + pcb.ProcessID);
                     Driver.Cores[0].ActiveProgram = pcb;
-                    Queue.Ready.Remove(pcb);
-                    Queue.Running.AddLast(pcb);
-                    pcb.State = PCB.PROCESS_STATE.RUNNING;
                     return FindOpenCore();
                 }
 
@@ -33,10 +30,6 @@ namespace os_project
 
                 System.Console.WriteLine("Dispatching PCB: " + pcb.ProcessID);
                 Driver.Cores[openCoreId].ActiveProgram = pcb;
-                Queue.Ready.Remove(pcb);
-                Queue.Running.AddLast(pcb);
-                pcb.State = PCB.PROCESS_STATE.RUNNING;
-
                 if (Driver.Cores[openCoreId].ActiveProgram == null)
                     throw new System.Exception("Dispatcher never sent pcb to core, check dispatcher open core logic");
 

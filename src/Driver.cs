@@ -60,9 +60,16 @@ namespace os_project
             System.Console.WriteLine("- SHORT-TERM SCHEDULER -");
             ShortTermScheduler.Start();
             System.Console.Write("Ready Queue = " + Queue.Ready.Count);
-            System.Console.Write(" | Running Queue = " + Queue.Running.Count + "\n");
 
+            
+            // while (Queue.Ready.First != null)
+            // {
+            System.Console.WriteLine("\n- CPU -");
             Cores[0].Run();
+            // }
+
+
+            System.Console.WriteLine("Terminated Queue = " + Queue.Terminated.Count + "\n");
         }
 
 

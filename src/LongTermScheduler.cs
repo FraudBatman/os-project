@@ -113,6 +113,14 @@ namespace os_project
                         currentPCB.OutputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize)
                             ;
+
+                        currentPCB.TempStartBuffer = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize)
+                            ;
+
+                        currentPCB.TempEndBuffer = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize + currentPCB.TempBufferSize)
+                            ;
                     }
 
                     pageSectionIdx++;
