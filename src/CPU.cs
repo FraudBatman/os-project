@@ -303,16 +303,20 @@ namespace os_project
                     System.Console.WriteLine();
                     break;
                 case 11: // 0B: MOVI
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("MOVI");
+                    registers[dReg].Value = Utilities.WordFill(Utilities.DecToHex(addr));
                     break;
                 case 12: // 0C: ADDI
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("ADDI");
+                    registers[dReg] = registers[dReg] + new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 13: // 0D: MULI
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("MULI");
+                    registers[dReg] = registers[dReg] * new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 14: // 0E: DIVI
-                    System.Console.WriteLine();
+                    System.Console.WriteLine("DIVI");
+                    registers[dReg] = registers[dReg] / new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 15: // 0F: LDI
                     System.Console.WriteLine("LDI");
