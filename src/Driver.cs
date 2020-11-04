@@ -35,8 +35,21 @@ namespace os_project
             // Cross-platform compatibility
             SetOSPlatform(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
+
+            //Ask for single-core
             // Start CPUs - false == single | true == multi
-            StartCPUs(false);
+            Console.WriteLine("Type 1 for single-core, anything else for multi-core");
+            if (Console.ReadLine() == "1")
+                StartCPUs(false);
+            else
+                StartCPUs(true);
+
+            //ask for policy
+            Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            if (Console.ReadLine() == "1")
+                ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            else
+                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Loader
             System.Console.WriteLine("- LOADER -");
@@ -45,15 +58,15 @@ namespace os_project
 
             // Long-term Scheduler
             System.Console.WriteLine("\n- LONG-TERM SCHEDULER -");
-            
+
             //
             // Uncommenting this schedules all the processes
             // - dont do it -
             //
             // while(Queue.New.First != null)
             // {
-                // LongTermScheduler.Execute();
-                // TerminateProcesses();
+            LongTermScheduler.Execute();
+            // TerminateProcesses();
             // }
 
             // Short-term Scheduler -> FIFO policy
@@ -103,11 +116,11 @@ namespace os_project
             {
                 // Sets 4 cpus with empty active programs
                 Cores = new CPU[4];
-                for(int i = 0; i<Cores.Length; i++)
+                for (int i = 0; i < Cores.Length; i++)
                     Cores[i] = new CPU(i);
             }
         }
-        
+
         /// <summary>
         /// ERASE THIS BEFORE THE PROJECT IS DUE
         /// Used for proof of concept to terminate processes for running through the scheduler

@@ -4,7 +4,7 @@ namespace os_project
 {
     public static class ShortTermScheduler
     {
-        const SchedulerPolicy POLICY = SchedulerPolicy.FIFO;
+        public static SchedulerPolicy POLICY = SchedulerPolicy.FIFO;
         public static void Start()
         {
             switch (POLICY)
@@ -104,7 +104,7 @@ namespace os_project
         }
     }
 
-    enum SchedulerPolicy
+    public enum SchedulerPolicy
     {
         FIFO,
         Priority
