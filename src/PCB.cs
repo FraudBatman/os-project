@@ -216,9 +216,9 @@ namespace os_project
         /// Returns the next word in the input buffer, auto increments the read index
         /// </summary>
         /// <value></value>
-        public Word In
+        public Word In()
         {
-            get { return MMU.ReadWord(Utilities.DecToHexFullAddr(InputBufferStart + inputBufferIndex++), this); }
+            return MMU.ReadWord(Utilities.DecToHexFullAddr(InputBufferStart + inputBufferIndex++), this);
         }
 
         /// <summary>

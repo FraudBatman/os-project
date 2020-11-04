@@ -382,7 +382,7 @@ namespace os_project
             {
                 case 0: // 00: RD
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-                    acc = activeProgram.In;
+                    acc = activeProgram.In();
                     break;
                 case 1: // 01: WR
                     activeProgram.Out(acc);
