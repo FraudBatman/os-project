@@ -52,7 +52,7 @@ namespace os_project
             //
             // while(Queue.New.First != null)
             // {
-                LongTermScheduler.Execute();
+                // LongTermScheduler.Execute();
                 // TerminateProcesses();
             // }
 
@@ -61,13 +61,24 @@ namespace os_project
             // ShortTermScheduler.Start();
             System.Console.Write("Ready Queue = " + Queue.Ready.Count);
 
-            
-            while (Queue.Ready.First != null)
+            while (Queue.New.First != null)
             {
-                System.Console.WriteLine("\n- CPU -");
-                ShortTermScheduler.Start();
-                Cores[0].Run();
+                LongTermScheduler.Execute();
+
+                while (Queue.Ready.First != null)
+                {
+                    System.Console.WriteLine("\n- CPU -");
+                    ShortTermScheduler.Start();
+                    Cores[0].Run();
+                }
             }
+
+            // while (Queue.Ready.First != null)
+            // {
+            //     System.Console.WriteLine("\n- CPU -");
+            //     ShortTermScheduler.Start();
+            //     Cores[0].Run();
+            // }
 
 
             System.Console.WriteLine("Terminated Queue = " + Queue.Terminated.Count + "\n");

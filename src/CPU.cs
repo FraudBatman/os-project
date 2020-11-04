@@ -88,16 +88,6 @@ namespace os_project
             return 0;
         }
 
-        private async Task IOOperation(Word word)
-        {
-            // Add functionality for the DMA channel
-        }
-
-        private async Task Block()
-        {
-            // Blocking functionality for multi-core
-        }
-
         // Ends the process
         private void EndProcess()
         {
@@ -152,11 +142,6 @@ namespace os_project
 
                 return directAddress;
             }
-            else
-            {
-                // Converts to physical indirect address
-            }
-
             return null;
         }
 
