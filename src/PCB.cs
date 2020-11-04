@@ -218,6 +218,7 @@ namespace os_project
         /// <value></value>
         public Word In()
         {
+            InputBufferStart = Utilities.HexToDec(startInputBufferAddr.Remove(0, 2));
             return MMU.ReadWord(Utilities.DecToHexFullAddr(InputBufferStart + inputBufferIndex++), this);
         }
 
@@ -227,6 +228,7 @@ namespace os_project
         /// <param name="writeValue">The value to replace at the current index</param>
         public void Out(Word writeValue)
         {
+            OutputBufferStart = Utilities.HexToDec(OutputBufferStartAddr.Remove(0, 2));
             MMU.WriteWord(Utilities.DecToHexFullAddr(OutputBufferStart + outputBufferIndex++), this, writeValue);
         }
     }
