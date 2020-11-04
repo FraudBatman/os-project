@@ -28,7 +28,7 @@ namespace os_project
 
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
-                activeProgram.ProgramCount = 0;
+                PC = 0;
             }
         }
         #endregion
@@ -37,6 +37,11 @@ namespace os_project
         #region CPU Attributes
         //accumulator, naming it just acc due to my former crippling addiction to Shenzhen IO
         Word acc;
+
+        // Program counter
+        int PC;
+
+        int IOOperationCount = 0;
 
         // Save memory by not assigning if CPU is never instantiated
         int id;
@@ -53,8 +58,7 @@ namespace os_project
         #region Threads
         public int Run()
         {
-            // Fetch();
-            System.Console.WriteLine(Fetch().Value);
+            var currentInstruction = Fetch();
 
             // Decode
             return 0;
@@ -75,9 +79,6 @@ namespace os_project
         #region Fetch Module
         Word Fetch()
         {
-            // May need to be set outside of the method
-            int pc = activeProgram.ProgramCount;
-
             // Grab the instruction from memory
             var physicalAddress = EffectiveAddress();
 
@@ -171,6 +172,38 @@ namespace os_project
         #region Execute Module
         public void ExecuteArith(int OPCode, int sReg0, int sReg1, int dReg)
         {
+            var opcode = Utilities.DecToHexAddr(OPCode);
+            var sreg0 = Utilities.DecToHexAddr(sReg0);
+            var sreg1 = Utilities.DecToHexAddr(sReg1);
+            var dreg = Utilities.DecToHexAddr(dReg);
+
+            switch(opcode)
+            {
+                case "04":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "05":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "06":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "08":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "09":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "0A":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "10":
+                    System.Console.WriteLine(opcode);
+                    break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode); 
+            }
+
             // //04: MOV
             // //Yeah you see the notes from before? those by like a million. skipping for now...
 
@@ -197,10 +230,57 @@ namespace os_project
             // //Ternaries make me wet
             // //Also we should probably get onto a prop for turning value into an int
             // dReg = (sReg[0].ValueToInt < 0 ? 1 : 0);
-
         }
-        public void ExecuteCondi(int OPCode, int bReg, int dReg, int addr)
+
+        public void ExecuteCondi(int OPCode, int bReg, int dReg, int Addr)
         {
+            var opcode = Utilities.DecToHexAddr(OPCode);
+            var breg = Utilities.DecToHexAddr(bReg);
+            var dreg = Utilities.DecToHexAddr(dReg);
+            var addr = Utilities.DecToHexAddr(Addr);
+
+            switch (opcode)
+            {
+                case "02":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "03":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "08":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "0C":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "0F":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "11":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "15":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "16":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "17":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "18":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "19":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "1A":
+                    System.Console.WriteLine(opcode);
+                    break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
+            }
+
             // //02: ST
             // //requires address to store it to, string outAddr
             // //NOTE: in this snippet, it just writes the acc. addtional setup required to write from a different register
@@ -230,8 +310,23 @@ namespace os_project
             // //Branches probably just means jump to a spot for each of these functions
             // //Again, hard pass for right now
         }
-        public void ExecuteUJump(int OPCode, int addr)
+        public void ExecuteUJump(int OPCode, int Addr)
         {
+            var opcode = Utilities.DecToHexAddr(OPCode);
+            var addr = Utilities.DecToHexAddr(Addr);
+
+            switch (opcode)
+            {
+                case "12":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "14":
+                    System.Console.WriteLine(opcode);
+                    break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
+            }
+
             // //12: HLT
             // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
 
@@ -239,8 +334,26 @@ namespace os_project
             // //Takes the value given and sets the PCB's prog. count. to it
             // PCB.ProgramCounter = jumpAddr;
         }
-        public void ExecuteIO(int OPCode, int Reg0, int Reg1, int addr)
+
+        public void ExecuteIO(int OPCode, int Reg0, int Reg1, int Addr)
         {
+            var opcode = Utilities.DecToHexAddr(OPCode);
+            var reg0 = Utilities.DecToHexAddr(Reg0);
+            var reg1 = Utilities.DecToHexAddr(Reg1);
+            var addr = Utilities.DecToHexAddr(Addr);
+
+            switch (opcode)
+            {
+                case "00":
+                    System.Console.WriteLine(opcode);
+                    break;
+                case "WR":
+                    System.Console.WriteLine(opcode);
+                    break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + opcode);
+            }
+
             // //OPCD 00: INSTR RD
             // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
             // acc = PCB.In;

@@ -61,6 +61,8 @@ namespace os_project
             ShortTermScheduler.Start();
             System.Console.Write("Ready Queue = " + Queue.Ready.Count);
             System.Console.Write(" | Running Queue = " + Queue.Running.Count + "\n");
+
+            Cores[0].Run();
         }
 
 
