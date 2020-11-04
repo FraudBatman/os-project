@@ -359,11 +359,11 @@ namespace os_project
                 case 0: // 00: RD
                     System.Console.WriteLine();
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-                    // acc = PCB.In;
+                    acc = activeProgram.In.ValueAsInt;
                     break;
                 case 1: // 01: WR
                     System.Console.WriteLine();
-                    // PCB.Out = acc;
+                    activeProgram.Out(new Word(0, Utilities.WordFill(Utilities.DecToHex(acc))));
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);

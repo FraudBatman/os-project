@@ -81,10 +81,12 @@ namespace os_project
 
         public int TotalBufferSize
         {
-            get { return 
-                this.BufferSize +
-                (Disk.ReadFromDisk(this.ProcessID)[0].Length) +
-                (Disk.ReadFromDisk(this.ProcessID)[1].Length);
+            get
+            {
+                return
+              this.BufferSize +
+              (Disk.ReadFromDisk(this.ProcessID)[0].Length) +
+              (Disk.ReadFromDisk(this.ProcessID)[1].Length);
             }
         }
 
@@ -165,6 +167,7 @@ namespace os_project
     {
         private int inputBufferSize, outputBufferSize, tempBufferSize;
         private int inputBufferStart, outputBufferStart;
+        private int inputBufferIndex, outputBufferIndex;
         string dataStartAddress, dataEndAddress;
 
         public string DataStartAddress
@@ -208,6 +211,24 @@ namespace os_project
             get { return outputBufferStart; }
             set { outputBufferStart = value; }
         }
+
+        /// <summary>
+        /// Returns the next word in the input buffer, auto increments the read index
+        /// </summary>
+        /// <value></value>
+        public Word In
+        {
+            get { return MMU.ReadWord(Utilities.DecToHexAddr(InputBufferStart + inputBufferIndex++), this); }
+        }
+
+        /// <summary>
+        /// Sets the next word in the output buffer, increments the write index
+        /// </summary>
+        /// <param name="writeValue">The value to replace at the current index</param>
+        public void Out(Word writeValue)
+        {
+            MMU.WriteWord(Utilities.DecToHexAddr(OutputBufferStart + outputBufferIndex++), this, writeValue);
+        }
     }
 
     // PCB: Disk controller
@@ -221,7 +242,7 @@ namespace os_project
             set { startDiskAddr = value; }
         }
 
-        public int DiskAddress 
+        public int DiskAddress
         {
             get { return processID - 1; }
         }
