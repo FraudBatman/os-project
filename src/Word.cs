@@ -38,7 +38,15 @@ namespace os_project
         public string Value
         {
             get { return value; }
-            set { this.value = value; }
+            set
+            {
+                if (value.Substring(0, 2) == "0x")
+                {
+                    this.value = value.Remove(0, 2);
+                }
+                else
+                    this.value = value;
+            }
         }
 
         /// <summary>
