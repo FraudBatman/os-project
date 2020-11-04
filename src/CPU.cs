@@ -108,7 +108,6 @@ namespace os_project
             this.registers = null;
             this.activeProgram = null;
             this.PC = 0;
-            this.ExecutionPointer = null;
             this.OPCODE = -1;
         }
 
@@ -162,8 +161,8 @@ namespace os_project
 
 
         #region Decode Module
-        private int OPCODE, sReg0, sReg1, dReg, addr, bReg, reg1, reg2;
-        private string ExecutionPointer, jumpToAddr;
+        private int ExecutionPointer, OPCODE, sReg0, sReg1, dReg, addr, bReg, reg1, reg2;
+        private string jumpToAddr;
 
         /// <summary>
         /// Takes an instruction and converts it into a usable format before sending it to an execute
@@ -171,43 +170,50 @@ namespace os_project
         /// <param name="instruction">The instruction to decode</param>
         public void Decode(Word instruction)
         {
-            // Convert to binary
-            string data = Utilities.HexToBin(instruction.Value, true);
-            System.Console.WriteLine(data);
-            
-            // Parse the instruction type
-            ExecutionPointer = data.Substring(0, 2);
+            string data = instruction.Value;
 
-            // Parse the opcode - always 6 bits
-            OPCODE = Utilities.BinToDec(data.Substring(2, 6));
+            //NOP check
+            if (data.Substring(1) == NOPCODE)
+            {
+                // //13: NOP
+                // //Well that was easy.
+                return;
+            }
+
+            //gets first 2 bits of data
+            ExecutionPointer = Utilities.HexToDec(data.ToCharArray()[0].ToString()) / 4;
+
+            //gets the opcode. god knows how
+            OPCODE = (((Utilities.HexToDec(data.ToCharArray()[0].ToString()) % 4) * 16))
+            + Utilities.HexToDec(data.ToCharArray()[1].ToString());
+                        
             System.Console.WriteLine(OPCODE);
 
             // If nopcode, do nothing, return
             if (OPCODE == Utilities.HexToDec(NOPCODE))
             {
-                ExecutionPointer = null;
                 return;
             }
 
             switch (ExecutionPointer)
             {
-                case "00": // => Arithmetic
-                    sReg0 = Utilities.BinToDec(data.Substring(8, 4));
-                    sReg1 = Utilities.BinToDec(data.Substring(12, 4));
-                    dReg = Utilities.BinToDec(data.Substring(16, 4));
+                case 00: // => Arithmetic
+                    sReg0 = Utilities.HexToDec(data.ToCharArray()[2].ToString());
+                    sReg1 = Utilities.HexToDec(data.ToCharArray()[3].ToString());
+                    dReg = Utilities.HexToDec(data.ToCharArray()[4].ToString());
                     break;
-                case "01": // => Conditional
-                    bReg = Utilities.BinToDec(data.Substring(8, 4));
-                    dReg = Utilities.BinToDec(data.Substring(8, 4));
-                    addr = Utilities.BinToDec(data.Substring(16));
+                case 01: // => Conditional
+                    bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
+                    dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
+                    addr = Utilities.HexToDec(data.Substring(4, 4));
                     break;
-                case "10": // => Uncon. Jump -> may need to refactor
+                case 10: // => Uncon. Jump -> may need to refactor
                     jumpToAddr = data.Substring(8);
                     break;
-                case "11": // => IO
-                    reg1 = Utilities.BinToDec(data.Substring(8, 4));
-                    reg2 = Utilities.BinToDec(data.Substring(8, 4));
-                    addr = Utilities.BinToDec(data.Substring(16));
+                case 11: // => IO
+                    reg1 = Utilities.HexToDec(data.ToCharArray()[2].ToString());
+                    reg2 = Utilities.HexToDec(data.ToCharArray()[3].ToString());
+                    addr = Utilities.HexToDec(data.Substring(4, 4));
                     break;
             }
         }
@@ -219,16 +225,16 @@ namespace os_project
         {
             switch (ExecutionPointer)
             {
-                case "00": // => Arithmetic
+                case 00: // => Arithmetic
                     ExecuteArith();
                     break;
-                case "01": // => Conditional
+                case 01: // => Conditional
                     ExecuteCondi();
                     break;
-                case "10": // => Uncon. Jump
+                case 10: // => Uncon. Jump
                     ExecuteUJump();
                     break;
-                case "11": // => IO
+                case 11: // => IO
                     ExecuteIO();
                     break;
                 default:
