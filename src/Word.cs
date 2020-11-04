@@ -57,36 +57,48 @@ namespace os_project
 
         public static Word operator +(Word a, Word b)
         {
+            if (a == null || b == null)
+                return null;
             string newValue = Utilities.DecToHex(a.ValueAsInt + b.ValueAsInt);
             return new Word(a.OwnerOfWord, Utilities.WordFill(newValue));
         }
 
         public static Word operator -(Word a, Word b)
         {
+            if (a == null || b == null)
+                return null;
             string newValue = Utilities.DecToHex(a.ValueAsInt - b.ValueAsInt);
             return new Word(a.OwnerOfWord, Utilities.WordFill(newValue));
         }
 
         public static Word operator *(Word a, Word b)
         {
+            if (a == null || b == null)
+                return null;
             string newValue = Utilities.DecToHex(a.ValueAsInt * b.ValueAsInt);
             return new Word(a.OwnerOfWord, Utilities.WordFill(newValue));
         }
 
         public static Word operator /(Word a, Word b)
         {
+            if (a == null || b == null)
+                return null;
             string newValue = Utilities.DecToHex(a.ValueAsInt / b.ValueAsInt);
             return new Word(a.OwnerOfWord, Utilities.WordFill(newValue));
         }
 
         public static Word operator |(Word a, Word b)
         {
+            if (a == null || b == null)
+                return null;
             string newValue = Utilities.DecToHex(a.ValueAsInt | b.ValueAsInt);
             return new Word(a.OwnerOfWord, Utilities.WordFill(newValue));
         }
 
         public static Word operator &(Word a, Word b)
         {
+            if (a == null || b == null)
+                return null;
             string newValue = Utilities.DecToHex(a.ValueAsInt & b.ValueAsInt);
             return new Word(a.OwnerOfWord, Utilities.WordFill(newValue));
         }
