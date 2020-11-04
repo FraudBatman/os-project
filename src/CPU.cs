@@ -172,7 +172,7 @@ namespace os_project
         public void Decode(Word instruction)
         {
             // Convert to binary
-            string data = Utilities.HexToBin(instruction.Value);
+            string data = Utilities.HexToBin(instruction.Value, true);
             System.Console.WriteLine(data);
             
             // Parse the instruction type
@@ -355,6 +355,8 @@ namespace os_project
                     // //Takes the value given and sets the PCB's prog. count. to it
                     // PCB.ProgramCounter = jumpAddr;
                     break;
+                default:
+                    throw new Exception("OPCode invalid, check the dec to hex conversion: " + OPCODE);
             }
         }
         private void ExecuteIO()

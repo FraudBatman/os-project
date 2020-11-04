@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace os_project
 {
@@ -40,10 +41,16 @@ namespace os_project
                 return instruct.Substring(range[0], range[1]);
         }
 
-        public static string HexToBin(string hex)
-        {
+        public static string HexToBin(string hex, bool fill = false)
+        {   
+            if (fill == true)
+            {
+                return String.Join(String.Empty, hex.Select(c => Convert.ToString(Convert.ToInt32(c.ToString(), 16), 2).PadLeft(4, '0'))); ;
+            }
+
             return Convert.ToString(Convert.ToInt32(hex, 16), 2);
         }
+
         public static string BinToHex(string bin)
         {
             return Convert.ToInt32(bin, 2).ToString("X");
