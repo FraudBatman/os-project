@@ -23,6 +23,7 @@ namespace os_project
                 // Might need to be refactored
                 PC = 0;
                 IOOperationCount = 0;
+                registers = new Word[16];
                 acc = new Word(activeProgram.ProcessID, "0x00000000");
                 registers[1] = new Word(activeProgram.ProcessID, "0x00000001");
             }
