@@ -77,7 +77,7 @@ namespace os_project
                 Decode(instruction);
 
                 // Execute data
-               Execute();
+                Execute();
             }
 
             EndProcess();
@@ -171,7 +171,7 @@ namespace os_project
         public void Decode(Word instruction)
         {
             string data = instruction.Value;
-
+            
             //NOP check
             if (data.Substring(1) == NOPCODE)
             {
@@ -195,23 +195,23 @@ namespace os_project
 
             switch (ExecutionPointer)
             {
-                case 00: // => Arithmetic
+                case 0: // => Arithmetic
                     sReg0 = Utilities.HexToDec(data.ToCharArray()[2].ToString());
                     sReg1 = Utilities.HexToDec(data.ToCharArray()[3].ToString());
                     dReg = Utilities.HexToDec(data.ToCharArray()[4].ToString());
                     break;
-                case 01: // => Conditional
+                case 1: // => Conditional
                     bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
                     dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
                     addr = Utilities.HexToDec(data.Substring(4, 4));
                     break;
-                case 10: // => Uncon. Jump -> may need to refactor
+                case 2: // => Uncon. Jump -> may need to refactor
                     jumpToAddr = data.Substring(8);
                     break;
-                case 11: // => IO
+                case 3: // => IO
                     reg1 = Utilities.HexToDec(data.ToCharArray()[2].ToString());
                     reg2 = Utilities.HexToDec(data.ToCharArray()[3].ToString());
-                    addr = Utilities.HexToDec(data.Substring(4, 4));
+                    addr = Utilities.HexToDec(data.Substring(4, 4)) / 4;
                     break;
             }
         }
@@ -223,16 +223,16 @@ namespace os_project
         {
             switch (ExecutionPointer)
             {
-                case 00: // => Arithmetic
+                case 0: // => Arithmetic
                     ExecuteArith();
                     break;
-                case 01: // => Conditional
+                case 1: // => Conditional
                     ExecuteCondi();
                     break;
-                case 10: // => Uncon. Jump
+                case 2: // => Uncon. Jump
                     ExecuteUJump();
                     break;
-                case 11: // => IO
+                case 3: // => IO
                     ExecuteIO();
                     break;
                 default:
@@ -282,10 +282,14 @@ namespace os_project
 
         private void ExecuteCondi()
         {
+            // bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
+            // dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
+            // addr = Utilities.HexToDec(data.Substring(4, 4));
+            
+            System.Console.WriteLine("OPCODE = " + OPCODE);
             switch (OPCODE)
             {
                 case 2: // 02: ST
-                    System.Console.WriteLine();
                     break;
                 case 3: // 03: LW
                     System.Console.WriteLine();
