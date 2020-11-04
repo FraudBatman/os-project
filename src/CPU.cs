@@ -179,6 +179,9 @@ namespace os_project
                 return;
             }
 
+            //0 check
+            registers[1].Value = "0x00000000";
+
             //gets first 2 bits of data
             ExecutionPointer = Utilities.HexToDec(data.ToCharArray()[0].ToString()) / 4;
 
@@ -307,7 +310,7 @@ namespace os_project
                     break;
                 case 15: // 0F: LDI
                     System.Console.WriteLine("LDI");
-                    registers[dReg] = new Word(activeProgram.ProcessID, Utilities.DecToHex(addr));
+                    registers[dReg] = new Word(activeProgram.ProcessID, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 17: // 11: SLTI
                     System.Console.WriteLine("SALTY");

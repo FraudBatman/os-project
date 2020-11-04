@@ -118,7 +118,7 @@ namespace os_project
             string format = "0x";
 
             //add leading 0's
-            for (int i = 1; i < (Word.WORD_SIZE / 2) - hexValue.Length; i++)
+            for (int i = 1; i <= Word.WORD_SIZE - hexValue.Length; i++)
             {
                 format += "0";
             }
