@@ -215,7 +215,7 @@ namespace os_project
 
 
         #region Execute Module
-        public void Execute(int opCode)
+        public void Execute()
         {
             switch (ExecutionPointer)
             {
