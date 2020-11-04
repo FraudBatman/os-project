@@ -115,12 +115,12 @@ namespace os_project
 
         #region Fetch Module
         public Word Fetch()
-        {   
+        {
             int[] pageNumbers = MMU.getPages(activeProgram);
             int page = pageNumbers[0];
             var offset = Utilities.DecToHexAddr(PC);
 
-            if(PC >= MMU.PAGE_SIZE)
+            if (PC >= MMU.PAGE_SIZE)
             {
                 page = pageNumbers[1];
                 offset = (PC - MMU.PAGE_SIZE).ToString();
@@ -139,7 +139,7 @@ namespace os_project
 
         string EffectiveAddress(bool isDirect, int pageNumber, string offset = "00")
         {
-            if(isDirect)
+            if (isDirect)
             {
                 // Converts the logical addresses to physical
                 string directAddress =
@@ -171,7 +171,7 @@ namespace os_project
         public void Decode(Word instruction)
         {
             string data = instruction.Value;
-            
+
             //NOP check
             if (data.Substring(1) == NOPCODE)
             {
@@ -186,7 +186,7 @@ namespace os_project
             //gets the opcode. god knows how
             OPCODE = (((Utilities.HexToDec(data.ToCharArray()[0].ToString()) % 4) * 16))
             + Utilities.HexToDec(data.ToCharArray()[1].ToString());
-                        
+
             // If nopcode, do nothing, return
             if (OPCODE == Utilities.HexToDec(NOPCODE))
             {
@@ -206,7 +206,7 @@ namespace os_project
                     addr = Utilities.HexToDec(data.Substring(4, 4));
                     break;
                 case 2: // => Uncon. Jump -> may need to refactor
-                    jumpToAddr = data.Substring(8);
+                    jumpToAddr = data.Substring(2);
                     break;
                 case 3: // => IO
                     reg1 = Utilities.HexToDec(data.ToCharArray()[2].ToString());
@@ -271,7 +271,7 @@ namespace os_project
                     break;
                 case 16: // SLT
                     registers[dReg] = (
-                        registers[sReg0] < registers[bReg]?
+                        registers[sReg0] < registers[bReg] ?
                         1 : 0
                     );
                     break;
@@ -285,7 +285,7 @@ namespace os_project
             // bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
             // dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
             // addr = Utilities.HexToDec(data.Substring(4, 4));
-            
+
             System.Console.WriteLine("OPCODE = " + OPCODE);
             switch (OPCODE)
             {
@@ -339,13 +339,14 @@ namespace os_project
             switch (OPCODE)
             {
                 case 18: // 12: HLT
+                    //Sets the PC to the instruction count, which will immediately break out of the upper loop
                     System.Console.WriteLine();
-                    // //End of the program. This would require a lot of info going everywhere, so it'd probably be best if we put this in its own function
+                    PC = activeProgram.InstructionCount;
                     break;
                 case 20: // 14: JMP
                     System.Console.WriteLine();
                     // //Takes the value given and sets the PCB's prog. count. to it
-                    // PCB.ProgramCounter = jumpAddr;
+                    PC = Utilities.HexToDec(jumpToAddr);
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
@@ -366,7 +367,7 @@ namespace os_project
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
-                
+
             }
 
         }
