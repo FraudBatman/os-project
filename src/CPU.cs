@@ -132,7 +132,7 @@ namespace os_project
             }
 
             // Grab the instruction from memory
-            var physicalAddress = EffectiveAddress(true, page, offset);
+            var physicalAddress = GetPhysicalAddress(true, page, offset);
 
             if (physicalAddress == "" || physicalAddress == null)
                 throw new Exception("Invalid address, validate effective address for PC");
@@ -142,7 +142,7 @@ namespace os_project
             return MMU.ReadWord(physicalAddress, activeProgram);
         }
 
-        string EffectiveAddress(bool isDirect, int pageNumber, string offset = "00")
+        string GetPhysicalAddress(bool isDirect, int pageNumber, string offset = "00")
         {
             if (isDirect)
             {
@@ -161,6 +161,27 @@ namespace os_project
             }
 
             return null;
+        }
+
+        string EffectiveAddress()
+        {
+            var pageNumbers = MMU.getPages(this.activeProgram);
+            var page = pageNumbers[0];
+            var offset = Utilities.DecToHexAddr(addr);
+            
+
+            if (addr >= MMU.PAGE_SIZE)
+            {
+                page = pageNumbers[1];
+                offset = Utilities.DecToHexAddr(addr - MMU.PAGE_SIZE);
+            }
+
+            var wordValue = MMU.ReadWord("0x" + Utilities.DecToHex(page) + offset,
+                this.activeProgram
+            );
+
+            // (i % MMU.PAGE_SIZE == 0 && i != 0)
+            return wordValue.Value;
         }
         #endregion
 
@@ -278,8 +299,15 @@ namespace os_project
                     registers[dReg] = registers[sReg0] | registers[sReg1];
                     break;
                 case 16: // SLT
+<<<<<<< Updated upstream
                     Console.WriteLine("SALT");
                     registers[dReg].Value = registers[sReg0].ValueAsInt < registers[bReg].ValueAsInt ? "00000000" : "00000001";
+=======
+                    // registers[dReg] = (
+                    //     registers[sReg0] < registers[bReg] ?
+                    //      : 0
+                    // );
+>>>>>>> Stashed changes
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
@@ -288,64 +316,51 @@ namespace os_project
 
         private void ExecuteCondi()
         {
-            // bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
-            // dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
-            // addr = Utilities.HexToDec(data.Substring(4, 4));
-
-            System.Console.WriteLine("OPCODE = " + OPCODE);
             switch (OPCODE)
             {
                 case 2: // 02: ST
+                    registers[dReg].Value = EffectiveAddress();
                     break;
                 case 3: // 03: LW
-                    System.Console.WriteLine();
+                    registers[dReg] = MMU.ReadWord(
+                        Utilities.DecToHex(addr),
+                        this.activeProgram
+                    );
                     break;
                 case 11: // 0B: MOVI
-                    System.Console.WriteLine("MOVI");
                     registers[dReg].Value = Utilities.WordFill(Utilities.DecToHex(addr));
                     break;
                 case 12: // 0C: ADDI
-                    System.Console.WriteLine("ADDI");
                     registers[dReg] = registers[dReg] + new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 13: // 0D: MULI
-                    System.Console.WriteLine("MULI");
                     registers[dReg] = registers[dReg] * new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 14: // 0E: DIVI
-                    System.Console.WriteLine("DIVI");
                     registers[dReg] = registers[dReg] / new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 15: // 0F: LDI
-                    System.Console.WriteLine("LDI");
                     registers[dReg] = new Word(activeProgram.ProcessID, Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 17: // 11: SLTI
-                    System.Console.WriteLine("SALTY");
                     dReg = sReg0 < addr ? 1 : 0;
                     break;
                 case 21: // 15: BEQ
-                    System.Console.WriteLine("BEQ");
                     PC = registers[bReg] == registers[dReg] ? addr : PC;
                     break;
                 case 22: // 16: BNE
-                    System.Console.WriteLine("BNE");
                     PC = registers[bReg] != registers[dReg] ? addr : PC;
                     break;
                 case 23: // 17: BEZ
-                    System.Console.WriteLine("BEZ");
                     PC = registers[bReg].ValueAsInt == 0 ? addr : PC;
                     break;
                 case 24: // 18: BNZ
-                    System.Console.WriteLine("BNZ");
                     PC = registers[bReg].ValueAsInt != 0 ? addr : PC;
                     break;
                 case 25: // 19: BGZ
-                    System.Console.WriteLine("BGZ");
                     PC = registers[bReg].ValueAsInt > 0 ? addr : PC;
                     break;
                 case 26: // 1A: BLZ
-                    System.Console.WriteLine("BLZ");
                     PC = registers[bReg].ValueAsInt < 0 ? addr : PC;
                     break;
                 default:
@@ -358,11 +373,9 @@ namespace os_project
             {
                 case 18: // 12: HLT
                     //Sets the PC to the instruction count, which will immediately break out of the upper loop
-                    System.Console.WriteLine();
                     PC = activeProgram.InstructionCount;
                     break;
                 case 20: // 14: JMP
-                    System.Console.WriteLine();
                     // //Takes the value given and sets the PCB's prog. count. to it
                     PC = Utilities.HexToDec(jumpToAddr);
                     break;
@@ -375,12 +388,10 @@ namespace os_project
             switch (OPCODE)
             {
                 case 0: // 00: RD
-                    System.Console.WriteLine();
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
                     acc = activeProgram.In;
                     break;
                 case 1: // 01: WR
-                    System.Console.WriteLine();
                     activeProgram.Out(acc);
                     break;
                 default:

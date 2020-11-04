@@ -58,15 +58,16 @@ namespace os_project
 
             // Short-term Scheduler -> FIFO policy
             System.Console.WriteLine("- SHORT-TERM SCHEDULER -");
-            ShortTermScheduler.Start();
+            // ShortTermScheduler.Start();
             System.Console.Write("Ready Queue = " + Queue.Ready.Count);
 
             
-            // while (Queue.Ready.First != null)
-            // {
-            System.Console.WriteLine("\n- CPU -");
-            Cores[0].Run();
-            // }
+            while (Queue.Ready.First != null)
+            {
+                System.Console.WriteLine("\n- CPU -");
+                ShortTermScheduler.Start();
+                Cores[0].Run();
+            }
 
 
             System.Console.WriteLine("Terminated Queue = " + Queue.Terminated.Count + "\n");
