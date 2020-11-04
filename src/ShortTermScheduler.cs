@@ -35,8 +35,10 @@ namespace os_project
         static void load_PRIO()
         {
             var toSort = Queue.Ready;
-            InsertSort(toSort);
-            SendToDispatcher(toSort);
+            Queue.Ready = null;
+            Queue.Ready = InsertSort(toSort);
+            System.Console.WriteLine(Queue.Ready.Count);
+            SendToDispatcher(Queue.Ready);
         }
 
         /// <summary>
