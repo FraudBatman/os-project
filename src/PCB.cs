@@ -227,7 +227,7 @@ namespace os_project
         /// <param name="writeValue">The value to replace at the current index</param>
         public void Out(Word writeValue)
         {
-            MMU.WriteWord(Utilities.DecToHexAddr(OutputBufferStart + outputBufferIndex++), this, writeValue);
+            MMU.WriteWord(Utilities.DecToHexFullAddr(OutputBufferStart + outputBufferIndex++), this, writeValue);
         }
     }
 
