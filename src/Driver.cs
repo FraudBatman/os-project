@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace os_project
@@ -15,13 +16,22 @@ namespace os_project
 
         #region Job File Configurations
         static string jobFile;
+        static string dataDir;
 
         static void SetOSPlatform(bool isWin)
         {
             if (isWin)
+            {
                 jobFile = System.IO.Directory.GetCurrentDirectory() + @"\resources\jobs-file.txt";
+                Directory.CreateDirectory(@"\data");
+                dataDir = System.IO.Directory.GetCurrentDirectory() + @"\data\";
+            }
             else
+            {
                 jobFile = System.IO.Directory.GetCurrentDirectory() + @"/resources/jobs-file.txt";
+                Directory.CreateDirectory(@"/data");
+                dataDir = System.IO.Directory.GetCurrentDirectory() + @"/data/";
+            }
         }
         #endregion
 
@@ -104,7 +114,7 @@ namespace os_project
                     {
                         System.Console.WriteLine("Running PCB: " + Cores[1].ActiveProgram.ProcessID);
                         Cores[1].Run();
-                    }    
+                    }
 
                     if (Cores[2].ActiveProgram != null)
                     {
@@ -144,7 +154,7 @@ namespace os_project
             {
                 // Sets 4 cpus with empty active programs
                 Cores = new CPU[4];
-                for(int i = 0; i < Cores.Length; i++)
+                for (int i = 0; i < Cores.Length; i++)
                     Cores[i] = new CPU(i);
             }
         }
@@ -165,6 +175,16 @@ namespace os_project
                 if (Queue.Ready.First == null)
                     isDone = true;
             }
+        }
+        #endregion
+
+        #region File Writing
+        static void WriteToFile(string fileName, string data)
+        {
+            FileStream fs = new FileStream(dataDir + fileName, FileMode.Create);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.Write(data);
+            sw.Flush();
         }
         #endregion
 
