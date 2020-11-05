@@ -47,8 +47,7 @@ namespace os_project
             // Cross-platform compatibility
             SetOSPlatform(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
-
-            //Ask for single-core
+            // Ask for single-core
             // Start CPUs - false == single | true == multi
             Console.WriteLine("Type 1 for single-core, anything else for multi-core");
             if (Console.ReadLine() == "1")
@@ -56,7 +55,7 @@ namespace os_project
             else
                 StartCPUs(true);
 
-            //ask for policy
+            // Ask for policy
             Console.WriteLine("Type 1 for FIFO, anything else for priority");
             if (Console.ReadLine() == "1")
                 ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
@@ -72,7 +71,13 @@ namespace os_project
                 RunMultiCore();
             else
                 RunSingleCore();
+
+            // Metrics.ExportWaitTime("Single Core / FIFO Wait Times");
+            // Metrics.ExportWaitTime("Single Core / PRIO Wait Times");
+            // Metrics.ExportWaitTime("Multi Core / FIFO Wait Times");
+            Metrics.ExportWaitTime("Multi Core / PRIO Wait Times");
         }
+
         static int RunSingleCore()
         {
             while (Queue.New.First != null)
@@ -180,12 +185,13 @@ namespace os_project
         #endregion
 
         #region File Writing
-        static void WriteToFile(string fileName, string data)
+        public static void WriteToFile(string fileName, string data)
         {
-            FileStream fs = new FileStream(dataDir + fileName, FileMode.Create);
+            FileStream fs = new FileStream(dataDir + fileName, FileMode.Append);
             StreamWriter sw = new StreamWriter(fs);
             sw.Write(data);
             sw.Flush();
+            fs.Close();
         }
         #endregion
 

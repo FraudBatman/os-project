@@ -78,9 +78,9 @@ namespace os_project
         }
 
 
-        public TimeSpan Export()
+        public int Export()
         {
-            return Timer.Elapsed;
+            return Timer.Elapsed.Milliseconds;
         }
     }
 
