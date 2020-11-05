@@ -24,6 +24,9 @@ namespace os_project
 
             // => Initialize disk attributes
             this.startDiskAddr = startDiskAddr;
+            
+            // => Set the cache
+            this.cache = new Word[inputBufferSize + instructionCount];
         }
     }
 
@@ -39,6 +42,8 @@ namespace os_project
             TERMINATE // => Process: has finished its execution
         }
 
+        private int iOOperationCount = 0;
+
         private int programCount;
         private PROCESS_STATE state;
         private int[] memoryPages;
@@ -47,6 +52,12 @@ namespace os_project
         {
             get { return programCount; }
             set { programCount = value; }
+        }
+
+        public int IOOperationCount
+        {
+            get { return iOOperationCount; }
+            set { iOOperationCount = value; }
         }
 
         public PROCESS_STATE State
@@ -192,6 +203,13 @@ namespace os_project
         private int inputBufferStart, outputBufferStart;
         private int inputBufferIndex, outputBufferIndex;
         string dataStartAddress, dataEndAddress;
+
+        public Word[] cache;
+
+        public int GetCacheSize()
+        {
+            return cache.Length;
+        }
 
         public string DataStartAddress
         {

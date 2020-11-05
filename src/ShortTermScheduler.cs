@@ -26,12 +26,10 @@ namespace os_project
         /// </summary>
         static void load_FIFO()
         {
-            var fifoSort = Queue.Ready;
-
             if (Driver.IsMultiCPU)
-                SendToDispatcherMulti(fifoSort);
+                SendToDispatcherMulti(Queue.Ready);
             else
-                SendToDispatcher(fifoSort);
+                SendToDispatcher(Queue.Ready);
         }
 
         /// <summary>
@@ -74,7 +72,6 @@ namespace os_project
                     return;
 
                 status = Dispatcher.Dispatch(queuedList.First.Value);
-                queuedList.RemoveFirst();
             }
         }
 

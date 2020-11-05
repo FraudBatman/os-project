@@ -13,6 +13,7 @@ namespace os_project
         public static LinkedList<PCB> New = new LinkedList<PCB>();
         public static LinkedList<PCB> Ready = new LinkedList<PCB>();
         public static LinkedList<PCB> Running = new LinkedList<PCB>();
+        public static LinkedList<PCB> Waiting = new LinkedList<PCB>();
         public static LinkedList<PCB> Terminated = new LinkedList<PCB>();
     }
 }

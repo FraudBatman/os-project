@@ -8,7 +8,6 @@ namespace os_project
     // One way communication from dispatcher to driver, driver sends commands to the CPU
     public class CPU
     {
-
         #region Program Attributes
         PCB activeProgram;
         public PCB ActiveProgram
@@ -27,12 +26,22 @@ namespace os_project
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
                 PC = 0;
-                IOOperationCount = 0;
                 registers = new Word[16];
+                cache = new Word[activeProgram.GetCacheSize()];
 
                 for (int i = 0; i < registers.Length; i++)
                 {
                     registers[i] = new Word();
+                }
+
+                var startAddr = activeProgram.JobStartAddress;
+                var jobPage = activeProgram.JobStartAddress.Substring(0,3);
+                string offset = "00";            
+
+                for (int i = 0; i < activeProgram.InstructionCount; i++)
+                {
+                    offset = Utilities.DecToHexAddr(i);
+                    cache[i] = MMU.ReadWord(jobPage + offset, activeProgram);
                 }
 
                 acc = new Word(activeProgram.ProcessID, "0x00000000");
@@ -45,15 +54,15 @@ namespace os_project
         #region CPU Attributes
         const string NOPCODE = "13";
 
-
         //accumulator, naming it just acc due to my former crippling addiction to Shenzhen IO
-        int PC, IOOperationCount;
+        int PC;
 
         // Acc to word        
         Word acc;
 
-        // CPU registers
+        // CPU Memory
         Word[] registers;
+        Word[] cache;
 
         // Save memory by not assigning if CPU is never instantiated
         int id;
@@ -74,6 +83,8 @@ namespace os_project
             {
                 // Fetch data
                 var instruction = Fetch();
+
+                System.Console.WriteLine(instruction);
 
                 // Decode data
                 Decode(instruction);
@@ -104,6 +115,7 @@ namespace os_project
             // Clears the CPU & PCB attributes
             this.registers = null;
             this.activeProgram = null;
+            this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
         }
@@ -113,25 +125,15 @@ namespace os_project
         #region Fetch Module
         public Word Fetch()
         {
-            int[] pageNumbers = MMU.getPages(activeProgram);
-            int page = pageNumbers[0];
-            var offset = Utilities.DecToHexAddr(PC);
-
-            if (PC >= MMU.PAGE_SIZE)
-            {
-                page = pageNumbers[1];
-                offset = (PC - MMU.PAGE_SIZE).ToString();
-            }
-
             // Grab the instruction from memory
-            var physicalAddress = GetPhysicalAddress(true, page, offset);
+            var instruction = cache[PC];
 
-            if (physicalAddress == "" || physicalAddress == null)
+            if (instruction.Value == "" || instruction.Value == null)
                 throw new Exception("Invalid address, validate effective address for PC");
 
             PC++;
 
-            return MMU.ReadWord(physicalAddress, activeProgram);
+            return instruction;
         }
 
         string GetPhysicalAddress(bool isDirect, int pageNumber, string offset = "00")
@@ -298,13 +300,10 @@ namespace os_project
             switch (OPCODE)
             {
                 case 2: // 02: ST
-                    registers[dReg].Value = EffectiveAddress();
+                    cache[dReg].Value = EffectiveAddress();
                     break;
                 case 3: // 03: LW
-                    registers[dReg] = MMU.ReadWord(
-                        Utilities.DecToHex(addr),
-                        this.activeProgram
-                    );
+                    registers[dReg] = cache[addr];
                     break;
                 case 11: // 0B: MOVI
                     registers[dReg].Value = Utilities.WordFill(Utilities.DecToHex(addr));
@@ -368,16 +367,77 @@ namespace os_project
             {
                 case 0: // 00: RD
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-                    acc = activeProgram.In();
+                    DMA_IOExecution(true);
                     break;
                 case 1: // 01: WR
-                    activeProgram.Out(acc);
+                    DMA_IOExecution(false);
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
 
             }
 
+        }
+        #endregion
+
+        #region DMA Channel Threads
+        async void DMA_IOExecution(bool readOrWrite)
+        {
+            if (readOrWrite) // ==> Read
+            {
+                Task thread = Task.Factory.StartNew(() =>
+                {
+                    DMA_Block(true);
+                    acc = activeProgram.In();
+                    DMA_Block(false);
+                });
+                thread.Wait();
+            }
+            else // ==> Write
+            {
+                Task thread = Task.Factory.StartNew(() =>
+                {
+                    DMA_Block(true);
+
+                    var outputBuffer = cache.Length + activeProgram.InstructionCount + activeProgram.InputBufferSize - 1;
+                    
+                    for (int i = outputBuffer; i < cache.Length; i++)
+                    {
+                        if (cache[outputBuffer].Value == "00000000" && cache[outputBuffer].Value == "null")
+                        {
+                            activeProgram.Out(cache[i]);
+                        }
+                    }
+
+                    DMA_Block(false);
+                });
+                thread.Wait();
+            }
+
+            // Increment the IO count for the pcb
+            activeProgram.IOOperationCount++;
+        }
+
+        async Task DMA_Block(bool movePCB)
+        {
+            if (movePCB) // move PCB to waiting queue
+            {
+                Task block = Task.Factory.StartNew(() =>
+                {
+                    Queue.Running.Remove(activeProgram);
+                    Queue.Waiting.AddLast(activeProgram);
+                });
+                block.Wait();
+            }
+            else // Remove the pcb
+            {
+                Task block = Task.Factory.StartNew(() =>
+                {
+                    Queue.Running.AddLast(activeProgram);
+                    Queue.Waiting.Remove(activeProgram);
+                });
+                block.Wait();
+            }
         }
         #endregion
     }
