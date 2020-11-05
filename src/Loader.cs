@@ -123,7 +123,7 @@ namespace os_project
                         /*
                          * Timer: Start the waiting time
                          */
-                        Metrics.Start(Queue.New.Last.Value);
+                        // Metrics.Start(Queue.New.Last.Value);
                     }
                 }
                 instruction = "";

@@ -76,29 +76,23 @@ namespace os_project
     // PCB: Metrics controller
     public partial class PCB
     {
-        private Stopwatch timer;
-        private TimeSpan exportTime;
+        private Stopwatch timer = new Stopwatch();
 
         public Stopwatch Timer
         {
             get { return timer; }
-            set {
-                timer = value;
-                timer.Start();
-            }
         }
 
-
-        public int Export()
+        public double Export()
         {
-            return Timer.Elapsed.Milliseconds;
+            return timer.Elapsed.TotalMilliseconds;
         }
     }
 
     // PCB: Job controller 
     public partial class PCB
     {
-        int processID, instructionCount, priority, totalBufferSize;
+        int processID, instructionCount, priority, totalBufferSize, core_used;
         string jobStartAddress, jobEndAddress;
 
         public string JobStartAddress
@@ -147,6 +141,12 @@ namespace os_project
         public int Priority
         {
             get { return priority; }
+        }
+
+        public int Core_Used
+        {
+            get { return core_used; }
+            set { core_used = value; }
         }
     }
 

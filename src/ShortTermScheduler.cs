@@ -75,7 +75,6 @@ namespace os_project
             }
         }
 
-
         /// <summary>
         /// Sorts the queue based on priority from min to max values by insertion
         /// - O(n^2) complexity

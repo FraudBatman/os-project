@@ -23,6 +23,12 @@ namespace os_project
                 Queue.Running.AddLast(activeProgram);
                 activeProgram.State = PCB.PROCESS_STATE.RUNNING;
 
+                /*
+                * Timer: Stop the waiting time
+                */
+                // Metrics.Start(activeProgram);
+                // Metrics.Stop(activeProgram);
+
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
                 PC = 0;
@@ -84,8 +90,6 @@ namespace os_project
                 // Fetch data
                 var instruction = Fetch();
 
-                System.Console.WriteLine(instruction);
-
                 // Decode data
                 Decode(instruction);
 
@@ -103,14 +107,10 @@ namespace os_project
         private void EndProcess()
         {
             // Adds the pcb to the terminated queue
+            activeProgram.Core_Used = ID;
             var pcb = activeProgram;
             Queue.Running.Remove(pcb);
             Queue.Terminated.AddLast(pcb);
-
-            /*
-             * Timer: Stop the waiting time
-             */
-            Metrics.Stop(pcb);
 
             // Clears the CPU & PCB attributes
             this.registers = null;
@@ -118,6 +118,10 @@ namespace os_project
             this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
+            
+            // Deallocate the memory
+
+            // Metrics.Stop(pcb);
         }
 
         #endregion
@@ -420,10 +424,21 @@ namespace os_project
 
         async Task DMA_Block(bool movePCB)
         {
+
             if (movePCB) // move PCB to waiting queue
             {
                 Task block = Task.Factory.StartNew(() =>
                 {
+                    // /*
+                    // * Timer: Stop the waiting time
+                    // */
+                    // Metrics.Start(activeProgram);
+
+                    /*
+                    * Timer: Stop the waiting time
+                    */
+                    // Metrics.Stop(activeProgram);
+
                     Queue.Running.Remove(activeProgram);
                     Queue.Waiting.AddLast(activeProgram);
                 });
@@ -435,6 +450,16 @@ namespace os_project
                 {
                     Queue.Running.AddLast(activeProgram);
                     Queue.Waiting.Remove(activeProgram);
+
+                    /*
+                    * Timer: Stop the waiting time
+                    */
+                    // Metrics.Start(activeProgram);
+
+                    // /*
+                    // * Timer: Stop the waiting time
+                    // */
+                    // Metrics.Stop(activeProgram);
                 });
                 block.Wait();
             }
