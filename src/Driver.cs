@@ -100,7 +100,7 @@ namespace os_project
 
             // Core used exports
             // Metrics.ExportCPUUsed("Multi Core / FIFO Core Used");
-            Metrics.ExportCPUUsed("Multi Core / PRIO Core Used");
+            // Metrics.ExportCPUUsed("Multi Core / PRIO Core Used");
 
         }
 
