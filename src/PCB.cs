@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace os_project
 {
@@ -58,6 +59,28 @@ namespace os_project
         {
             get { return memoryPages; }
             set { memoryPages = value; }
+        }
+    }
+
+    // PCB: Metrics controller
+    public partial class PCB
+    {
+        private Stopwatch timer;
+        private TimeSpan exportTime;
+
+        public Stopwatch Timer
+        {
+            get { return timer; }
+            set {
+                timer = value;
+                timer.Start();
+            }
+        }
+
+
+        public TimeSpan Export()
+        {
+            return Timer.Elapsed;
         }
     }
 
