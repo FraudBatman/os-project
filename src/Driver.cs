@@ -35,8 +35,21 @@ namespace os_project
             // Cross-platform compatibility
             SetOSPlatform(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
+
+            //Ask for single-core
             // Start CPUs - false == single | true == multi
-            StartCPUs(false);
+            Console.WriteLine("Type 1 for single-core, anything else for multi-core");
+            if (Console.ReadLine() == "1")
+                StartCPUs(false);
+            else
+                StartCPUs(true);
+
+            //ask for policy
+            Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            if (Console.ReadLine() == "1")
+                ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            else
+                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Loader
             Loader load = new Loader(jobFile);
@@ -135,7 +148,7 @@ namespace os_project
                     Cores[i] = new CPU(i);
             }
         }
-        
+
         /// <summary>
         /// ERASE THIS BEFORE THE PROJECT IS DUE
         /// Used for proof of concept to terminate processes for running through the scheduler
