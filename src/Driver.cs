@@ -39,51 +39,79 @@ namespace os_project
             StartCPUs(false);
 
             // Loader
-            System.Console.WriteLine("- LOADER -");
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
 
-            // Long-term Scheduler
-            System.Console.WriteLine("\n- LONG-TERM SCHEDULER -");
-            
-            //
-            // Uncommenting this schedules all the processes
-            // - dont do it -
-            //
-            // while(Queue.New.First != null)
-            // {
-                // LongTermScheduler.Execute();
-                // TerminateProcesses();
-            // }
+            // Run the programs on the cores
+            if (isMultiCPU)
+                RunMultiCore();
+            else
+                RunSingleCore();
+        }
 
-            // Short-term Scheduler -> FIFO policy
-            System.Console.WriteLine("- SHORT-TERM SCHEDULER -");
-            // ShortTermScheduler.Start();
-            System.Console.Write("Ready Queue = " + Queue.Ready.Count);
-
+        static int RunSingleCore()
+        {
             while (Queue.New.First != null)
             {
                 LongTermScheduler.Execute();
 
                 while (Queue.Ready.First != null)
                 {
-                    System.Console.WriteLine("\n- CPU -");
                     ShortTermScheduler.Start();
+                    System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
                     Cores[0].Run();
                 }
             }
 
-            // while (Queue.Ready.First != null)
-            // {
-            //     System.Console.WriteLine("\n- CPU -");
-            //     ShortTermScheduler.Start();
-            //     Cores[0].Run();
-            // }
+            if (Queue.Terminated.Count != 30 && Queue.New.First != null)
+                return -1;
 
-
-            System.Console.WriteLine("Terminated Queue = " + Queue.Terminated.Count + "\n");
+            return 0;
         }
 
+        static int RunMultiCore()
+        {
+            while (Queue.New.First != null)
+            {
+                // Load to memory
+                LongTermScheduler.Execute();
+
+                // Dispatch to CPUs
+                while (Queue.Ready.First != null)
+                {
+                    ShortTermScheduler.Start();
+
+                    if (Cores[0].ActiveProgram != null)
+                    {
+                        System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
+                        Cores[0].Run();
+                    }
+
+                    if (Cores[1].ActiveProgram != null)
+                    {
+                        System.Console.WriteLine("Running PCB: " + Cores[1].ActiveProgram.ProcessID);
+                        Cores[1].Run();
+                    }    
+
+                    if (Cores[2].ActiveProgram != null)
+                    {
+                        System.Console.WriteLine("Running PCB: " + Cores[2].ActiveProgram.ProcessID);
+                        Cores[2].Run();
+                    }
+
+                    if (Cores[3].ActiveProgram != null)
+                    {
+                        System.Console.WriteLine("Running PCB: " + Cores[3].ActiveProgram.ProcessID);
+                        Cores[3].Run();
+                    }
+                }
+            }
+
+            if (Queue.Terminated.Count != 30 && Queue.New.First != null)
+                return -1;
+
+            return 0;
+        }
 
         /// <summary>
         /// Starts the CPU cores
@@ -103,7 +131,7 @@ namespace os_project
             {
                 // Sets 4 cpus with empty active programs
                 Cores = new CPU[4];
-                for(int i = 0; i<Cores.Length; i++)
+                for(int i = 0; i < Cores.Length; i++)
                     Cores[i] = new CPU(i);
             }
         }

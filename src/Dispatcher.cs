@@ -14,7 +14,6 @@ namespace os_project
                 // Dispatch the first program from the short term scheduler
                 if (Driver.Cores[0].ActiveProgram == null)
                 {
-                    System.Console.WriteLine("Dispatching PCB: " + pcb.ProcessID);
                     Driver.Cores[0].ActiveProgram = pcb;
                     return FindOpenCore();
                 }
@@ -28,7 +27,6 @@ namespace os_project
                 if (openCoreId == -1)
                     return -1;
 
-                System.Console.WriteLine("Dispatching PCB: " + pcb.ProcessID);
                 Driver.Cores[openCoreId].ActiveProgram = pcb;
                 if (Driver.Cores[openCoreId].ActiveProgram == null)
                     throw new System.Exception("Dispatcher never sent pcb to core, check dispatcher open core logic");

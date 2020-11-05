@@ -26,7 +26,12 @@ namespace os_project
         /// </summary>
         static void load_FIFO()
         {
-            SendToDispatcher(Queue.Ready);
+            var fifoSort = Queue.Ready;
+
+            if (Driver.IsMultiCPU)
+                SendToDispatcherMulti(fifoSort);
+            else
+                SendToDispatcher(fifoSort);
         }
 
         /// <summary>
@@ -35,10 +40,13 @@ namespace os_project
         static void load_PRIO()
         {
             var toSort = Queue.Ready;
-            Queue.Ready = null;
-            Queue.Ready = InsertSort(toSort);
-            System.Console.WriteLine(Queue.Ready.Count);
-            SendToDispatcher(Queue.Ready);
+            // Queue.Ready = null;
+            // Queue.Ready = InsertSort(toSort);
+
+            if (Driver.IsMultiCPU)
+                SendToDispatcherMulti(InsertSort(toSort));
+            else
+                SendToDispatcher(InsertSort(toSort));
         }
 
         /// <summary>
@@ -59,6 +67,25 @@ namespace os_project
                     SendToDispatcher(queuedList);
             }
         }
+
+        /// <summary>
+        /// Iterates sending pcbs from the ready queue to the dispatcher for loading to cores
+        /// </summary>
+        /// <param name="queuedList">the list to send</param>
+        static void SendToDispatcherMulti(LinkedList<PCB> queuedList)
+        {
+            var status = 0;
+
+            while (status != -1)
+            {
+                if (queuedList.First == null)
+                    return;
+
+                status = Dispatcher.Dispatch(queuedList.First.Value);
+                queuedList.RemoveFirst();
+            }
+        }
+
 
         /// <summary>
         /// Sorts the queue based on priority from min to max values by insertion

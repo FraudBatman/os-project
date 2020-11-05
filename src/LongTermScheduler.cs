@@ -20,13 +20,11 @@ namespace os_project
         {
             __init();
 
-            System.Console.WriteLine("Scheduling from " + Queue.New.Count + " programs...");
             bool isMemFull = false;
 
             while (!isMemFull && processPointer <= 30)
             {
                 // Points to the first pcb in the new list
-                System.Console.WriteLine("Schedule PCB: " + Queue.New.First.Value.ProcessID);
                 PCB currentPCB = Queue.New.First.Value;
 
                 // Allocate the pages need in RAM for the PCB
@@ -40,14 +38,12 @@ namespace os_project
                 var sections = SectionWordList(words, MMU.getPages(currentPCB).Length);
 
                 // Loads the sections to RAM
-                System.Console.WriteLine("Loading process to memory...");
                 var pageSectionIdx = 0;
                 
                 var offsetHandler = jobList.Length + dataList.Length;
 
                 foreach(var page in MMU.getPages(currentPCB))
                 {
-                    System.Console.Write("Load to page: " + page);
                     MMU.WritePage(page, currentPCB, sections[pageSectionIdx]);
 
                     if (pageSectionIdx == 0)
@@ -124,7 +120,6 @@ namespace os_project
                     }
 
                     pageSectionIdx++;
-                    System.Console.WriteLine(" | Page " + page + " mapped");
                 }
 
                 // Queue handlers
@@ -138,11 +133,7 @@ namespace os_project
                     isMemFull = true;
 
                 processPointer++;
-                System.Console.WriteLine();
             }
-
-            System.Console.WriteLine("Ready Queue Count = " + Queue.Ready.Count);
-            System.Console.WriteLine("Scheduler execution complete\n");
         }
 
         /// <summary>
@@ -237,9 +228,6 @@ namespace os_project
 
             foreach (PCB pcb in Queue.Terminated)
             {
-                if (pcb.ProcessID == 9)
-                    System.Console.WriteLine();
-
                 // Dispoases of the memory
                 if (MMU.getPages(pcb).Length != 0)
                     MMU.DeallocateMemory(pcb);

@@ -118,7 +118,6 @@ namespace os_project
                         Data_Builder = new Dictionary<string, List<Word>>();
 
                         // Log program result
-                        System.Console.WriteLine("Processed: Program " + printJobNumber);
                         printJobNumber++;
                         currentInstructionPointer = 0;
                     }
@@ -128,7 +127,7 @@ namespace os_project
             }
             
             // Print the loading complete once done
-            System.Console.WriteLine("Loading Complete: " + Queue.New.Count + " programs added to the 'New' queue");
+            System.Console.WriteLine("Loading Complete: " + Queue.New.Count + " programs added to the job queue");
         }
 
         public void ReadJobFile()

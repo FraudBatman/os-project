@@ -73,7 +73,6 @@ namespace os_project
             {
                 // Fetch data
                 var instruction = Fetch();
-                System.Console.WriteLine(instruction.Value);
 
                 // Decode data
                 Decode(instruction);
@@ -281,7 +280,6 @@ namespace os_project
                     registers[dReg] = registers[sReg0] | registers[sReg1];
                     break;
                 case 16: // SLT
-                    Console.WriteLine("SALT");
                     registers[dReg].Value = registers[sReg0].ValueAsInt < registers[bReg].ValueAsInt ? "00000000" : "00000001";
                     break;
                 default:
