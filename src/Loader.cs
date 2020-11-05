@@ -120,6 +120,11 @@ namespace os_project
                         // Log program result
                         printJobNumber++;
                         currentInstructionPointer = 0;
+
+                        /*
+                         * Timer: Start the waiting time
+                         */
+                        Metrics.Start(Queue.New.Last.Value);
                     }
                 }
                 instruction = "";

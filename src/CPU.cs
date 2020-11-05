@@ -67,7 +67,13 @@ namespace os_project
         {
             Queue.Ready.Remove(activeProgram);
             Queue.Running.AddLast(activeProgram);
+            
             activeProgram.State = PCB.PROCESS_STATE.RUNNING;
+
+            /*
+             * Timer: Stop the waiting time
+             */
+            Metrics.Stop(activeProgram);
 
             while (PC < activeProgram.InstructionCount)
             {

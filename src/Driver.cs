@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace os_project
@@ -71,7 +73,6 @@ namespace os_project
             else
                 RunSingleCore();
         }
-
         static int RunSingleCore()
         {
             while (Queue.New.First != null)
