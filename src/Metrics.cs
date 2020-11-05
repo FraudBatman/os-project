@@ -18,6 +18,7 @@ namespace os_project
             pcb.Timer.Stop();
         }
 
+        // Waiting module
         public static void ExportWaitTime(string title)
         {
             Driver.WriteToFile("waittime.txt", title + "\n");
@@ -30,10 +31,18 @@ namespace os_project
             }
         }
 
-        // Waiting module
-        
-
         // Completion module
+        public static void ExportCompletionTime(string title)
+        {
+            Driver.WriteToFile("completiontime.txt", title + "\n");
+            // Export the xml information
+            foreach (var pcb in Queue.Terminated)
+            {
+                Driver.WriteToFile("completiontime.txt",
+                "Job Number: " + pcb.ProcessID.ToString() + " | Time (ms): "
+                 + pcb.Export().ToString() + "\n");
+            }
+        }
 
 
         // Number I/O 

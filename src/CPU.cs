@@ -19,6 +19,11 @@ namespace os_project
                 // Sets the active program to the CPU
                 activeProgram = value;
 
+                // Move Program
+                Queue.Ready.Remove(activeProgram);
+                Queue.Running.AddLast(activeProgram);
+                activeProgram.State = PCB.PROCESS_STATE.RUNNING;
+
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
                 PC = 0;
@@ -65,16 +70,6 @@ namespace os_project
         #region Threads
         public int Run()
         {
-            Queue.Ready.Remove(activeProgram);
-            Queue.Running.AddLast(activeProgram);
-            
-            activeProgram.State = PCB.PROCESS_STATE.RUNNING;
-
-            /*
-             * Timer: Stop the waiting time
-             */
-            Metrics.Stop(activeProgram);
-
             while (PC < activeProgram.InstructionCount)
             {
                 // Fetch data
@@ -100,6 +95,11 @@ namespace os_project
             var pcb = activeProgram;
             Queue.Running.Remove(pcb);
             Queue.Terminated.AddLast(pcb);
+
+            /*
+             * Timer: Stop the waiting time
+             */
+            Metrics.Stop(pcb);
 
             // Clears the CPU & PCB attributes
             this.registers = null;

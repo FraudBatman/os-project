@@ -40,13 +40,12 @@ namespace os_project
         static void load_PRIO()
         {
             var toSort = Queue.Ready;
-            // Queue.Ready = null;
-            // Queue.Ready = InsertSort(toSort);
+            Queue.Ready = InsertSort(toSort);
 
             if (Driver.IsMultiCPU)
-                SendToDispatcherMulti(InsertSort(toSort));
+                SendToDispatcherMulti(Queue.Ready);
             else
-                SendToDispatcher(InsertSort(toSort));
+                SendToDispatcher(Queue.Ready);
         }
 
         /// <summary>
@@ -58,14 +57,7 @@ namespace os_project
             if (queuedList.First == null)
                 return;
 
-            var status = Dispatcher.Dispatch(queuedList.First.Value);
-
-            if (status != -1)
-            {
-                // Recursively iterate through the ready queue list until all cores are full
-                if (queuedList.First.Value != null)
-                    SendToDispatcher(queuedList);
-            }
+            Dispatcher.Dispatch(queuedList.First.Value);
         }
 
         /// <summary>
@@ -93,6 +85,7 @@ namespace os_project
         /// </summary>
         static LinkedList<PCB> InsertSort(LinkedList<PCB> sortee)
         {
+
             //Jess, if you're looking at this, I apolgize for what you're about to see.
             //It's not pretty. I'm not proud.
 
@@ -125,7 +118,9 @@ namespace os_project
                 //add it to the new queue and kill it from the old queue
                 returnValue.AddLast(highestPriority);
                 sortee.Remove(highestPriority);
+
             }
+            
 
             return returnValue;
         }

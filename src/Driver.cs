@@ -50,16 +50,16 @@ namespace os_project
             // Ask for single-core
             // Start CPUs - false == single | true == multi
             Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            if (Console.ReadLine() == "1")
+            // if (Console.ReadLine() == "1")
                 StartCPUs(false);
-            else
-                StartCPUs(true);
+            // else
+                // StartCPUs(true);
 
             // Ask for policy
             Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            if (Console.ReadLine() == "1")
-                ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            else
+            // if (Console.ReadLine() == "1")
+                // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            // else
                 ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Loader
@@ -72,10 +72,10 @@ namespace os_project
             else
                 RunSingleCore();
 
-            // Metrics.ExportWaitTime("Single Core / FIFO Wait Times");
-            // Metrics.ExportWaitTime("Single Core / PRIO Wait Times");
-            // Metrics.ExportWaitTime("Multi Core / FIFO Wait Times");
-            Metrics.ExportWaitTime("Multi Core / PRIO Wait Times");
+            Metrics.ExportCompletionTime("Single Core / FIFO Completion Times");
+            // Metrics.ExportCompletionTime("Single Core / PRIO Completion Times");
+            // Metrics.ExportCompletionTime("Multi Core / FIFO Completion Times");
+            // Metrics.ExportCompletionTime("Multi Core / PRIO Completion Times");
         }
 
         static int RunSingleCore()

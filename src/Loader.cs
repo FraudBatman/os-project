@@ -75,7 +75,6 @@ namespace os_project
                     {   
                         currentInstructionPointer = 0;
 
-
                         // Insert the job data then initialize the data list
                         Data_Builder.Add("Job_Instructions", data);
 
