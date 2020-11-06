@@ -26,7 +26,7 @@ namespace os_project
             this.startDiskAddr = startDiskAddr;
             
             // => Set the cache
-            this.cache = new Word[inputBufferSize + instructionCount];
+            // this.cache = new Word[];
         }
     }
 
@@ -204,7 +204,7 @@ namespace os_project
         private int inputBufferIndex, outputBufferIndex;
         string dataStartAddress, dataEndAddress;
 
-        public Word[] cache;
+        private Word[] cache;
 
         public int GetCacheSize()
         {

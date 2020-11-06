@@ -216,7 +216,7 @@ namespace os_project
                 return null;
 
             for (int i = 0; i < pcb.BufferSize; i++)
-                bufferWords[i] = new Word(pcb.ProcessID);
+                bufferWords[i] = new Word();
 
 
             return bufferWords;

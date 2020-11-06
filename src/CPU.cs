@@ -33,7 +33,7 @@ namespace os_project
                 // Might need to be refactored
                 PC = 0;
                 registers = new Word[16];
-                cache = new Word[activeProgram.GetCacheSize()];
+                cache = new Word[activeProgram.InstructionCount];
 
                 for (int i = 0; i < registers.Length; i++)
                 {
@@ -50,8 +50,8 @@ namespace os_project
                     cache[i] = MMU.ReadWord(jobPage + offset, activeProgram);
                 }
 
-                acc = new Word(activeProgram.ProcessID, "0x00000000");
-                registers[1] = new Word(activeProgram.ProcessID, "0x00000001");
+                acc = new Word("0x00000000");
+                registers[1] = new Word("0x00000000");
             }
         }
         #endregion
@@ -313,16 +313,16 @@ namespace os_project
                     registers[dReg].Value = Utilities.WordFill(Utilities.DecToHex(addr));
                     break;
                 case 12: // 0C: ADDI
-                    registers[dReg] = registers[dReg] + new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = registers[dReg] + new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 13: // 0D: MULI
-                    registers[dReg] = registers[dReg] * new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = registers[dReg] * new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 14: // 0E: DIVI
-                    registers[dReg] = registers[dReg] / new Word(0, Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = registers[dReg] / new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 15: // 0F: LDI
-                    registers[dReg] = new Word(activeProgram.ProcessID, Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
                     break;
                 case 17: // 11: SLTI
                     dReg = sReg0 < addr ? 1 : 0;
