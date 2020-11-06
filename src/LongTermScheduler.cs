@@ -39,9 +39,7 @@ namespace os_project
 
                 // Loads the sections to RAM
                 var pageSectionIdx = 0;
-                
-                var offsetHandler = jobList.Length + dataList.Length;
-
+                var jobAndDataCount = jobList.Length + dataList.Length;
                 var inputDiff = 0;
 
                 foreach(var page in MMU.getPages(currentPCB))
@@ -55,13 +53,13 @@ namespace os_project
                         currentPCB.JobEndAddress = "0x" + Utilities.DecToHex(page) + Utilities.DecToHexAddr(jobList.Length - 1).ToString();
 
                         // Grab the data addresses if it doesn't go over pages
-                        if (offsetHandler <= MMU.PAGE_SIZE)
+                        if (jobAndDataCount <= MMU.PAGE_SIZE)
                         {
                             currentPCB.DataStartAddress = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr((jobList.Length))
                             ;
                             currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr((offsetHandler - 1))
+                                Utilities.DecToHexAddr((jobAndDataCount - 1))
                             ;
                         }
                         else
@@ -71,13 +69,10 @@ namespace os_project
                             ;
                         }
 
-                        if (currentPCB.ProcessID == 4)
-                            System.Console.WriteLine();
-
-                        // Grab the start-buffer addresses
-                        if (offsetHandler < MMU.PAGE_SIZE)
+                        // Grab the inputStart addresses
+                        if (jobAndDataCount < MMU.PAGE_SIZE)
                         {
-                            inputDiff = MMU.PAGE_SIZE - offsetHandler;
+                            inputDiff = MMU.PAGE_SIZE - jobAndDataCount;
                             currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr(MMU.PAGE_SIZE - (inputDiff))
                             ;
@@ -85,21 +80,19 @@ namespace os_project
                     }
                     else
                     {
-                        var tempOffset = offsetHandler - MMU.PAGE_SIZE;
-
-                        if (currentPCB.ProcessID == 4)
-                            System.Console.WriteLine();
+                        var tempOffset = jobAndDataCount - MMU.PAGE_SIZE;
 
                         // Grab the overhead data addresses on next pages
-                        if (offsetHandler > MMU.PAGE_SIZE)
+                        if (jobAndDataCount > MMU.PAGE_SIZE)
                         {
                             currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr(tempOffset - 1)
                             ;
 
                             currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset - 1)
+                                Utilities.DecToHexAddr(tempOffset)
                             ;
+
 
                             currentPCB.InputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize - 1)

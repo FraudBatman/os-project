@@ -167,12 +167,12 @@ namespace os_project
             set { tempEndBufferAddr = value; }
         }
 
-        public string startInputBufferAddr, endInputBufferAddr;
+        public string inputBufferStartAddr, endInputBufferAddr;
 
         public string InputBufferStartAddr
         {
-            get { return startInputBufferAddr; }
-            set { startInputBufferAddr = value; }
+            get { return inputBufferStartAddr; }
+            set { inputBufferStartAddr = value; }
         }
 
         public string InputBufferEndAddr
@@ -181,18 +181,18 @@ namespace os_project
             set { endInputBufferAddr = value; }
         }
 
-        public string startOutputBufferAddr, endOutputBufferAddr;
+        public string outputBufferStartAddr, outputBufferEndAddr;
 
         public string OutputBufferStartAddr
         {
-            get { return startInputBufferAddr; }
-            set { startInputBufferAddr = value; }
+            get { return outputBufferStartAddr ; }
+            set { outputBufferStartAddr = value; }
         }
 
         public string OutputBufferEndAddr
         {
-            get { return endOutputBufferAddr; }
-            set { endOutputBufferAddr = value; }
+            get { return outputBufferEndAddr; }
+            set { outputBufferEndAddr = value; }
         }
     }
 
@@ -259,7 +259,7 @@ namespace os_project
         /// <value></value>
         public Word In()
         {
-            InputBufferStart = Utilities.HexToDec(startInputBufferAddr.Remove(0, 2));
+            InputBufferStart = Utilities.HexToDec(inputBufferStartAddr.Remove(0, 2));
             return MMU.ReadWord(Utilities.DecToHexFullAddr(InputBufferStart + inputBufferIndex++), this);
         }
 
