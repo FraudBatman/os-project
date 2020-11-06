@@ -42,6 +42,8 @@ namespace os_project
                 
                 var offsetHandler = jobList.Length + dataList.Length;
 
+                var inputDiff = 0;
+
                 foreach(var page in MMU.getPages(currentPCB))
                 {
                     MMU.WritePage(page, currentPCB, sections[pageSectionIdx]);
@@ -69,11 +71,15 @@ namespace os_project
                             ;
                         }
 
+                        if (currentPCB.ProcessID == 4)
+                            System.Console.WriteLine();
+
                         // Grab the start-buffer addresses
                         if (offsetHandler < MMU.PAGE_SIZE)
                         {
+                            inputDiff = MMU.PAGE_SIZE - offsetHandler;
                             currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(MMU.PAGE_SIZE - offsetHandler)
+                                Utilities.DecToHexAddr(MMU.PAGE_SIZE - (inputDiff))
                             ;
                         }
                     }
@@ -81,23 +87,28 @@ namespace os_project
                     {
                         var tempOffset = offsetHandler - MMU.PAGE_SIZE;
 
+                        if (currentPCB.ProcessID == 4)
+                            System.Console.WriteLine();
+
                         // Grab the overhead data addresses on next pages
                         if (offsetHandler > MMU.PAGE_SIZE)
                         {
                             currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr(tempOffset - 1)
                             ;
-                        }
 
-                        // Grab the overhead input end-buffer address
-                        if (offsetHandler > MMU.PAGE_SIZE)
-                        {
                             currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset)
+                                Utilities.DecToHexAddr(tempOffset - 1)
                             ;
 
                             currentPCB.InputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
                                 Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize - 1)
+                            ;
+                        }
+                        else
+                        {
+                            currentPCB.InputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize - inputDiff)
                             ;
                         }
 
@@ -110,12 +121,12 @@ namespace os_project
                                 Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize)
                             ;
 
-                        currentPCB.TempStartBuffer = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize)
+                        currentPCB.TempStartBufferAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize + 1)
                             ;
 
-                        currentPCB.TempEndBuffer = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize + currentPCB.TempBufferSize)
+                        currentPCB.tempEndBufferAddr = "0x" + Utilities.DecToHex(page) +
+                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize + currentPCB.TempBufferSize - 1)
                             ;
                     }
 

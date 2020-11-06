@@ -153,18 +153,18 @@ namespace os_project
     // PCB: Buffer controller
     public partial class PCB
     {
-        public string tempStartBuffer, tempEndBuffer;
+        public string tempStartBufferAddr, tempEndBufferAddr;
 
-        public string TempStartBuffer
+        public string TempStartBufferAddr
         {
-            get { return tempStartBuffer; }
-            set { tempStartBuffer = value; }
+            get { return tempStartBufferAddr; }
+            set { tempStartBufferAddr = value; }
         }
 
-        public string TempEndBuffer
+        public string TempEndBufferAddr
         {
-            get { return tempEndBuffer; }
-            set { tempEndBuffer = value; }
+            get { return tempEndBufferAddr; }
+            set { tempEndBufferAddr = value; }
         }
 
         public string startInputBufferAddr, endInputBufferAddr;
