@@ -24,7 +24,7 @@ namespace os_project
 
             // => Initialize disk attributes
             this.startDiskAddr = startDiskAddr;
-            
+
             // => Set the cache
             this.cache = new Word[inputBufferSize + instructionCount];
         }
@@ -185,7 +185,7 @@ namespace os_project
 
         public string OutputBufferStartAddr
         {
-            get { return outputBufferStartAddr ; }
+            get { return outputBufferStartAddr; }
             set { outputBufferStartAddr = value; }
         }
 
@@ -253,6 +253,8 @@ namespace os_project
             set { outputBufferStart = value; }
         }
 
+        /*COMMENTED OUT FOR PHASE 2
+
         /// <summary>
         /// Returns the next word in the input buffer, auto increments the read index
         /// </summary>
@@ -271,6 +273,27 @@ namespace os_project
         {
             OutputBufferStart = Utilities.HexToDec(OutputBufferStartAddr.Remove(0, 2));
             MMU.WriteWord(Utilities.DecToHexFullAddr(OutputBufferStart + outputBufferIndex++), this, writeValue);
+        }
+        */
+
+        /// <summary>
+        /// Returns the next word in the input buffer, auto increments the read index
+        /// </summary>
+        /// <value></value>
+        public Word In()
+        {
+            InputBufferStart = Utilities.HexToDec(inputBufferStartAddr.Remove(0, 2));
+            return MMU.ReadWord(InputBufferStart + inputBufferIndex++);
+        }
+
+        /// <summary>
+        /// Sets the next word in the output buffer, increments the write index
+        /// </summary>
+        /// <param name="writeValue">The value to replace at the current index</param>
+        public void Out(Word writeValue)
+        {
+            OutputBufferStart = Utilities.HexToDec(OutputBufferStartAddr.Remove(0, 2));
+            MMU.WriteWord(OutputBufferStart = outputBufferIndex++, writeValue);
         }
     }
 
