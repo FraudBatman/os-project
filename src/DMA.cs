@@ -18,7 +18,7 @@ namespace os_project
                 Task thread = Task.Factory.StartNew(() =>
                 {
                     Block(true, callingCPU.ActiveProgram);
-                    throw new Exception("NEED TO FIX DMA IN OUT");
+                    System.Console.WriteLine("");
                     Block(false, callingCPU.ActiveProgram);
                 });
                 thread.Wait();
@@ -35,7 +35,8 @@ namespace os_project
                     {
                         if (callingCPU.Cache[outputBuffer].Value == "00000000" && callingCPU.Cache[outputBuffer].Value == "null")
                         {
-                            throw new Exception("NEED TO FIX DMA IN OUT");
+                            System.Console.WriteLine("");
+                            // throw new Exception("NEED TO FIX DMA IN OUT");
                             //--NEEDS TO BE THE DMA IN / OUT VERSIONS //callingCPU.ActiveProgram.Out(cache[i]);
                         }
                     }

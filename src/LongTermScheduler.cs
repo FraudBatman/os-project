@@ -18,29 +18,24 @@ namespace os_project
             // Acquires the lock for the new queue
             __init();
 
-            bool isMemFull = false;
-            bool isProgramDataLoaded = false;
+            // Sets the memory switch false to check if allocation is possible
+            bool isMemFullSwitch = false;
 
             // While the memory is not full continue loading program data from disk to RAM with the MMU
-            while(!isMemFull) 
+            while(!isMemFullSwitch) 
             {
-                // Since LT_Scheduler has lock it sets a pointer to the first value in the 'New' queue
-                currentPointer = Queue.New.First.Value;
-
-                // Allocate memory for the program disk instructions if available
+                // Allocate memory for the program disk instructions and buffer sizes if available
                 var isAllocated = MMU.AllocateMemory(currentPointer);
 
                 // Validate if the MMU allocated memory in RAM for the program's instructions break if so
                 if (isAllocated == -1)
-                    isMemFull = true;
-                else
-                    isProgramDataLoaded = WriteToMemory();                    
-
-                // Move the pcb to the ready queue if it was loaded properly to memory
-                if (!isProgramDataLoaded)
-                    throw new OutOfMemoryException("Program instructions were not loaded from disk into memory");
+                    isMemFullSwitch = true;
                 else
                 {
+                    // Write the disk instructions and buffers to the allocated RAM for the PCB.ProgramSize count
+                    WriteToMemory();                    
+
+                    // Move the pcb to the ready queue if it was loaded properly to memory
                     Queue.New.Remove(currentPointer);
                     Queue.Ready.AddLast(currentPointer);
                 }
@@ -55,6 +50,9 @@ namespace os_project
         {
             if (Driver._QueueLock.CurrentCount != 0)
             {
+                foreach(var program in Queue.Terminated)
+                    MMU.DeallocateMemory(program);
+
                 if (Queue.New.First != null)
                 {
                     currentPointer = Queue.New.First.Value;
@@ -67,14 +65,12 @@ namespace os_project
         /// --> Make async if MMU lock
         /// </summary>
         /// <returns>True if the memory was written</returns>
-        static bool WriteToMemory()
+        static void WriteToMemory()
         {
             var allProgramData = ReadFromDisk;
             
             for(int i = 0; i < allProgramData.Length; i++)
                 MMU.WriteWord(i, currentPointer, allProgramData[i]);
-
-            return true;
         }
 
         /// <summary>
