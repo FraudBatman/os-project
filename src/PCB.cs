@@ -92,7 +92,7 @@ namespace os_project
     // PCB: Job controller 
     public partial class PCB
     {
-        int processID, instructionCount, priority, totalBufferSize, core_used;
+        int processID, instructionCount, priority, totalMemorySize, core_used;
         string jobStartAddress, jobEndAddress;
 
         public string JobStartAddress
@@ -107,7 +107,7 @@ namespace os_project
             set { jobEndAddress = value; }
         }
 
-        public int TotalBufferSize
+        public int TotalMemorySize
         {
             get
             {
