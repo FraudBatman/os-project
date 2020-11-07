@@ -54,35 +54,25 @@ namespace os_project
             // Start CPUs - false == single | true == multi
             // Console.WriteLine("Type 1 for single-core, anything else for multi-core");
             // if (Console.ReadLine() == "1")
-<<<<<<< HEAD
-                StartCPUs(false);
+                StartCPUs(true);
             // else
                 // StartCPUs(true);
-=======
-            StartCPUs(false);
-            // else
-            //     StartCPUs(true);
->>>>>>> 761360550be9f5cdc99c0b81ce13b56cc2ccbc35
 
             // Ask for policy
             // Console.WriteLine("Type 1 for FIFO, anything else for priority");
             // if (Console.ReadLine() == "1")
-<<<<<<< HEAD
                 ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
             // else
                 // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
-=======
-            ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            // else
-            //     ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
->>>>>>> 761360550be9f5cdc99c0b81ce13b56cc2ccbc35
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
 
-            // Loader
+            // Loader utilizes the disk lock for writing to disk
+            _DiskLock.Wait();
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
+            _DiskLock.Release();
 
             // Run the programs on the cores
             if (isMultiCPU)
@@ -101,10 +91,17 @@ namespace os_project
         {
             while (Queue.New.First != null)
             {
+                // Acquires the mmu semaphore for reading and writing to memory
+                _MMULock.Wait();
                 LongTermScheduler.Execute();
                 ShortTermScheduler.Start();
+                _MMULock.Release();
+
+                // Acquires the semaphore for the MMU for reading and writing
                 System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
+                _MMULock.Wait();
                 Cores[0].Run();
+                _MMULock.Release();
             }
 
             if (Queue.Terminated.Count != 30 || Queue.New.First != null)

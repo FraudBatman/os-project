@@ -23,6 +23,9 @@ namespace os_project
                 Queue.Running.AddLast(activeProgram);
                 activeProgram.State = PCB.PROCESS_STATE.RUNNING;
 
+                // Set the CPU to running
+                isWaiting = false;
+
                 /*
                 * Timer: Stop the waiting time
                 */
@@ -41,17 +44,14 @@ namespace os_project
                 }
 
                 /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
-
                 var startAddr = activeProgram.JobStartAddress;
                 var jobPage = activeProgram.JobStartAddress.Substring(0, 3);
                 string offset = "00";
-
                 for (int i = 0; i < activeProgram.InstructionCount; i++)
                 {
                     offset = Utilities.DecToHexAddr(i);
                     cache[i] = MMU.ReadWord(jobPage + offset, activeProgram);
                 }
-
                 */
 
                 for (int i = 0; i < activeProgram.InstructionCount; i++)
@@ -71,6 +71,11 @@ namespace os_project
 
         //accumulator, naming it just acc due to my former crippling addiction to Shenzhen IO
         int PC;
+
+        // Indicates if the CPU is waiting or trapped
+        public bool isWaiting = true;
+        public bool hitTrap = false;
+        public bool isInCriticalSection = false;
 
         // Acc to word        
         Word acc;
@@ -105,14 +110,11 @@ namespace os_project
         #region Threads
         public int Run()
         {
-            while (PC < activeProgram.InstructionCount)
+            while (PC < activeProgram.InstructionCount && !isInCriticalSection)
             {
                 // Fetch data
                 var instruction = Fetch();
 
-                // Print the instruction
-                System.Console.WriteLine(instruction.Value);
-                
                 // Decode data
                 Decode(instruction);
 
@@ -144,6 +146,7 @@ namespace os_project
             this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
+            this.isInCriticalSection = false;
 
             // Metrics.Stop(pcb);
         }
@@ -180,15 +183,24 @@ namespace os_project
             return null;
         }
 
-        string EffectiveAddress(bool isDirect)
+        string EffectiveAddress()
         {
-            // Returns the base reg 
-            if (isDirect)
-                return Utilities.WordFill(Utilities.DecToHex(activeProgram.JobStartAddress + addr));
-            
-            // Add in the index register
-            else
-                return Utilities.WordFill(Utilities.DecToHex(activeProgram.InputBufferStartAddr + addr));
+            /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
+            var pageNumbers = MMU.getPages(this.activeProgram);
+            var page = pageNumbers[0];
+            var offset = Utilities.DecToHexAddr(addr);
+            if (addr >= MMU.PAGE_SIZE)
+            {
+                page = pageNumbers[1];
+                offset = Utilities.DecToHexAddr(addr - MMU.PAGE_SIZE);
+            }
+            var wordValue = MMU.ReadWord("0x" + Utilities.DecToHex(page) + offset,
+                this.activeProgram
+            );
+            // (i % MMU.PAGE_SIZE == 0 && i != 0)
+            return wordValue.Value;
+            */
+            return MMU.ReadWord(addr, this.activeProgram).Value;
         }
         #endregion
 
@@ -239,8 +251,7 @@ namespace os_project
                 case 1: // => Conditional
                     bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
                     dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
-
-                    addr = (Utilities.HexToDec(data.Substring(4, 4)) == 0? 0 : Utilities.HexToDec(data.Substring(4, 4)) / 4);
+                    addr = Utilities.HexToDec(data.Substring(4, 4));
                     break;
                 case 2: // => Uncon. Jump -> may need to refactor
                     jumpToAddr = data.Substring(2);
@@ -312,7 +323,7 @@ namespace os_project
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
-            Console.WriteLine($"ARITH: OPCODE {OPCODE} | {dReg} = {sReg0} OP {sReg1}");
+            // Console.WriteLine($"ARITH: OPCODE {OPCODE} | {dReg} = {sReg0} OP {sReg1}");
         }
 
         private void ExecuteCondi()
@@ -333,9 +344,11 @@ namespace os_project
             switch (OPCODE)
             {
                 case 2: // 02: ST
+                    isInCriticalSection = true;
                     DMA.IOExecution(false, this, bReg, addr, false).GetAwaiter().GetResult();
                     break;
                 case 3: // 03: LW
+                    isInCriticalSection = true;
                     DMA.IOExecution(true, this, dReg, addr, false).GetAwaiter().GetResult();
                     break;
                 case 11: // 0B: MOVI
@@ -377,7 +390,7 @@ namespace os_project
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
-            Console.WriteLine($"CONDI: OPCODE {OPCODE} | B = {bReg} | D = {dReg} | ADDR = {addr} | SECOND = {second}");
+            // Console.WriteLine($"CONDI: OPCODE {OPCODE} | B = {bReg} | D = {dReg} | ADDR = {addr} | SECOND = {second}");
         }
         private void ExecuteUJump()
         {
@@ -394,7 +407,7 @@ namespace os_project
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
-            Console.WriteLine($"UJUMP: OPCODE {OPCODE} | ADDR {addr}");
+            // Console.WriteLine($"UJUMP: OPCODE {OPCODE} | ADDR {addr}");
         }
         private async Task ExecuteIO()
         {
@@ -410,16 +423,18 @@ namespace os_project
             {
                 case 0: // 00: RD
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
+                    isInCriticalSection = true;
                     await DMA.IOExecution(true, this, reg1, fourthValue, reg2ORAddress);
                     break;
                 case 1: // 01: WR
+                    isInCriticalSection = true;
                     await DMA.IOExecution(false, this, reg1, fourthValue, reg2ORAddress);
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
 
             }
-            Console.WriteLine($"IO: OPCODE {OPCODE} | REG1 : {reg1} | REG2 : {reg2} |ADDR {addr}");
+            // Console.WriteLine($"IO: OPCODE {OPCODE} | REG1 : {reg1} | REG2 : {reg2} |ADDR {addr}");
         }
         #endregion
     }
