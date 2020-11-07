@@ -79,6 +79,11 @@ namespace os_project
         Word[] registers;
         Word[] cache;
 
+        public Word[] Cache
+        {
+            get { return cache; }
+        }
+
         // Save memory by not assigning if CPU is never instantiated
         int id;
         public int ID { get { return id; } }
@@ -383,100 +388,16 @@ namespace os_project
             {
                 case 0: // 00: RD
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-                    DMA_IOExecution(true);
+                    DMA.IOExecution(true, this);
                     break;
                 case 1: // 01: WR
-                    DMA_IOExecution(false);
+                    DMA.IOExecution(false, this);
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
 
             }
 
-        }
-        #endregion
-
-        #region DMA Channel Threads
-        async void DMA_IOExecution(bool readOrWrite)
-        {
-            if (readOrWrite) // ==> Read
-            {
-                Task thread = Task.Factory.StartNew(() =>
-                {
-                    DMA_Block(true);
-                    throw new Exception("NEED TO FIX DMA IN OUT");
-                    //--NEEDS TO BE THE DMA IN / OUT VERSIONS //acc = activeProgram.In();
-                    DMA_Block(false);
-                });
-                thread.Wait();
-            }
-            else // ==> Write
-            {
-                Task thread = Task.Factory.StartNew(() =>
-                {
-                    DMA_Block(true);
-
-                    var outputBuffer = cache.Length + activeProgram.InstructionCount + activeProgram.InputBufferSize - 1;
-
-                    for (int i = outputBuffer; i < cache.Length; i++)
-                    {
-                        if (cache[outputBuffer].Value == "00000000" && cache[outputBuffer].Value == "null")
-                        {
-                            throw new Exception("NEED TO FIX DMA IN OUT");
-                            //--NEEDS TO BE THE DMA IN / OUT VERSIONS //activeProgram.Out(cache[i]);
-                        }
-                    }
-
-                    DMA_Block(false);
-                });
-                thread.Wait();
-            }
-
-            // Increment the IO count for the pcb
-            activeProgram.IOOperationCount++;
-        }
-
-        async Task DMA_Block(bool movePCB)
-        {
-
-            if (movePCB) // move PCB to waiting queue
-            {
-                Task block = Task.Factory.StartNew(() =>
-                {
-                    // /*
-                    // * Timer: Stop the waiting time
-                    // */
-                    // Metrics.Start(activeProgram);
-
-                    /*
-                    * Timer: Stop the waiting time
-                    */
-                    // Metrics.Stop(activeProgram);
-
-                    Queue.Running.Remove(activeProgram);
-                    Queue.Waiting.AddLast(activeProgram);
-                });
-                block.Wait();
-            }
-            else // Remove the pcb
-            {
-                Task block = Task.Factory.StartNew(() =>
-                {
-                    Queue.Running.AddLast(activeProgram);
-                    Queue.Waiting.Remove(activeProgram);
-
-                    /*
-                    * Timer: Stop the waiting time
-                    */
-                    // Metrics.Start(activeProgram);
-
-                    // /*
-                    // * Timer: Stop the waiting time
-                    // */
-                    // Metrics.Stop(activeProgram);
-                });
-                block.Wait();
-            }
         }
         #endregion
     }
