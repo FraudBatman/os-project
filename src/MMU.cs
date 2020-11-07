@@ -5,7 +5,23 @@ namespace os_project
 {
     public static class MMU
     {
-        static int[] used = new int[RAM.RAM_SIZE];
+        public static int[] used = SetUsedRAM();
+
+        /// <summary>
+        /// Sets each used address of RAM to -1 at the initial use of 'used'
+        /// </summary>
+        /// <returns></returns>
+        static int[] SetUsedRAM()
+        {
+            var setUnused = new int[RAM.RAM_SIZE];
+            for(int i = 0; i < setUnused.Length; i++)
+            {
+                setUnused[i] = -1;
+            }
+
+            return setUnused;
+        }
+
         public static int OpenMemory
         {
             get
@@ -43,7 +59,7 @@ namespace os_project
             for (int i = 0; i < RAM.RAM_SIZE; i++)
             {
                 if (used[i] == pcb.ProcessID)
-                    used[i] = 0;
+                    used[i] = -1;
             }
         }
 

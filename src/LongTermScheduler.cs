@@ -18,22 +18,54 @@ namespace os_project
             // Acquires the lock for the new queue
             __init();
 
-            // Sets the memory switch false to check if allocation is possible
-            bool isMemFullSwitch = false;
+            // Multi core cpu configuration
+            if (Driver.IsMultiCPU)
+            {
+                // Sets the memory switch false to check if allocation is possible
+                bool isMemFullSwitch = false;
+                bool hasAllPCBBeenLoaded = false;
 
-            // While the memory is not full continue loading program data from disk to RAM with the MMU
-            while(!isMemFullSwitch) 
+                // While the memory is not full continue loading program data from disk to RAM with the MMU
+                while (!isMemFullSwitch && !hasAllPCBBeenLoaded)
+                {
+                    // Allocate memory for the program disk instructions and buffer sizes if available
+                    var allocationStartAddress = MMU.AllocateMemory(currentPointer);
+
+                    // Validate if the MMU allocated memory in RAM for the program's instructions break if so
+                    if (allocationStartAddress == -1)
+                        isMemFullSwitch = true;
+                    else
+                    {
+                        // Write the disk instructions and buffers to the allocated RAM for the PCB.ProgramSize count
+                        WriteToMemory(allocationStartAddress);
+                        SetPCBStartEndAddresses(allocationStartAddress);
+
+                        // Move the pcb to the ready queue if it was loaded properly to memory
+                        Queue.New.Remove(currentPointer);
+                        Queue.Ready.AddLast(currentPointer);
+
+                        if (Queue.New.First != null)
+                            currentPointer = Queue.New.First.Value;
+                        else
+                            hasAllPCBBeenLoaded = true;
+                    }
+                }
+            }
+
+            // Single core cpu configuration
+            else
             {
                 // Allocate memory for the program disk instructions and buffer sizes if available
-                var isAllocated = MMU.AllocateMemory(currentPointer);
+                var allocationStartAddress = MMU.AllocateMemory(currentPointer);
 
                 // Validate if the MMU allocated memory in RAM for the program's instructions break if so
-                if (isAllocated == -1)
-                    isMemFullSwitch = true;
+                if (allocationStartAddress == -1)
+                    throw new Exception("Long term scheduler could not load from disk to memory on single core configuration");
                 else
                 {
                     // Write the disk instructions and buffers to the allocated RAM for the PCB.ProgramSize count
-                    WriteToMemory();                    
+                    WriteToMemory(allocationStartAddress);
+                    SetPCBStartEndAddresses(allocationStartAddress);
 
                     // Move the pcb to the ready queue if it was loaded properly to memory
                     Queue.New.Remove(currentPointer);
@@ -50,9 +82,6 @@ namespace os_project
         {
             if (Driver._QueueLock.CurrentCount != 0)
             {
-                foreach(var program in Queue.Terminated)
-                    MMU.DeallocateMemory(program);
-
                 if (Queue.New.First != null)
                 {
                     currentPointer = Queue.New.First.Value;
@@ -65,12 +94,33 @@ namespace os_project
         /// --> Make async if MMU lock
         /// </summary>
         /// <returns>True if the memory was written</returns>
-        static void WriteToMemory()
+        static void WriteToMemory(int allocationStartAddress)
         {
             var allProgramData = ReadFromDisk;
             
             for(int i = 0; i < allProgramData.Length; i++)
-                MMU.WriteWord(i, currentPointer, allProgramData[i]);
+                MMU.WriteWord(allocationStartAddress + i, currentPointer, allProgramData[i]);
+        }
+
+        /// <summary>
+        /// Set the current pointed to PCB's job, data, and buffer addresses
+        /// </summary>
+        static bool SetPCBStartEndAddresses(int allocationStartAddress)
+        {
+            // Set ==> PCB data start & end addresses
+            currentPointer.JobStartAddress = allocationStartAddress;
+
+            // Set ==> PCB data start & end addresses
+
+            // Set ==> PCB data start & end addresses
+
+            // Set ==> PCB intput buffer start & end addresses
+
+            // Set ==> PCB output buffer start & end addresses
+
+            // Set ==> PCB temp buffer start & end addresses
+
+            return false;
         }
 
         /// <summary>
@@ -85,7 +135,7 @@ namespace os_project
                 var programData = new Word[currentPointer.ProgramSize];
 
                 // Read the program data (job and data words) from disk
-                var diskWords = Disk.ReadFromDisk(currentPointer.ProcessID);
+                var diskWords = Disk.ReadFromDisk(currentPointer.DiskAddress);
                 
                 // Get the list of program's disk read job attributes
                 var jobWords = diskWords[0];
@@ -95,9 +145,6 @@ namespace os_project
 
                 // Get the buffers as a list of words to store in RAM
                 var bufferWords = new Word[currentPointer.BufferSize];
-
-                if (currentPointer.BufferSize == 0)
-                    return null;
 
                 for (int i = 0; i < currentPointer.BufferSize; i++)
                     bufferWords[i] = new Word("0x00000000");

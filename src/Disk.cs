@@ -12,7 +12,6 @@ namespace os_project
 
         public static Word[][] ReadFromDisk(int partitionID)
         {
-            partitionID -= 1;
             var job_i = Disk.diskPartitions[partitionID]["Job_Instructions"];
             var data_i = Disk.diskPartitions[partitionID]["Data_Instructions"];
             Word[][] readInstructions = new Word[2][];

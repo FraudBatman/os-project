@@ -24,6 +24,7 @@ namespace os_project
 
             // => Initialize disk attributes
             this.startDiskAddr = startDiskAddr;
+            this.diskAddress = processID - 1;
         }
 
         #region PCB Attributes
@@ -41,8 +42,8 @@ namespace os_project
             {
                 return
                 BufferSize +
-                (Disk.ReadFromDisk(this.ProcessID)[0].Length) +
-                (Disk.ReadFromDisk(this.ProcessID)[1].Length);
+                (Disk.ReadFromDisk(this.DiskAddress)[0].Length) +
+                (Disk.ReadFromDisk(this.DiskAddress)[1].Length);
             }
         }
 
@@ -113,7 +114,6 @@ namespace os_project
             get { return jobEndAddress; }
             set { jobEndAddress = value; }
         }
-
         #endregion
 
 
@@ -145,13 +145,13 @@ namespace os_project
 
         public int DiskAddress
         {
-            get { return processID - 1; }
+            get { return diskAddress; }
         }
         #endregion
 
 
         #region Input Buffer Attributes
-        private int inputBufferSize, inputBufferIndex, inputBufferStartAddr, endInputBufferAddr;
+        private int inputBufferSize, inputBufferStartAddr, endInputBufferAddr;
 
         public int InputBufferSize
         {

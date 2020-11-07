@@ -26,10 +26,7 @@ namespace os_project
         /// </summary>
         static void load_FIFO()
         {
-            if (Driver.IsMultiCPU)
-                SendToDispatcherMulti(Queue.Ready);
-            else
-                SendToDispatcher(Queue.Ready);
+            SendToDispatcher(Queue.Ready);
         }
 
         /// <summary>
@@ -39,11 +36,7 @@ namespace os_project
         {
             var toSort = Queue.Ready;
             Queue.Ready = InsertSort(toSort);
-
-            if (Driver.IsMultiCPU)
-                SendToDispatcherMulti(Queue.Ready);
-            else
-                SendToDispatcher(Queue.Ready);
+            SendToDispatcher(Queue.Ready);
         }
 
         /// <summary>
@@ -52,26 +45,27 @@ namespace os_project
         /// <param name="queuedList">the list to send</param>
         static void SendToDispatcher(LinkedList<PCB> queuedList)
         {
-            if (queuedList.First == null)
-                return;
+            // Multi core configuration
+            if (Driver.IsMultiCPU)
+            {
+                var status = 0;
 
-            Dispatcher.Dispatch(queuedList.First.Value);
-        }
+                while (status != -1)
+                {
+                    if (queuedList.First == null)
+                        return;
 
-        /// <summary>
-        /// Iterates sending pcbs from the ready queue to the dispatcher for loading to cores
-        /// </summary>
-        /// <param name="queuedList">the list to send</param>
-        static void SendToDispatcherMulti(LinkedList<PCB> queuedList)
-        {
-            var status = 0;
+                    status = Dispatcher.Dispatch(queuedList.First.Value);
+                }
+            }
 
-            while (status != -1)
+            // Single core configuration
+            else
             {
                 if (queuedList.First == null)
                     return;
 
-                status = Dispatcher.Dispatch(queuedList.First.Value);
+                Dispatcher.Dispatch(queuedList.First.Value);
             }
         }
 

@@ -120,6 +120,9 @@ namespace os_project
         // Ends the process
         private void EndProcess()
         {
+            // Deallocate the memory
+            MMU.DeallocateMemory(activeProgram);
+
             // Adds the pcb to the terminated queue
             activeProgram.Core_Used = ID;
             var pcb = activeProgram;
@@ -132,8 +135,6 @@ namespace os_project
             this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
-
-            // Deallocate the memory
 
             // Metrics.Stop(pcb);
         }

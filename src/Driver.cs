@@ -7,6 +7,7 @@ namespace os_project
 {
     public partial class Driver
     {
+        // Implement these once the CPU is complete
         #region Shared Resource Semaphores
         public static SemaphoreSlim _QueueLock = new SemaphoreSlim(1);
         public static SemaphoreSlim _MMULock = new SemaphoreSlim(1);
@@ -22,6 +23,7 @@ namespace os_project
 
 
         #region Job File Configurations
+        static int completetionStatus;
         static string jobFile;
         static string dataDir;
 
@@ -46,67 +48,42 @@ namespace os_project
         #region Main thread
         public static void Main(string[] args)
         {
-            // Validate you can build :D
-            System.Console.WriteLine("You built your project, good job!\n");
-
             // Cross-platform compatibility
             SetOSPlatform(RuntimeInformation.IsOSPlatform(OSPlatform.Windows));
 
             // Ask for single-core
             // Start CPUs - false == single | true == multi
-            // Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            // if (Console.ReadLine() == "1")
+            Console.WriteLine("Type 1 for single-core, anything else for multi-core");
+            if (Console.ReadLine() == "1")
                 StartCPUs(false);
-            // else
-                // StartCPUs(true);
+            else
+                StartCPUs(true);
 
             // Ask for policy
-            // Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            // if (Console.ReadLine() == "1")
+            Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            if (Console.ReadLine() == "1")
                 ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            // else
-                // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            else
+                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+
+            // Start of the cpu simulation
+            System.Console.WriteLine("----- START OS SIMULATION ------");
 
             // Loader
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
 
             // Run the programs on the cores
-            // if (isMultiCPU)
-                // RunMultiCore();
-            // else
-                RunSingleCore();
+            if (isMultiCPU)
+                completetionStatus = RunMultiCore();
+            else
+                completetionStatus = RunSingleCore();
 
-            // Metrics.ExportWaitTime("Single Core / FIFO Wait Times");
-            // Metrics.ExportWaitTime("Single Core / PRIO Wait Times");
-
-            // Metrics.ExportCompletionTime("Single Core / FIFO Completion Times");
-            // Metrics.ExportCompletionTime("Single Core / PRIO Completion Times");
-            // Metrics.ExportCompletionTime("Multi Core / FIFO Completion Times");
-            // Metrics.ExportCompletionTime("Multi Core / PRIO Completion Times");
-
-            // IO Execution exports
-            // Metrics.ExportIOExecutionCounts("Single Core / FIFO Completion Times");
-            // Metrics.ExportIOExecutionCounts("Single Core / PRIO Completion Times");
-            // Metrics.ExportIOExecutionCounts("Multi Core / FIFO Completion Times");
-            // Metrics.ExportIOExecutionCounts("Multi Core / PRIO Completion Times");
-
-            // RAM Percentage exports
-            // Metrics.ExportPercentageRam("Single Core / FIFO RAM %");
-            // Metrics.ExportPercentageRam("Single Core / PRIO RAM %");
-            // Metrics.ExportPercentageRam("Multi Core / FIFO RAM %");
-            // Metrics.ExportPercentageRam("Multi Core / PRIO RAM %");
-
-            // Cache percentage exports
-            // Metrics.ExportPercentageCache("Single Core / FIFO CACHE %");
-            // Metrics.ExportPercentageCache("Single Core / PRIO CACHE %");
-            // Metrics.ExportPercentageCache("Multi Core / FIFO CACHE %");
-            // Metrics.ExportPercentageCache("Multi Core / PRIO CACHE %");
-
-            // Core used exports
-            // Metrics.ExportCPUUsed("Multi Core / FIFO Core Used");
-            // Metrics.ExportCPUUsed("Multi Core / PRIO Core Used");
-
+            // Validate the program finished successully
+            if (completetionStatus == 0)
+                System.Console.WriteLine("----- OS SIMULATION PASSED ------");
+            else
+                System.Console.WriteLine("----- OS SIMULATION FAILED ------");
         }
 
         static int RunSingleCore()
@@ -114,16 +91,12 @@ namespace os_project
             while (Queue.New.First != null)
             {
                 LongTermScheduler.Execute();
-
-                while (Queue.Ready.First != null)
-                {
-                    ShortTermScheduler.Start();
-                    System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
-                    Cores[0].Run();
-                }
+                ShortTermScheduler.Start();
+                System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
+                Cores[0].Run();
             }
 
-            if (Queue.Terminated.Count != 30 && Queue.New.First != null)
+            if (Queue.Terminated.Count != 30 || Queue.New.First != null)
                 return -1;
 
             return 0;
@@ -167,7 +140,7 @@ namespace os_project
                 }
             }
 
-            if (Queue.Terminated.Count != 30 && Queue.New.First != null)
+            if (Queue.Terminated.Count != 30 || Queue.New.First != null)
                 return -1;
 
             return 0;
