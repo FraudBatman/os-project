@@ -22,7 +22,7 @@ namespace os_project
             {
                 Task thread = Task.Factory.StartNew(() =>
                 {
-                    blocker();
+                    blocker().GetAwaiter().GetResult();
 
                     if (reg2ORAddress)
                     {
@@ -33,7 +33,7 @@ namespace os_project
                         callingCPU.Registers[reg1] = MMU.ReadWord(secondLocation, callingCPU.ActiveProgram);
                     }
 
-                    unlocker();
+                    unlocker().GetAwaiter().GetResult();
                 });
                 thread.Wait();
             }
@@ -41,7 +41,7 @@ namespace os_project
             {
                 Task thread = Task.Factory.StartNew(() =>
                 {
-                    blocker();
+                    blocker().GetAwaiter().GetResult();
 
                     if (reg2ORAddress)
                     {
@@ -52,7 +52,7 @@ namespace os_project
                         MMU.WriteWord(secondLocation, callingCPU.ActiveProgram, callingCPU.Registers[reg1]);
                     }
 
-                    unlocker();
+                    unlocker().GetAwaiter().GetResult();
                 });
                 thread.Wait();
             }
