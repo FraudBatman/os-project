@@ -5,7 +5,12 @@ namespace os_project
 {
     public static class DMA
     {
-
+        /// <summary>
+        /// Executes the IO process directed
+        /// </summary>
+        /// <param name="readOrWrite">True for read, false for write</param>
+        /// <param name="callingCPU">The CPU calling for the IO process</param>
+        /// <returns></returns>
         public static async void IOExecution(bool readOrWrite, CPU callingCPU)
         {
             if (readOrWrite) // ==> Read
