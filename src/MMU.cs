@@ -5,15 +5,15 @@ namespace os_project
 {
     public static class MMU
     {
-        static bool[] used = new bool[RAM.RAM_SIZE];
+        static int[] used = new int[RAM.RAM_SIZE];
         public static int OpenMemory
         {
             get
             {
                 int returnValue = 0;
-                foreach (bool bule in used)
+                foreach (int bule in used)
                 {
-                    if (bule)
+                    if (bule == 0)
                         returnValue++;
                 }
                 return returnValue;
@@ -27,21 +27,83 @@ namespace os_project
         /// <returns>the start address of the program</returns>
         public static int AllocateMemory(PCB pcb)
         {
-            return 0;
+            int startIndex = findHole(pcb);
+            if (startIndex != -1)
+            {
+                for (int i = startIndex; i < startIndex + pcb.ProgramSize; i++)
+                {
+                    used[i] = pcb.ProcessID;
+                }
+            }
+            return startIndex;
         }
 
         public static void DeallocateMemory(PCB pcb)
         {
+            for (int i = 0; i < RAM.RAM_SIZE; i++)
+            {
+                if (used[i] == pcb.ProcessID)
+                    used[i] = 0;
+            }
         }
 
-        public static Word ReadWord(int address)
+        public static Word ReadWord(int address, PCB program)
         {
-            return RAM.Read(address);
+            return RAM.Read(program.JobStartAddress + address);
         }
 
-        public static void WriteWord(int address, Word value)
+        public static void WriteWord(int address, PCB program, Word value)
         {
-            RAM.Write(address, value);
+            RAM.Write(program.JobEndAddress + address, value);
+        }
+
+        /// <summary>
+        /// finds the first big enough hole and returns it
+        /// </summary>
+        /// <param name="pcb"></param>
+        /// <returns></returns>
+        static int findHole(PCB pcb)
+        {
+            bool inHole = false;
+            int holeIndex = -1;
+            for (int i = 0; i < RAM.RAM_SIZE; i++)
+            {
+                //in hole
+                if (inHole)
+                {
+                    //allocated
+                    if (used[i] != -1)
+                    {
+                        //reset hole stats
+                        inHole = false;
+                        holeIndex = -1;
+                    }
+                    ///not allocated
+                    else
+                    {
+                        //hole is big enough
+                        if ((i - holeIndex) + 1 == pcb.ProgramSize)
+                        {
+                            //return hole index
+                            return holeIndex;
+                        }
+                        //hole isn't big enough
+                    }
+                }
+                //not in hole
+                else
+                {
+                    //not allocated
+                    if (used[i] == -1)
+                    {
+                        //start hole
+                        holeIndex = i;
+                        inHole = true;
+                    }
+                }
+            }
+
+            return -1;
         }
 
         /* Have fun fixing this mess
