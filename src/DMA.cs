@@ -5,20 +5,35 @@ namespace os_project
 {
     public static class DMA
     {
+        static bool blocked = false;
+
         /// <summary>
-        /// Executes the IO process directed
+        /// Does an IO instruction through the DMA
         /// </summary>
         /// <param name="readOrWrite">True for read, false for write</param>
-        /// <param name="callingCPU">The CPU calling for the IO process</param>
+        /// <param name="callingCPU">The CPU that's calling the DMA</param>
+        /// <param name="reg1">Reg1 in the instructions</param>
+        /// <param name="secondLocation">The second location to be called, whether it be register or address</param>
+        /// <param name="reg2ORAddress">True for reg2, false for address as second location</param>
         /// <returns></returns>
-        public static async void IOExecution(bool readOrWrite, CPU callingCPU)
+        public static async Task IOExecution(bool readOrWrite, CPU callingCPU, int reg1, int secondLocation, bool reg2ORAddress)
         {
             if (readOrWrite) // ==> Read
             {
                 Task thread = Task.Factory.StartNew(() =>
                 {
-                    Block(true, callingCPU.ActiveProgram);
-                    Block(false, callingCPU.ActiveProgram);
+                    blocker();
+
+                    if (reg2ORAddress)
+                    {
+                        callingCPU.Registers[reg1] = callingCPU.Registers[secondLocation];
+                    }
+                    else
+                    {
+                        callingCPU.Registers[reg1] = MMU.ReadWord(secondLocation, callingCPU.ActiveProgram);
+                    }
+
+                    unlocker();
                 });
                 thread.Wait();
             }
@@ -26,20 +41,18 @@ namespace os_project
             {
                 Task thread = Task.Factory.StartNew(() =>
                 {
-                    Block(true, callingCPU.ActiveProgram);
+                    blocker();
 
-                    var outputBuffer = callingCPU.Cache.Length + callingCPU.ActiveProgram.InstructionCount + callingCPU.ActiveProgram.InputBufferSize - 1;
-
-                    for (int i = outputBuffer; i < callingCPU.Cache.Length; i++)
+                    if (reg2ORAddress)
                     {
-                        if (callingCPU.Cache[outputBuffer].Value == "00000000" && callingCPU.Cache[outputBuffer].Value == "null")
-                        {
-                            // throw new Exception("NEED TO FIX DMA IN OUT");
-                            //--NEEDS TO BE THE DMA IN / OUT VERSIONS //callingCPU.ActiveProgram.Out(cache[i]);
-                        }
+                        callingCPU.Registers[secondLocation] = callingCPU.Registers[reg1];
+                    }
+                    else
+                    {
+                        MMU.WriteWord(secondLocation, callingCPU.ActiveProgram, callingCPU.Registers[reg1]);
                     }
 
-                    Block(false, callingCPU.ActiveProgram);
+                    unlocker();
                 });
                 thread.Wait();
             }
@@ -48,53 +61,16 @@ namespace os_project
             callingCPU.ActiveProgram.IOOperationCount++;
         }
 
-        /// <summary>
-        /// Moves PCB to waiting queue to start waiting for IO
-        /// </summary>
-        /// <param name="waitPCB">True to send to waiting, false to remove from waiting</param>
-        /// <param name="activeProgram">The PCB of the active program</param>
-        /// <returns></returns>
-        static async Task Block(bool waitPCB, PCB activeProgram)
+
+        static async Task blocker()
         {
+            while (blocked) ;
+            blocked = true;
+        }
 
-            if (waitPCB) // move PCB to waiting queue
-            {
-                Task block = Task.Factory.StartNew(() =>
-                {
-                    // /*
-                    // * Timer: Stop the waiting time
-                    // */
-                    // Metrics.Start(activeProgram);
-
-                    /*
-                    * Timer: Stop the waiting time
-                    */
-                    // Metrics.Stop(activeProgram);
-
-                    Queue.Running.Remove(activeProgram);
-                    Queue.Waiting.AddLast(activeProgram);
-                });
-                block.Wait();
-            }
-            else // Remove the pcb
-            {
-                Task block = Task.Factory.StartNew(() =>
-                {
-                    Queue.Running.AddLast(activeProgram);
-                    Queue.Waiting.Remove(activeProgram);
-
-                    /*
-                    * Timer: Stop the waiting time
-                    */
-                    // Metrics.Start(activeProgram);
-
-                    // /*
-                    // * Timer: Stop the waiting time
-                    // */
-                    // Metrics.Stop(activeProgram);
-                });
-                block.Wait();
-            }
+        static async Task unlocker()
+        {
+            blocked = false;
         }
     }
 }

@@ -79,6 +79,12 @@ namespace os_project
         Word[] registers;
         Word[] cache;
 
+        public Word[] Registers
+        {
+            get { return registers; }
+            set { registers = value; }
+        }
+
         public Word[] Cache
         {
             get { return cache; }
@@ -386,16 +392,24 @@ namespace os_project
             }
             Console.WriteLine($"UJUMP: OPCODE {OPCODE} | ADDR {addr}");
         }
-        private void ExecuteIO()
+        private async Task ExecuteIO()
         {
+            bool reg2ORAddress = false;
+            int fourthValue = addr;
+            //if the address is 0, set the 
+            if (addr == 0)
+            {
+                reg2ORAddress = true;
+                fourthValue = reg2;
+            }
             switch (OPCODE)
             {
                 case 0: // 00: RD
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-                    DMA.IOExecution(true, this);
+                    await DMA.IOExecution(true, this, reg1, fourthValue, reg2ORAddress);
                     break;
                 case 1: // 01: WR
-                    DMA.IOExecution(false, this);
+                    await DMA.IOExecution(false, this, reg1, fourthValue, reg2ORAddress);
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
