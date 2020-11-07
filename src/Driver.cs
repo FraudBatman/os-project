@@ -13,7 +13,6 @@ namespace os_project
         public static SemaphoreSlim _MMULock = new SemaphoreSlim(1);
         public static SemaphoreSlim _DiskLock = new SemaphoreSlim(1);
         #endregion
-        
 
         #region CPU Configurations
         public static CPU[] Cores;
@@ -38,7 +37,7 @@ namespace os_project
             else
             {
                 jobFile = System.IO.Directory.GetCurrentDirectory() + @"/resources/jobs-file.txt";
-                Directory.CreateDirectory(@"/data");
+                Directory.CreateDirectory(@"./data");
                 dataDir = System.IO.Directory.GetCurrentDirectory() + @"/data/";
             }
         }
@@ -196,6 +195,78 @@ namespace os_project
             sw.Write(data);
             sw.Flush();
             fs.Close();
+        }
+
+        /// <summary>
+        /// Dumps RAM into a string for writing to a file
+        /// </summary>
+        /// <param name="comment"></param>
+        /// <returns></returns>
+        public static string RAMDUMP(string comment = null)
+        {
+            bool alreadyCalled = false;
+            int counter = 0;
+            int target = -1;
+            string[] programFile = File.ReadAllLines(jobFile);
+            string returnValue = $"COMMENT: {comment}\n";
+            for (int i = 0; i < RAM.RAM_SIZE; i++)
+            {
+                //CHECK FOR TRANSITION FROM JOB TO DATA
+                if (counter == target)
+                {
+                    returnValue += "//DATA\n";
+                }
+
+                //already reading info
+                if (alreadyCalled)
+                {
+                    //allocated
+                    if (MMU.used[i] != -1)
+                    {
+                        returnValue += RAM.data[i].Value + "\n";
+                        counter++;
+                    }
+                    //unallocated
+                    else
+                    {
+                        returnValue += "//END OF JOB\n";
+                        returnValue += "UNALLOCATED\n";
+                        alreadyCalled = false;
+                        counter = 0;
+                        target = -1;
+                    }
+                }
+
+                //not reading info
+                else
+                {
+                    //allocated
+                    if (MMU.used[i] != -1)
+                    {
+                        returnValue += $"//JOB PID: {Utilities.DecToHex(MMU.used[i])}\n";
+                        returnValue += RAM.data[i].Value + "\n";
+                        counter++;
+                        alreadyCalled = true;
+
+                        //get job info from jobs-file.txt 
+                        foreach (string line in programFile)
+                        {
+                            if (line.Contains($"// JOB {Utilities.DecToHex(MMU.used[i])}"))
+                            {
+                                int[] numbers = Utilities.parseControlCard(line.Substring(3));
+                                target = numbers[1];
+                                break;
+                            }
+                        }
+                    }
+                    //unallocated
+                    else
+                    {
+                        returnValue += "UNALLOCATED\n";
+                    }
+                }
+            }
+            return returnValue;
         }
         #endregion
 
