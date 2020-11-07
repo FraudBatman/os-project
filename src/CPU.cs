@@ -110,6 +110,9 @@ namespace os_project
                 // Fetch data
                 var instruction = Fetch();
 
+                // Print the instruction
+                System.Console.WriteLine(instruction.Value);
+                
                 // Decode data
                 Decode(instruction);
 
@@ -177,28 +180,15 @@ namespace os_project
             return null;
         }
 
-        string EffectiveAddress()
+        string EffectiveAddress(bool isDirect)
         {
-            /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
-            var pageNumbers = MMU.getPages(this.activeProgram);
-            var page = pageNumbers[0];
-            var offset = Utilities.DecToHexAddr(addr);
-
-
-            if (addr >= MMU.PAGE_SIZE)
-            {
-                page = pageNumbers[1];
-                offset = Utilities.DecToHexAddr(addr - MMU.PAGE_SIZE);
-            }
-
-            var wordValue = MMU.ReadWord("0x" + Utilities.DecToHex(page) + offset,
-                this.activeProgram
-            );
-
-            // (i % MMU.PAGE_SIZE == 0 && i != 0)
-            return wordValue.Value;
-            */
-            return MMU.ReadWord(addr, this.activeProgram).Value;
+            // Returns the base reg 
+            if (isDirect)
+                return Utilities.WordFill(Utilities.DecToHex(activeProgram.JobStartAddress + addr));
+            
+            // Add in the index register
+            else
+                return Utilities.WordFill(Utilities.DecToHex(activeProgram.InputBufferStartAddr + addr));
         }
         #endregion
 
@@ -249,7 +239,8 @@ namespace os_project
                 case 1: // => Conditional
                     bReg = Utilities.HexToDec(data.ToCharArray()[2].ToString());
                     dReg = Utilities.HexToDec(data.ToCharArray()[3].ToString());
-                    addr = Utilities.HexToDec(data.Substring(4, 4));
+
+                    addr = (Utilities.HexToDec(data.Substring(4, 4)) == 0? 0 : Utilities.HexToDec(data.Substring(4, 4)) / 4);
                     break;
                 case 2: // => Uncon. Jump -> may need to refactor
                     jumpToAddr = data.Substring(2);
@@ -329,7 +320,7 @@ namespace os_project
             switch (OPCODE)
             {
                 case 2: // 02: ST
-                    cache[dReg].Value = EffectiveAddress();
+
                     break;
                 case 3: // 03: LW
                     registers[dReg] = cache[addr];
