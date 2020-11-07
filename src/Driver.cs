@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace os_project
@@ -74,11 +75,13 @@ namespace os_project
             load.LoadInstructions();
             _DiskLock.Release();
 
+            var completionStatus = 0;
+
             // Run the programs on the cores
             if (isMultiCPU)
-                completetionStatus = RunMultiCore();
+                completionStatus = RunMultiCore();
             else
-                completetionStatus = RunSingleCore();
+                completionStatus = RunSingleCore();
 
             // Validate the program finished successully
             if (completetionStatus == 0)
@@ -97,11 +100,9 @@ namespace os_project
                 ShortTermScheduler.Start();
                 _MMULock.Release();
 
-                // Acquires the semaphore for the MMU for reading and writing
+                // Waits for the core thread to run
                 System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
-                _MMULock.Wait();
-                Cores[0].Run();
-                _MMULock.Release();
+                Cores[0].Run().Wait();
             }
 
             if (Queue.Terminated.Count != 30 || Queue.New.First != null)
@@ -112,8 +113,14 @@ namespace os_project
 
         static int RunMultiCore()
         {
+            // While there are programs in the job queue
             while (Queue.New.First != null)
             {
+                // Load to memory from disk - requires the mmu lock to access
+                _MMULock.Wait();
+                LongTermScheduler.Execute();
+                _MMULock.Release();
+         
                 // Load to memory
                 LongTermScheduler.Execute();
 
@@ -122,28 +129,14 @@ namespace os_project
                 {
                     ShortTermScheduler.Start();
 
-                    if (Cores[0].ActiveProgram != null)
+                    foreach(var core in Cores)
                     {
-                        System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
-                        Cores[0].Run();
-                    }
-
-                    if (Cores[1].ActiveProgram != null)
-                    {
-                        System.Console.WriteLine("Running PCB: " + Cores[1].ActiveProgram.ProcessID);
-                        Cores[1].Run();
-                    }
-
-                    if (Cores[2].ActiveProgram != null)
-                    {
-                        System.Console.WriteLine("Running PCB: " + Cores[2].ActiveProgram.ProcessID);
-                        Cores[2].Run();
-                    }
-
-                    if (Cores[3].ActiveProgram != null)
-                    {
-                        System.Console.WriteLine("Running PCB: " + Cores[3].ActiveProgram.ProcessID);
-                        Cores[3].Run();
+                        if (!core.isWaiting && core.ActiveProgram != null)
+                        {
+                            // Wait for the core thread to start and the CPU acquires the MMU lock in its critical section
+                            System.Console.WriteLine("Running PCB: " + core.ActiveProgram.ProcessID);
+                            core.Run().Wait();
+                        }
                     }
                 }
             }
@@ -153,6 +146,7 @@ namespace os_project
 
             return 0;
         }
+
 
         /// <summary>
         /// Starts the CPU cores

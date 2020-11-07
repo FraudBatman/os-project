@@ -75,7 +75,6 @@ namespace os_project
         // Indicates if the CPU is waiting or trapped
         public bool isWaiting = true;
         public bool hitTrap = false;
-        public bool isInCriticalSection = false;
 
         // Acc to word        
         Word acc;
@@ -108,24 +107,25 @@ namespace os_project
         #endregion
 
         #region Threads
-        public int Run()
+        public async Task Run()
         {
-            while (PC < activeProgram.InstructionCount && !isInCriticalSection)
+            Task thread = Task.Factory.StartNew(() =>
             {
-                // Fetch data
-                var instruction = Fetch();
+                while (PC < activeProgram.InstructionCount && !isWaiting)
+                {
+                    // Fetch data
+                    var instruction = Fetch();
 
-                // Decode data
-                Decode(instruction);
+                    // Decode data
+                    Decode(instruction);
 
-                // Execute data
-                Execute();
-            }
+                    // Execute data
+                    Execute();
+                }
 
-            EndProcess();
-
-            // Decode
-            return 0;
+                EndProcess();
+            });
+            thread.Wait();
         }
 
         // Ends the process
@@ -146,7 +146,7 @@ namespace os_project
             this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
-            this.isInCriticalSection = false;
+            this.isWaiting = false;
 
             // Metrics.Stop(pcb);
         }
@@ -344,12 +344,14 @@ namespace os_project
             switch (OPCODE)
             {
                 case 2: // 02: ST
-                    isInCriticalSection = true;
+                    Driver._MMULock.Wait();
                     DMA.IOExecution(false, this, bReg, addr, false).GetAwaiter().GetResult();
+                    Driver._MMULock.Release();
                     break;
                 case 3: // 03: LW
-                    isInCriticalSection = true;
+                    Driver._MMULock.Wait();
                     DMA.IOExecution(true, this, dReg, addr, false).GetAwaiter().GetResult();
+                    Driver._MMULock.Release();
                     break;
                 case 11: // 0B: MOVI
                     registers[dReg].Value = Utilities.WordFill(second);
@@ -423,12 +425,14 @@ namespace os_project
             {
                 case 0: // 00: RD
                     // //NOTE: in this snippet, it just reads to acc. additional setup required to send to a different register
-                    isInCriticalSection = true;
+                    Driver._MMULock.Wait();
                     await DMA.IOExecution(true, this, reg1, fourthValue, reg2ORAddress);
+                    Driver._MMULock.Release();
                     break;
                 case 1: // 01: WR
-                    isInCriticalSection = true;
+                    isWaiting = true;
                     await DMA.IOExecution(false, this, reg1, fourthValue, reg2ORAddress);
+                    Driver._MMULock.Release();
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
