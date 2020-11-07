@@ -97,8 +97,8 @@ namespace os_project
         static void WriteToMemory(int allocationStartAddress)
         {
             var allProgramData = ReadFromDisk;
-            
-            for(int i = 0; i < allProgramData.Length; i++)
+
+            for (int i = 0; i < allProgramData.Length; i++)
                 MMU.WriteWord(allocationStartAddress + i, currentPointer, allProgramData[i]);
         }
 
@@ -109,12 +109,13 @@ namespace os_project
         {
             // Set ==> PCB data start & end addresses
             currentPointer.JobStartAddress = allocationStartAddress;
-
+            currentPointer.JobEndAddress = allocationStartAddress + Disk.ReadFromDisk(currentPointer.DiskAddress)[0].Length - 1;
             // Set ==> PCB data start & end addresses
-
+            currentPointer.DataStartAddress = currentPointer.JobEndAddress + 1;
             // Set ==> PCB data start & end addresses
 
             // Set ==> PCB intput buffer start & end addresses
+            currentPointer.InputBufferStartAddr = currentPointer.DataStartAddress;
 
             // Set ==> PCB output buffer start & end addresses
 
@@ -130,13 +131,14 @@ namespace os_project
         /// <returns></returns>
         static Word[] ReadFromDisk
         {
-            get {
+            get
+            {
                 // Total program data: job, data, input buffers, output buffers, temp buffers
                 var programData = new Word[currentPointer.ProgramSize];
 
                 // Read the program data (job and data words) from disk
                 var diskWords = Disk.ReadFromDisk(currentPointer.DiskAddress);
-                
+
                 // Get the list of program's disk read job attributes
                 var jobWords = diskWords[0];
 
@@ -151,13 +153,13 @@ namespace os_project
 
                 // Concat all the words into one list for the WriteToMemory function
                 int j = 0;
-                foreach(var word in ConcatWordLists(jobWords, dataWords, bufferWords))
+                foreach (var word in ConcatWordLists(jobWords, dataWords, bufferWords))
                 {
                     programData[j] = word;
                     j++;
                 }
 
-                return programData; 
+                return programData;
             }
         }
 

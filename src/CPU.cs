@@ -315,6 +315,7 @@ namespace os_project
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
+            Console.WriteLine($"ARITH: OPCODE {OPCODE} | {dReg} = {sReg0} OP {sReg1}");
         }
 
         private void ExecuteCondi()
@@ -366,6 +367,7 @@ namespace os_project
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
+            Console.WriteLine($"CONDI: OPCODE {OPCODE} | B = {bReg} | D = {dReg} | ADDR = {addr}");
         }
         private void ExecuteUJump()
         {
@@ -382,6 +384,7 @@ namespace os_project
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
+            Console.WriteLine($"UJUMP: OPCODE {OPCODE} | ADDR {addr}");
         }
         private void ExecuteIO()
         {
@@ -398,7 +401,7 @@ namespace os_project
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
 
             }
-
+            Console.WriteLine($"IO: OPCODE {OPCODE} | REG1 : {reg1} | REG2 : {reg2} |ADDR {addr}");
         }
         #endregion
     }
