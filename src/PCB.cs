@@ -24,29 +24,10 @@ namespace os_project
 
             // => Initialize disk attributes
             this.startDiskAddr = startDiskAddr;
-
-            // => Set the cache
-            // this.cache = new Word[];
-        }
-    }
-
-    // PCB: PCB controller
-    public partial class PCB
-    {
-        public enum PROCESS_STATE
-        {
-            NEW,      // => Process: has been created, but not ready to run yet  
-            READY,    // => Process: has been loaded into RAM and ready to run
-            WAITING,  // => Process: is requring I/O execution to take place, waiting in queue
-            RUNNING,  // => Process: process is being executed by the CPU
-            TERMINATE // => Process: has finished its execution
         }
 
-        private int iOOperationCount = 0;
-
-        private int programCount;
-        private PROCESS_STATE state;
-        private int[] memoryPages;
+        #region PCB Attributes
+        private int programCount, processID, priority, core_used;
 
         public int ProgramCount
         {
@@ -54,67 +35,14 @@ namespace os_project
             set { programCount = value; }
         }
 
-        public int IOOperationCount
-        {
-            get { return iOOperationCount; }
-            set { iOOperationCount = value; }
-        }
-
-        public PROCESS_STATE State
-        {
-            get { return state; }
-            set { state = value; }
-        }
-
-        public int[] MemoryPages
-        {
-            get { return memoryPages; }
-            set { memoryPages = value; }
-        }
-    }
-
-    // PCB: Metrics controller
-    public partial class PCB
-    {
-        private Stopwatch timer = new Stopwatch();
-
-        public Stopwatch Timer
-        {
-            get { return timer; }
-        }
-
-        public double Export()
-        {
-            return timer.Elapsed.TotalMilliseconds;
-        }
-    }
-
-    // PCB: Job controller 
-    public partial class PCB
-    {
-        int processID, instructionCount, priority, totalMemorySize, core_used;
-        string jobStartAddress, jobEndAddress;
-
-        public string JobStartAddress
-        {
-            get { return jobStartAddress; }
-            set { jobStartAddress = value; }
-        }
-
-        public string JobEndAddress
-        {
-            get { return jobEndAddress; }
-            set { jobEndAddress = value; }
-        }
-
-        public int TotalMemorySize
+        public int ProgramSize
         {
             get
             {
                 return
-              this.BufferSize +
-              (Disk.ReadFromDisk(this.ProcessID)[0].Length) +
-              (Disk.ReadFromDisk(this.ProcessID)[1].Length);
+                BufferSize +
+                (Disk.ReadFromDisk(this.ProcessID)[0].Length) +
+                (Disk.ReadFromDisk(this.ProcessID)[1].Length);
             }
         }
 
@@ -132,12 +60,6 @@ namespace os_project
             set { processID = value; }
         }
 
-        public int InstructionCount
-        {
-            get { return instructionCount; }
-            set { InstructionCount = value; }
-        }
-
         public int Priority
         {
             get { return priority; }
@@ -148,158 +70,71 @@ namespace os_project
             get { return core_used; }
             set { core_used = value; }
         }
-    }
+        #endregion
 
-    // PCB: Buffer controller
-    public partial class PCB
-    {
-        public string tempStartBufferAddr, tempEndBufferAddr;
+        #region State Attributes
+        private PROCESS_STATE state;
 
-        public string TempStartBufferAddr
+        public enum PROCESS_STATE
         {
-            get { return tempStartBufferAddr; }
-            set { tempStartBufferAddr = value; }
+            NEW,      // => Process: has been created, but not ready to run yet  
+            READY,    // => Process: has been loaded into RAM and ready to run
+            WAITING,  // => Process: is requring I/O execution to take place, waiting in queue
+            RUNNING,  // => Process: process is being executed by the CPU
+            TERMINATE // => Process: has finished its execution
         }
 
-        public string TempEndBufferAddr
+        public PROCESS_STATE State
         {
-            get { return tempEndBufferAddr; }
-            set { tempEndBufferAddr = value; }
+            get { return state; }
+            set { state = value; }
+        }
+        #endregion
+
+
+        #region Job Attributes
+        int instructionCount, jobStartAddress, jobEndAddress;
+
+        public int InstructionCount
+        {
+            get { return instructionCount; }
+            set { InstructionCount = value; }
         }
 
-        public string inputBufferStartAddr, endInputBufferAddr;
 
-        public string InputBufferStartAddr
+        public int JobStartAddress
         {
-            get { return inputBufferStartAddr; }
-            set { inputBufferStartAddr = value; }
+            get { return jobStartAddress; }
+            set { jobStartAddress = value; }
         }
 
-        public string InputBufferEndAddr
+        public int JobEndAddress
         {
-            get { return endInputBufferAddr; }
-            set { endInputBufferAddr = value; }
+            get { return jobEndAddress; }
+            set { jobEndAddress = value; }
         }
 
-        public string outputBufferStartAddr, outputBufferEndAddr;
+        #endregion
 
-        public string OutputBufferStartAddr
-        {
-            get { return outputBufferStartAddr; }
-            set { outputBufferStartAddr = value; }
-        }
 
-        public string OutputBufferEndAddr
-        {
-            get { return outputBufferEndAddr; }
-            set { outputBufferEndAddr = value; }
-        }
-    }
+        #region Data Attributes
+        int dataStartAddress, dataEndAddress;
 
-    // PCB: Data controller
-    public partial class PCB
-    {
-        private int inputBufferSize, outputBufferSize, tempBufferSize;
-        private int inputBufferStart, outputBufferStart;
-        private int inputBufferIndex, outputBufferIndex;
-        string dataStartAddress, dataEndAddress;
-
-        private Word[] cache;
-
-        public int GetCacheSize()
-        {
-            return cache.Length;
-        }
-
-        public string DataStartAddress
+        public int DataStartAddress
         {
             get { return dataStartAddress; }
             set { dataStartAddress = value; }
         }
 
-        public string DataEndAddress
+        public int DataEndAddress
         {
             get { return dataEndAddress; }
             set { dataEndAddress = value; }
         }
+        #endregion
 
-        public int InputBufferSize
-        {
-            get { return inputBufferSize; }
-            set { inputBufferSize = value; }
-        }
 
-        public int OutputBufferSize
-        {
-            get { return outputBufferSize; }
-            set { outputBufferSize = value; }
-        }
-
-        public int TempBufferSize
-        {
-            get { return tempBufferSize; }
-            set { tempBufferSize = value; }
-        }
-
-        public int InputBufferStart
-        {
-            get { return inputBufferStart; }
-            set { inputBufferStart = value; }
-        }
-
-        public int OutputBufferStart
-        {
-            get { return outputBufferStart; }
-            set { outputBufferStart = value; }
-        }
-
-        /*COMMENTED OUT FOR PHASE 2
-
-        /// <summary>
-        /// Returns the next word in the input buffer, auto increments the read index
-        /// </summary>
-        /// <value></value>
-        public Word In()
-        {
-            InputBufferStart = Utilities.HexToDec(inputBufferStartAddr.Remove(0, 2));
-            return MMU.ReadWord(Utilities.DecToHexFullAddr(InputBufferStart + inputBufferIndex++), this);
-        }
-
-        /// <summary>
-        /// Sets the next word in the output buffer, increments the write index
-        /// </summary>
-        /// <param name="writeValue">The value to replace at the current index</param>
-        public void Out(Word writeValue)
-        {
-            OutputBufferStart = Utilities.HexToDec(OutputBufferStartAddr.Remove(0, 2));
-            MMU.WriteWord(Utilities.DecToHexFullAddr(OutputBufferStart + outputBufferIndex++), this, writeValue);
-        }
-        */
-
-        /// <summary>
-        /// Returns the next word in the input buffer, auto increments the read index
-        /// </summary>
-        /// <value></value>
-        public Word In()
-        {
-            InputBufferStart = Utilities.HexToDec(inputBufferStartAddr.Remove(0, 2));
-            return MMU.ReadWord(InputBufferStart + inputBufferIndex++);
-        }
-
-        /// <summary>
-        /// Sets the next word in the output buffer, increments the write index
-        /// </summary>
-        /// <param name="writeValue">The value to replace at the current index</param>
-        public void Out(Word writeValue)
-        {
-            OutputBufferStart = Utilities.HexToDec(OutputBufferStartAddr.Remove(0, 2));
-            MMU.WriteWord(OutputBufferStart = outputBufferIndex++, writeValue);
-        }
-    }
-
-    // PCB: Disk controller
-    public partial class PCB
-    {
+        #region Disk Attributes
         private int startDiskAddr, diskAddress;
 
         public int StartDiskAddr
@@ -312,5 +147,109 @@ namespace os_project
         {
             get { return processID - 1; }
         }
+        #endregion
+
+
+        #region Input Buffer Attributes
+        private int inputBufferSize, inputBufferIndex, inputBufferStartAddr, endInputBufferAddr;
+
+        public int InputBufferSize
+        {
+            get { return inputBufferSize; }
+            set { inputBufferSize = value; }
+        }
+
+        public int InputBufferStartAddr
+        {
+            get { return inputBufferStartAddr; }
+            set { inputBufferStartAddr = value; }
+        }
+
+        public int InputBufferEndAddr
+        {
+            get { return endInputBufferAddr; }
+            set { endInputBufferAddr = value; }
+        }
+
+        #endregion
+
+
+        #region Output Buffer Attributes
+        public int outputBufferSize, outputBufferIndex, outputBufferStartAddr, outputBufferEndAddr;
+
+        public int OutputBufferSize
+        {
+            get { return outputBufferSize; }
+            set { outputBufferSize = value; }
+        }
+
+        public int OutputBufferStartAddr
+        {
+            get { return outputBufferStartAddr; }
+            set { outputBufferStartAddr = value; }
+        }
+
+        public int OutputBufferEndAddr
+        {
+            get { return outputBufferEndAddr; }
+            set { outputBufferEndAddr = value; }
+        }
+        #endregion
+
+
+        #region Temp Buffer Attributes
+        public int tempBufferSize, tempStartBufferAddr, tempEndBufferAddr;
+
+        public int TempBufferSize
+        {
+            get { return tempBufferSize; }
+            set { tempBufferSize = value; }
+        }
+
+        public int TempStartBufferAddr
+        {
+            get { return tempStartBufferAddr; }
+            set { tempStartBufferAddr = value; }
+        }
+
+        public int TempEndBufferAddr
+        {
+            get { return tempEndBufferAddr; }
+            set { tempEndBufferAddr = value; }
+        }
+        #endregion
+
+
+        #region Cache Attributes
+        private Word[] cache;
+
+        public Word[] Cache
+        {
+            get { return cache; }
+        }
+        #endregion
+
+
+        #region Metrics Attributes
+        private int iOOperationCount = 0;
+
+        public int IOOperationCount
+        {
+            get { return iOOperationCount; }
+            set { iOOperationCount = value; }
+        }
+
+        private Stopwatch timer = new Stopwatch();
+
+        public Stopwatch Timer
+        {
+            get { return timer; }
+        }
+
+        public double Export()
+        {
+            return timer.Elapsed.TotalMilliseconds;
+        }
+        #endregion
     }
 }
