@@ -40,10 +40,7 @@ namespace os_project
         {
             get
             {
-                return
-                BufferSize +
-                (Disk.ReadFromDisk(this.DiskAddress)[0].Length) +
-                (Disk.ReadFromDisk(this.DiskAddress)[1].Length);
+                return (Disk.ReadFromDisk(this.DiskAddress)[0].Length) + (Disk.ReadFromDisk(this.DiskAddress)[1].Length);
             }
         }
 

@@ -110,22 +110,24 @@ namespace os_project
             // Set ==> PCB data start & end addresses
             currentPointer.JobStartAddress = allocationStartAddress;
             currentPointer.JobEndAddress = allocationStartAddress + Disk.ReadFromDisk(currentPointer.DiskAddress)[0].Length - 1;
-            // Set ==> PCB data start & end addresses
-            currentPointer.DataStartAddress = currentPointer.JobEndAddress + 1;
-            // Set ==> PCB data start & end addresses
 
             // Set ==> PCB intput buffer start & end addresses
-            currentPointer.InputBufferStartAddr = currentPointer.DataStartAddress;
+            currentPointer.InputBufferStartAddr = currentPointer.JobEndAddress + 1;
+            currentPointer.InputBufferEndAddr = currentPointer.InputBufferStartAddr + currentPointer.InputBufferSize - 1;
 
             // Set ==> PCB output buffer start & end addresses
+            currentPointer.OutputBufferStartAddr = currentPointer.InputBufferEndAddr + 1;
+            currentPointer.OutputBufferEndAddr = currentPointer.OutputBufferStartAddr + currentPointer.OutputBufferSize - 1;
 
             // Set ==> PCB temp buffer start & end addresses
+            currentPointer.TempStartBufferAddr = currentPointer.OutputBufferEndAddr + 1;
+            currentPointer.TempEndBufferAddr = currentPointer.TempStartBufferAddr + currentPointer.TempBufferSize - 1;
 
             return false;
         }
 
         /// <summary>
-        /// Read the program data from disk and gets the buffer sizes from the current pointed to pcb
+        /// Read the program data from disk for the write to memory
         /// --> Make async if disk lock 
         /// </summary>
         /// <returns></returns>
@@ -144,16 +146,16 @@ namespace os_project
 
                 // Get the list of program's disk read data attributes
                 var dataWords = diskWords[1];
+                var bufferData = new Word[dataWords.Length];
 
-                // Get the buffers as a list of words to store in RAM
-                var bufferWords = new Word[currentPointer.BufferSize];
-
-                for (int i = 0; i < currentPointer.BufferSize; i++)
-                    bufferWords[i] = new Word("0x00000000");
+                for(int i = 0; i < dataWords.Length; i++)
+                {
+                    bufferData[i] = dataWords[i];
+                }
 
                 // Concat all the words into one list for the WriteToMemory function
                 int j = 0;
-                foreach (var word in ConcatWordLists(jobWords, dataWords, bufferWords))
+                foreach (var word in ConcatWordLists(jobWords, bufferData))
                 {
                     programData[j] = word;
                     j++;
@@ -164,20 +166,19 @@ namespace os_project
         }
 
         /// <summary>
-        /// Concats all the program job, data, and buffer words into one array
+        /// Concats all the program job and data for buffers words into one array
         /// </summary>
         /// <returns></returns>
-        static Word[] ConcatWordLists(Word[] jobList, Word[] dataList, Word[] bufferList)
+        static Word[] ConcatWordLists(Word[] jobList, Word[] dataList)
         {
             // Throws error if any of the lists are null which indicates non-created lists
             if (jobList == null && dataList == null)
                 throw new Exception("Instruction lists are null, expected words");
 
             // Concat all the lists together
-            var concatedWords = new Word[jobList.Length + dataList.Length + bufferList.Length];
+            var concatedWords = new Word[jobList.Length + dataList.Length];
             jobList.CopyTo(concatedWords, 0);
             dataList.CopyTo(concatedWords, jobList.Length);
-            bufferList.CopyTo(concatedWords, (jobList.Length + dataList.Length));
 
             // Returns the list of concated words
             return concatedWords;
