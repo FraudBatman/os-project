@@ -333,11 +333,7 @@ namespace os_project
             switch (OPCODE)
             {
                 case 2: // 02: ST
-<<<<<<< HEAD
-
-=======
                     DMA.IOExecution(false, this, bReg, addr, false).GetAwaiter().GetResult();
->>>>>>> 761360550be9f5cdc99c0b81ce13b56cc2ccbc35
                     break;
                 case 3: // 03: LW
                     DMA.IOExecution(true, this, dReg, addr, false).GetAwaiter().GetResult();
