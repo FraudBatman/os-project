@@ -5,6 +5,35 @@ namespace os_project
 {
     public static class MMU
     {
+        static bool[] used = new bool[RAM.RAM_SIZE];
+        public static int OpenMemory
+        {
+            get
+            {
+                int returnValue = 0;
+                foreach (bool bule in used)
+                {
+                    if (bule)
+                        returnValue++;
+                }
+                return returnValue;
+            }
+        }
+
+        /// <summary>
+        /// Please kill me
+        /// </summary>
+        /// <param name="pcb"></param>
+        /// <returns>the start address of the program</returns>
+        public static int AllocateMemory(PCB pcb)
+        {
+            return 0;
+        }
+
+        public static void DeallocateMemory(PCB pcb)
+        {
+        }
+
         public static Word ReadWord(int address)
         {
             return RAM.Read(address);
@@ -32,10 +61,6 @@ namespace os_project
         /// </summary>
         static int[] pageList = new int[PAGE_COUNT];
 
-        /// <summary>
-        /// Array of PIDs to be used for page determination
-        /// </summary>
-        static int[] processIDS = new int[PAGE_COUNT];
 
         /// <summary>
         /// bool to make sure MMU is initialized prior to use
@@ -51,7 +76,7 @@ namespace os_project
         /// <param name="pcb">PCB of the program to allocate</param>
         /// <param name="size">The total size of that needs to be allocated in terms of words</param>
         /// <returns>True if successfully initialized</returns>
-        public static bool AllocateMemory(PCB pcb, int size)
+        public static bool AllocateMemory(PCB pcb)
         {
             //needs to be called prior to any use of the MMU
             __init();
