@@ -52,18 +52,18 @@ namespace os_project
 
             // Ask for single-core
             // Start CPUs - false == single | true == multi
-            Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            if (Console.ReadLine() == "1")
-                StartCPUs(false);
-            else
-                StartCPUs(true);
+            // Console.WriteLine("Type 1 for single-core, anything else for multi-core");
+            // if (Console.ReadLine() == "1")
+            StartCPUs(false);
+            // else
+            //     StartCPUs(true);
 
             // Ask for policy
-            Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            if (Console.ReadLine() == "1")
-                ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            else
-                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            // Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            // if (Console.ReadLine() == "1")
+            ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            // else
+            //     ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");

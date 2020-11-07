@@ -13,11 +13,17 @@ namespace os_project
 
         public Word(string data_value)
         {
-            if (data_value.Remove(0, 2).Length != WORD_SIZE
-                && !data_value.Remove(0, 2).Contains("x"))
+            if (data_value.Length == WORD_SIZE && !data_value.Contains("x"))
+            {
+                value = data_value;
+            }
+            else if (data_value.Remove(0, 2).Length == WORD_SIZE
+             && !data_value.Remove(0, 2).Contains("x"))
+            {
+                value = data_value.Remove(0, 2);
+            }
+            else
                 throw new System.Exception($"Invalid Word size, expected {WORD_SIZE}, was {data_value.Length}");
-
-            value = data_value.Remove(0, 2);
         }
 
         public string Value
@@ -25,12 +31,17 @@ namespace os_project
             get { return value; }
             set
             {
-                if (value.Substring(0, 2) == "0x")
+                if (value.Length == WORD_SIZE && !value.Contains("x"))
+                {
+                    this.value = value;
+                }
+                else if (value.Remove(0, 2).Length == WORD_SIZE
+                 && !value.Remove(0, 2).Contains("x"))
                 {
                     this.value = value.Remove(0, 2);
                 }
                 else
-                    this.value = value;
+                    throw new System.Exception($"Invalid Word size, expected {WORD_SIZE}, was {value.Length}");
             }
         }
 

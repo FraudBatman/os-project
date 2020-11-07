@@ -326,54 +326,67 @@ namespace os_project
 
         private void ExecuteCondi()
         {
+            string second;
+            int preAddr = addr;
+            addr /= 4;
+
+            if (dReg == 0)
+            {
+                second = Utilities.WordFill(Utilities.DecToHex(preAddr));
+            }
+            else
+            {
+                second = MMU.ReadWord(addr, activeProgram).Value;
+            }
+
             switch (OPCODE)
             {
                 case 2: // 02: ST
-                    cache[dReg].Value = EffectiveAddress();
+                    DMA.IOExecution(false, this, bReg, addr, false).GetAwaiter().GetResult();
                     break;
                 case 3: // 03: LW
-                    registers[dReg] = cache[addr];
+                    DMA.IOExecution(true, this, dReg, addr, false).GetAwaiter().GetResult();
                     break;
                 case 11: // 0B: MOVI
-                    registers[dReg].Value = Utilities.WordFill(Utilities.DecToHex(addr));
+                    registers[dReg].Value = Utilities.WordFill(second);
                     break;
                 case 12: // 0C: ADDI
-                    registers[dReg] = registers[dReg] + new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = registers[dReg] + MMU.ReadWord(addr, activeProgram);
                     break;
                 case 13: // 0D: MULI
-                    registers[dReg] = registers[dReg] * new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = registers[dReg] * MMU.ReadWord(addr, activeProgram);
                     break;
                 case 14: // 0E: DIVI
-                    registers[dReg] = registers[dReg] / new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = registers[dReg] / MMU.ReadWord(addr, activeProgram);
                     break;
                 case 15: // 0F: LDI
-                    registers[dReg] = new Word(Utilities.WordFill(Utilities.DecToHex(addr)));
+                    registers[dReg] = new Word(second);
                     break;
                 case 17: // 11: SLTI
-                    dReg = sReg0 < addr ? 1 : 0;
+                    registers[dReg].Value = Utilities.DecToHexFullAddr(registers[sReg0].ValueAsInt < addr ? 1 : 0);
                     break;
                 case 21: // 15: BEQ
-                    PC = registers[bReg] == registers[dReg] ? addr : PC;
+                    PC = registers[bReg] == registers[dReg] ? preAddr : PC;
                     break;
                 case 22: // 16: BNE
-                    PC = registers[bReg] != registers[dReg] ? addr : PC;
+                    PC = registers[bReg] != registers[dReg] ? preAddr : PC;
                     break;
                 case 23: // 17: BEZ
-                    PC = registers[bReg].ValueAsInt == 0 ? addr : PC;
+                    PC = registers[bReg].ValueAsInt == 0 ? preAddr : PC;
                     break;
                 case 24: // 18: BNZ
-                    PC = registers[bReg].ValueAsInt != 0 ? addr : PC;
+                    PC = registers[bReg].ValueAsInt != 0 ? preAddr : PC;
                     break;
                 case 25: // 19: BGZ
-                    PC = registers[bReg].ValueAsInt > 0 ? addr : PC;
+                    PC = registers[bReg].ValueAsInt > 0 ? preAddr : PC;
                     break;
                 case 26: // 1A: BLZ
-                    PC = registers[bReg].ValueAsInt < 0 ? addr : PC;
+                    PC = registers[bReg].ValueAsInt < 0 ? preAddr : PC;
                     break;
                 default:
                     throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
             }
-            Console.WriteLine($"CONDI: OPCODE {OPCODE} | B = {bReg} | D = {dReg} | ADDR = {addr}");
+            Console.WriteLine($"CONDI: OPCODE {OPCODE} | B = {bReg} | D = {dReg} | ADDR = {addr} | SECOND = {second}");
         }
         private void ExecuteUJump()
         {

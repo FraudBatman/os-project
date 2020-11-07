@@ -115,7 +115,11 @@ namespace os_project
         /// <returns>A word formatted properly</returns>
         public static string WordFill(string hexValue)
         {
-            string format = "0x";
+            string format = "";
+            if (!hexValue.Contains("0x"))
+            {
+                format = "0x";
+            }
 
             //add leading 0's
             for (int i = 1; i <= Word.WORD_SIZE - hexValue.Length; i++)
