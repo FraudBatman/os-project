@@ -5,17 +5,23 @@ namespace os_project
 {
     public static class MMU
     {
+        public static Word ReadWord(int address)
+        {
+            return RAM.Read(address);
+        }
+
+        public static void WriteWord(int address, Word value)
+        {
+            RAM.Write(address, value);
+        }
+
+        /* Have fun fixing this mess
         #region Constants
 
         /// <summary>
         /// Returns the size of each page in words
         /// </summary>
-        public const int PAGE_SIZE = 64;
-
-        /// <summary>
-        /// Total number of pages in memory
-        /// </summary>
-        public const int PAGE_COUNT = 16;
+        public const int PAGE_SIZE = 4;
 
         #endregion
 
@@ -381,5 +387,6 @@ namespace os_project
         }
 
         #endregion
+        */
     }
 }
