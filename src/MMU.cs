@@ -54,7 +54,7 @@ namespace os_project
 
         public static void WriteWord(int address, PCB program, Word value)
         {
-            RAM.Write(program.JobEndAddress + address, value);
+            RAM.Write(program.JobStartAddress + address, value);
         }
 
         /// <summary>
