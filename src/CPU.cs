@@ -40,14 +40,23 @@ namespace os_project
                     registers[i] = new Word();
                 }
 
+                /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
+
                 var startAddr = activeProgram.JobStartAddress;
-                var jobPage = activeProgram.JobStartAddress.Substring(0,3);
-                string offset = "00";            
+                var jobPage = activeProgram.JobStartAddress.Substring(0, 3);
+                string offset = "00";
 
                 for (int i = 0; i < activeProgram.InstructionCount; i++)
                 {
                     offset = Utilities.DecToHexAddr(i);
                     cache[i] = MMU.ReadWord(jobPage + offset, activeProgram);
+                }
+
+                */
+
+                for (int i = 0; i < activeProgram.InstructionCount; i++)
+                {
+                    cache[i] = MMU.ReadWord(i, activeProgram);
                 }
 
                 acc = new Word("0x00000000");
@@ -118,7 +127,7 @@ namespace os_project
             this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
-            
+
             // Deallocate the memory
 
             // Metrics.Stop(pcb);
@@ -158,6 +167,7 @@ namespace os_project
 
         string EffectiveAddress()
         {
+            /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
             var pageNumbers = MMU.getPages(this.activeProgram);
             var page = pageNumbers[0];
             var offset = Utilities.DecToHexAddr(addr);
@@ -175,6 +185,8 @@ namespace os_project
 
             // (i % MMU.PAGE_SIZE == 0 && i != 0)
             return wordValue.Value;
+            */
+            return MMU.ReadWord(addr, this.activeProgram).Value;
         }
         #endregion
 
@@ -392,7 +404,8 @@ namespace os_project
                 Task thread = Task.Factory.StartNew(() =>
                 {
                     DMA_Block(true);
-                    acc = activeProgram.In();
+                    throw new Exception("NEED TO FIX DMA IN OUT");
+                    //--NEEDS TO BE THE DMA IN / OUT VERSIONS //acc = activeProgram.In();
                     DMA_Block(false);
                 });
                 thread.Wait();
@@ -404,12 +417,13 @@ namespace os_project
                     DMA_Block(true);
 
                     var outputBuffer = cache.Length + activeProgram.InstructionCount + activeProgram.InputBufferSize - 1;
-                    
+
                     for (int i = outputBuffer; i < cache.Length; i++)
                     {
                         if (cache[outputBuffer].Value == "00000000" && cache[outputBuffer].Value == "null")
                         {
-                            activeProgram.Out(cache[i]);
+                            throw new Exception("NEED TO FIX DMA IN OUT");
+                            //--NEEDS TO BE THE DMA IN / OUT VERSIONS //activeProgram.Out(cache[i]);
                         }
                     }
 
