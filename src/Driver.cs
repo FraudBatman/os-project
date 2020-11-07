@@ -1,14 +1,19 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Xml;
-using System.Diagnostics;
+using System.Threading;
 using System.Runtime.InteropServices;
 
 namespace os_project
 {
     public partial class Driver
     {
+        #region Shared Resource Semaphores
+        public static SemaphoreSlim _QueueLock = new SemaphoreSlim(1);
+        public static SemaphoreSlim _MMULock = new SemaphoreSlim(1);
+        public static SemaphoreSlim _DiskLock = new SemaphoreSlim(1);
+        #endregion
+        
+
         #region CPU Configurations
         public static CPU[] Cores;
         static bool isMultiCPU;
@@ -49,27 +54,27 @@ namespace os_project
 
             // Ask for single-core
             // Start CPUs - false == single | true == multi
-            Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            if (Console.ReadLine() == "1")
+            // Console.WriteLine("Type 1 for single-core, anything else for multi-core");
+            // if (Console.ReadLine() == "1")
                 StartCPUs(false);
-            else
-                StartCPUs(true);
+            // else
+                // StartCPUs(true);
 
             // Ask for policy
-            Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            if (Console.ReadLine() == "1")
+            // Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            // if (Console.ReadLine() == "1")
                 ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            else
-                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            // else
+                // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Loader
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
 
             // Run the programs on the cores
-            if (isMultiCPU)
-                RunMultiCore();
-            else
+            // if (isMultiCPU)
+                // RunMultiCore();
+            // else
                 RunSingleCore();
 
             // Metrics.ExportWaitTime("Single Core / FIFO Wait Times");

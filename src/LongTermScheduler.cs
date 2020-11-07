@@ -1,191 +1,126 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace os_project
 {
     public static class LongTermScheduler
     {
-        /// <summary>
-        /// Used to point to each individual process as it runs through the scheduling
-        /// </summary>
-        static int processPointer = 1;
+        // Pointer for the pcb's instructions being loaded from disk to memory
+        static PCB currentPointer;
 
         /// <summary>
-        /// Runs the long term scheduler tasks
-        /// Disposes of used memory by terminated processes
-        /// Allocates memory for processes in the 'NEW' queue
-        /// Adds PCB to the 'READY' queue
+        /// Loads the memory as long as the LT_Scheduler has the queue lock and memory has enough space
+        /// --> Make async
         /// </summary>
         public static void Execute()
         {
+            // Acquires the lock for the new queue
             __init();
 
             bool isMemFull = false;
+            bool isProgramDataLoaded = false;
 
-            while (!isMemFull && processPointer <= 30)
+            // While the memory is not full continue loading program data from disk to RAM with the MMU
+            while(!isMemFull) 
             {
-                // Points to the first pcb in the new list
-                PCB currentPCB = Queue.New.First.Value;
+                // Since LT_Scheduler has lock it sets a pointer to the first value in the 'New' queue
+                currentPointer = Queue.New.First.Value;
 
-                // Allocate the pages need in RAM for the PCB
-                MMU.AllocateMemory(currentPCB, currentPCB.TotalBufferSize);
-                
-                // Get instructions from disk
-                var jobList = Disk.ReadFromDisk(currentPCB.ProcessID)[0];
-                var dataList = Disk.ReadFromDisk(currentPCB.ProcessID)[1];
-                var bufferList = BuildBufferList(currentPCB);
-                var words = ConcatWordLists(jobList, dataList, bufferList);
-                var sections = SectionWordList(words, MMU.getPages(currentPCB).Length);
+                // Allocate memory for the program disk instructions if available
+                var isAllocated = MMU.AllocateMemory(currentPointer);
 
-                // Loads the sections to RAM
-                var pageSectionIdx = 0;
-                var jobAndDataCount = jobList.Length + dataList.Length;
-                var inputDiff = 0;
-
-                foreach(var page in MMU.getPages(currentPCB))
-                {
-                    MMU.WritePage(page, currentPCB, sections[pageSectionIdx]);
-
-                    if (pageSectionIdx == 0)
-                    {
-                        // Grab the job addresses
-                        currentPCB.JobStartAddress = "0x" + Utilities.DecToHex(page) + "00";
-                        currentPCB.JobEndAddress = "0x" + Utilities.DecToHex(page) + Utilities.DecToHexAddr(jobList.Length - 1).ToString();
-
-                        // Grab the data addresses if it doesn't go over pages
-                        if (jobAndDataCount <= MMU.PAGE_SIZE)
-                        {
-                            currentPCB.DataStartAddress = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr((jobList.Length))
-                            ;
-                            currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr((jobAndDataCount - 1))
-                            ;
-                        }
-                        else
-                        {
-                            currentPCB.DataStartAddress = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(jobList.Length)
-                            ;
-                        }
-
-                        // Grab the inputStart addresses
-                        if (jobAndDataCount < MMU.PAGE_SIZE)
-                        {
-                            inputDiff = MMU.PAGE_SIZE - jobAndDataCount;
-                            currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(MMU.PAGE_SIZE - (inputDiff))
-                            ;
-                        }
-                    }
-                    else
-                    {
-                        var tempOffset = jobAndDataCount - MMU.PAGE_SIZE;
-
-                        // Grab the overhead data addresses on next pages
-                        if (jobAndDataCount > MMU.PAGE_SIZE)
-                        {
-                            currentPCB.DataEndAddress = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset - 1)
-                            ;
-
-                            currentPCB.InputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset)
-                            ;
-
-
-                            currentPCB.InputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize - 1)
-                            ;
-                        }
-                        else
-                        {
-                            currentPCB.InputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize - inputDiff)
-                            ;
-                        }
-
-                        // Grab the output buffer addresses on the next pages
-                        currentPCB.OutputBufferStartAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize)
-                            ;
-
-                        currentPCB.OutputBufferEndAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize)
-                            ;
-
-                        currentPCB.TempStartBufferAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize + 1)
-                            ;
-
-                        currentPCB.tempEndBufferAddr = "0x" + Utilities.DecToHex(page) +
-                                Utilities.DecToHexAddr(tempOffset + currentPCB.InputBufferSize + currentPCB.OutputBufferSize + currentPCB.TempBufferSize - 1)
-                            ;
-                    }
-
-                    pageSectionIdx++;
-                }
-
-                // Queue handlers
-                Queue.New.RemoveFirst();
-                Queue.Ready.AddLast(currentPCB);
-                currentPCB.State = PCB.PROCESS_STATE.READY;
-                currentPCB.MemoryPages = MMU.getPages(currentPCB);
-
-                // Scheduling handlers
-                if (MMU.OpenPages == 0)
+                // Validate if the MMU allocated memory in RAM for the program's instructions break if so
+                if (isAllocated == -1)
                     isMemFull = true;
+                else
+                    isProgramDataLoaded = WriteToMemory();                    
 
-                processPointer++;
-            }
-        }
-
-        /// <summary>
-        /// Sections out the list of words into parts for writing to pages
-        /// Does this at O(n^(n-1)) 
-        /// </summary>
-        /// <param name="words">List of concated words</param>
-        /// <param name="size">Page count determines the amount of sections</param>
-        /// <returns></returns>
-        static Word[][] SectionWordList(Word[] words, int size)
-        {
-            Word[][] sections = new Word[size][];
-            var pageIdx = 0;
-            for (int i = 0; i <= words.Length; i++) 
-            {
-                if (i % MMU.PAGE_SIZE == 0 && i != 0) {
-                    sections[pageIdx] = new Word[MMU.PAGE_SIZE];
-                    Array.Copy(
-                        words,
-                        i * pageIdx,
-                        sections[pageIdx],
-                        0,
-                        MMU.PAGE_SIZE
-                    );
-
-                    pageIdx++;
-                }
-                else if (i == words.Length)
+                // Move the pcb to the ready queue if it was loaded properly to memory
+                if (!isProgramDataLoaded)
+                    throw new OutOfMemoryException("Program instructions were not loaded from disk into memory");
+                else
                 {
-                    sections[pageIdx] = new Word[i % MMU.PAGE_SIZE];
-                    Array.Copy(
-                        words,
-                        (words.Length) - (i % MMU.PAGE_SIZE),
-                        sections[pageIdx],
-                        0,
-                        (i % MMU.PAGE_SIZE)
-                    );
+                    Queue.New.Remove(currentPointer);
+                    Queue.Ready.AddLast(currentPointer);
                 }
             }
-            return sections;
         }
-        
+
         /// <summary>
-        /// Concats all the words needed to load to memory
+        /// Acquires the queue lock for the new queue and validates the new queue is not empty
+        /// --> Make async if Queue lock
         /// </summary>
-        /// <param name="jobList">The job instruction's list of words</param>
-        /// <param name="dataList">The data instruction's list of words</param>
-        /// <param name="bufferList">The buffers null words that are used for writing to</param>
+        static void __init()
+        {
+            if (Driver._QueueLock.CurrentCount != 0)
+            {
+                if (Queue.New.First != null)
+                {
+                    currentPointer = Queue.New.First.Value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Acquires the lock for the MMU then executes its write to functionality
+        /// --> Make async if MMU lock
+        /// </summary>
+        /// <returns>True if the memory was written</returns>
+        static bool WriteToMemory()
+        {
+            var allProgramData = ReadFromDisk;
+            
+            for(int i = 0; i < allProgramData.Length; i++)
+                MMU.WriteWord(i, currentPointer, allProgramData[i]);
+
+            return true;
+        }
+
+        /// <summary>
+        /// Read the program data from disk and gets the buffer sizes from the current pointed to pcb
+        /// --> Make async if disk lock 
+        /// </summary>
+        /// <returns></returns>
+        static Word[] ReadFromDisk
+        {
+            get {
+                // Total program data: job, data, input buffers, output buffers, temp buffers
+                var programData = new Word[currentPointer.ProgramSize];
+
+                // Read the program data (job and data words) from disk
+                var diskWords = Disk.ReadFromDisk(currentPointer.ProcessID);
+                
+                // Get the list of program's disk read job attributes
+                var jobWords = diskWords[0];
+
+                // Get the list of program's disk read data attributes
+                var dataWords = diskWords[1];
+
+                // Get the buffers as a list of words to store in RAM
+                var bufferWords = new Word[currentPointer.BufferSize];
+
+                if (currentPointer.BufferSize == 0)
+                    return null;
+
+                for (int i = 0; i < currentPointer.BufferSize; i++)
+                    bufferWords[i] = new Word("0x00000000");
+
+                // Concat all the words into one list for the WriteToMemory function
+                int j = 0;
+                foreach(var word in ConcatWordLists(jobWords, dataWords, bufferWords))
+                {
+                    programData[j] = word;
+                    j++;
+                }
+
+                return programData; 
+            }
+        }
+
+        /// <summary>
+        /// Concats all the program job, data, and buffer words into one array
+        /// </summary>
         /// <returns></returns>
         static Word[] ConcatWordLists(Word[] jobList, Word[] dataList, Word[] bufferList)
         {
@@ -201,41 +136,6 @@ namespace os_project
 
             // Returns the list of concated words
             return concatedWords;
-        }
-        
-        /// <summary>
-        /// Creates a list of null words for the pcb's required buffers
-        /// </summary>
-        /// <param name="pcb"></param>
-        /// <returns></returns>
-        static Word[] BuildBufferList(PCB pcb)
-        {
-            Word[] bufferWords = new Word[pcb.BufferSize];
-
-            if (pcb.BufferSize == 0)
-                return null;
-
-            for (int i = 0; i < pcb.BufferSize; i++)
-                bufferWords[i] = new Word();
-
-
-            return bufferWords;
-        }
-
-        /// <summary>
-        /// Disposes the terminated PCBs page allocation and removes it from the queue?
-        /// </summary>
-        static void __init()
-        {
-            if (Queue.Terminated.Count == 0)
-                return;
-
-            foreach (PCB pcb in Queue.Terminated)
-            {
-                // Dispoases of the memory
-                if (MMU.getPages(pcb).Length != 0)
-                    MMU.DeallocateMemory(pcb);
-            }
         }
     }
 }
