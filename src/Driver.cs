@@ -75,6 +75,7 @@ namespace os_project
             _DiskLock.Wait();
             Loader load = new Loader(jobFile);
             load.LoadInstructions();
+            largestProgram = FindLargestProgram();
             _DiskLock.Release();
 
             // Validates if job completed successfully
@@ -120,6 +121,7 @@ namespace os_project
 
             // Export memory information
             // Get the total memory usage
+            
         }
 
         static int RunSingleCore()
@@ -310,9 +312,11 @@ namespace os_project
             return returnValue;
         }
 
+        private static int largestProgram = 0;
         public static int LargestProgram
         { 
-            get { return FindLargestProgram(); }
+            get { return largestProgram; }
+            set { largestProgram = value; }
         }
 
         /// <summary>

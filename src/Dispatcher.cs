@@ -11,6 +11,9 @@ namespace os_project
         /// <returns>-1 if no open cores are available</returns>
         public static int Dispatch(PCB pcb)
         {
+            if (Driver.LargestProgram == 0)
+                Driver.LargestProgram = Driver.FindLargestProgram();
+
             if (!Driver.IsMultiCPU) // => Single CPU dispatch
             {
                 // Dispatch the first program from the short term scheduler

@@ -45,24 +45,12 @@ namespace os_project
                     registers[i] = new Word();
                 }
 
-                /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
-                var startAddr = activeProgram.JobStartAddress;
-                var jobPage = activeProgram.JobStartAddress.Substring(0, 3);
-                string offset = "00";
-                for (int i = 0; i < activeProgram.InstructionCount; i++)
-                {
-                    offset = Utilities.DecToHexAddr(i);
-                    cache[i] = MMU.ReadWord(jobPage + offset, activeProgram);
-                }
-                */
-
                 for (int i = 0; i < activeProgram.InstructionCount; i++)
                 {
                     cache[i] = MMU.ReadWord(i, activeProgram);
                 }
 
                 activeProgram.Cache = cache;
-
                 acc = new Word("0x00000000");
                 registers[1] = new Word("0x00000000");
             }
