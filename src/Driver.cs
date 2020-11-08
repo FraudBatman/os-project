@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
@@ -75,6 +77,7 @@ namespace os_project
             load.LoadInstructions();
             _DiskLock.Release();
 
+            // Validates if job completed successfully
             var completionStatus = 0;
 
             // Run the programs on the cores
@@ -87,7 +90,15 @@ namespace os_project
             if (completetionStatus == 0)
                 System.Console.WriteLine("----- OS SIMULATION PASSED ------");
             else
-                System.Console.WriteLine("----- OS SIMULATION FAILED ------");
+                System.Console.WriteLine("----- OS SIMULATION FAILED ------\n");
+
+            // System.Console.WriteLine("------ EXPORT METRICS ------");
+
+            // Export disk information
+            // WriteToFile("diskdata", DISKDUMP().ToString());
+
+            // Export memory information
+            // Get the total memory usage
         }
 
         static int RunSingleCore()
@@ -103,6 +114,7 @@ namespace os_project
                 // Waits for the core thread to run
                 System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
                 Cores[0].Run().Wait();
+                WriteToFile("ramdata", RAMDUMP());
             }
 
             if (Queue.Terminated.Count != 30 || Queue.New.First != null)
@@ -123,10 +135,12 @@ namespace os_project
          
                 // Load to memory
                 LongTermScheduler.Execute();
+                WriteToFile("ramdata", RAMDUMP());
 
-                // Dispatch to CPUs
+                // While the ready queue is not empty thread the CPU threads
                 while (Queue.Ready.First != null)
                 {
+                    // Dispatch to CPUs
                     ShortTermScheduler.Start();
 
                     foreach(var core in Cores)
@@ -198,6 +212,37 @@ namespace os_project
             sw.Write(data);
             sw.Flush();
             fs.Close();
+        }
+
+        /// <summary>
+        /// Formats the disk as a JSON String to write to file
+        /// </summary>
+        /// <returns></returns>
+        public static StringWriter DISKDUMP()
+        {
+            StringWriter writer = new StringWriter();
+            foreach(var partition in Disk.diskPartitions)
+            {
+                System.Console.WriteLine(partition.Key);
+                writer.Write("Disk Partiton For Program " + (partition.Key + 1).ToString() + "\n");
+                var programData = Disk.ReadFromDisk(partition.Key);
+                
+                writer.Write("// JOBS\n");
+                for (int i = 0; i < programData[0].Length; i++)
+                    writer.Write(programData[0][i].Value + "\n");
+
+                writer.Write("\n// DATA\n");
+                for (int i = 0; i < programData[1].Length; i++)
+                    writer.Write(programData[1][i].Value + "\n");
+
+                writer.Write('\n');
+            }
+
+            System.Console.WriteLine(writer);
+            writer.Close();
+
+            
+            return writer;
         }
 
         /// <summary>

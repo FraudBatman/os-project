@@ -1,1 +1,0 @@
-Multi Core / FIFO Core Used
