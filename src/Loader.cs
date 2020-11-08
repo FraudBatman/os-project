@@ -106,6 +106,11 @@ namespace os_project
                             PCB_Builder["DiskAttributes"]["startDiskAddr"]
                         ));
 
+                        /*
+                         * Timer: Start the waiting time
+                         */
+                        // Metrics.Start(Queue.New.Last.Value);
+
                         // Load Job instructions to disk
                         Disk.WriteToDisk(
                             printJobNumber,
@@ -119,11 +124,6 @@ namespace os_project
                         // Log program result
                         printJobNumber++;
                         currentInstructionPointer = 0;
-
-                        /*
-                         * Timer: Start the waiting time
-                         */
-                        // Metrics.Start(Queue.New.Last.Value);
                     }
                 }
                 instruction = "";

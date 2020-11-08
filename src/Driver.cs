@@ -55,18 +55,18 @@ namespace os_project
 
             // Ask for single-core
             // Start CPUs - false == single | true == multi
-            // Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            // if (Console.ReadLine() == "1")
+            Console.WriteLine("Type 1 for single-core, anything else for multi-core");
+            if (Console.ReadLine() == "1")
+                StartCPUs(false);
+            else
                 StartCPUs(true);
-            // else
-                // StartCPUs(true);
 
             // Ask for policy
-            // Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            // if (Console.ReadLine() == "1")
+            Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            if (Console.ReadLine() == "1")
                 ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            // else
-                // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            else
+                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
@@ -92,7 +92,28 @@ namespace os_project
             else
                 System.Console.WriteLine("----- OS SIMULATION FAILED ------\n");
 
-            // System.Console.WriteLine("------ EXPORT METRICS ------");
+            System.Console.WriteLine("------ EXPORT METRICS ------");
+
+            // Wait time export
+            // Metrics.ExportWaitTime("Wait Times: Single Core | FIFO Policy");
+            // Metrics.ExportWaitTime("Wait Times: Single Core | PRIORITY Policy");
+            // Metrics.ExportWaitTime("Wait Times: Multi Core | FIFO Policy");
+            // Metrics.ExportWaitTime("Wait Times: Multi Core | PRIORITY Policy");
+
+            // Completion time export
+            // Metrics.ExportCompletionTime("Completion Times: Single Core | FIFO Policy");
+            // Metrics.ExportCompletionTime("Completion Times: Single Core | PRIORITY Policy");
+            // Metrics.ExportCompletionTime("Completion Times: Multi Core | FIFO Policy");
+            // Metrics.ExportCompletionTime("Completion Times: Multi Core | PRIORITY Policy");
+
+            // CPU used
+            // Metrics.ExportCPUUsed("CPU Used: Single Core | FIFO Policy");
+            // Metrics.ExportCPUUsed("CPU Used: Single Core | PRIORITY Policy");
+            // Metrics.ExportCPUUsed("CPU Used: Multi Core | FIFO Policy");
+            // Metrics.ExportCPUUsed("CPU Used: Multi Core | PRIORITY Policy");
+
+            // iOExecution Used
+            // Metrics.ExportIOExecutionCounts("IO Execution Count");
 
             // Export disk information
             // WriteToFile("diskdata", DISKDUMP().ToString());
@@ -106,10 +127,8 @@ namespace os_project
             while (Queue.New.First != null)
             {
                 // Acquires the mmu semaphore for reading and writing to memory
-                _MMULock.Wait();
                 LongTermScheduler.Execute();
                 ShortTermScheduler.Start();
-                _MMULock.Release();
 
                 // Waits for the core thread to run
                 System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
@@ -129,13 +148,7 @@ namespace os_project
             while (Queue.New.First != null)
             {
                 // Load to memory from disk - requires the mmu lock to access
-                _MMULock.Wait();
                 LongTermScheduler.Execute();
-                _MMULock.Release();
-         
-                // Load to memory
-                LongTermScheduler.Execute();
-                WriteToFile("ramdata", RAMDUMP());
 
                 // While the ready queue is not empty thread the CPU threads
                 while (Queue.Ready.First != null)
@@ -184,24 +197,6 @@ namespace os_project
                     Cores[i] = new CPU(i);
             }
         }
-
-        /// <summary>
-        /// ERASE THIS BEFORE THE PROJECT IS DUE
-        /// Used for proof of concept to terminate processes for running through the scheduler
-        /// </summary>
-        static void TerminateProcesses()
-        {
-            bool isDone = false;
-            while (!isDone)
-            {
-                var pcb = Queue.Ready.First;
-                Queue.Ready.RemoveFirst();
-                Queue.Terminated.AddLast(pcb);
-
-                if (Queue.Ready.First == null)
-                    isDone = true;
-            }
-        }
         #endregion
 
         #region File Writing
@@ -240,8 +235,6 @@ namespace os_project
 
             System.Console.WriteLine(writer);
             writer.Close();
-
-            
             return writer;
         }
 
@@ -321,6 +314,5 @@ namespace os_project
         #region Percentage RAM
 
         #endregion
-
     }
 }

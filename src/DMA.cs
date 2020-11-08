@@ -18,6 +18,11 @@ namespace os_project
         /// <returns></returns>
         public static async Task IOExecution(bool readOrWrite, CPU callingCPU, int reg1, int secondLocation, bool reg2ORAddress)
         {
+            /*
+             * Start the timer
+             */
+            // Metrics.Stop(callingCPU.ActiveProgram);
+
             if (readOrWrite) // ==> Read
             {
                 Task thread = Task.Factory.StartNew(() =>
@@ -56,6 +61,11 @@ namespace os_project
                 });
                 thread.Wait();
             }
+
+            /*
+             * Stop the waiting timer
+             */
+            // Metrics.Stop(callingCPU.ActiveProgram);
 
             // Increment the IO count for the pcb
             callingCPU.ActiveProgram.IOOperationCount++;

@@ -9,6 +9,9 @@ namespace os_project
         // Pointer for the pcb's instructions being loaded from disk to memory
         static PCB currentPointer;
 
+        // Long term schedulers load based on programming degreee of the jobs
+        static int degree = 0;
+
         /// <summary>
         /// Loads the memory as long as the LT_Scheduler has the queue lock and memory has enough space
         /// --> Make async
@@ -23,10 +26,10 @@ namespace os_project
             {
                 // Sets the memory switch false to check if allocation is possible
                 bool isMemFullSwitch = false;
-                bool hasAllPCBBeenLoaded = false;
+                bool programsLoaded = false;
 
                 // While the memory is not full continue loading program data from disk to RAM with the MMU
-                while (!isMemFullSwitch && !hasAllPCBBeenLoaded)
+                while (!isMemFullSwitch && !programsLoaded)
                 {
                     // Allocate memory for the program disk instructions and buffer sizes if available
                     var allocationStartAddress = MMU.AllocateMemory(currentPointer);
@@ -47,7 +50,7 @@ namespace os_project
                         if (Queue.New.First != null)
                             currentPointer = Queue.New.First.Value;
                         else
-                            hasAllPCBBeenLoaded = true;
+                            programsLoaded = true;
                     }
                 }
             }
@@ -80,6 +83,16 @@ namespace os_project
         /// </summary>
         static void __init()
         {
+            // For single core priority since the MMU only gets loaded one program at a time, need to select based on priority
+            if (degree == 0 && ShortTermScheduler.POLICY == SchedulerPolicy.Priority) 
+            {
+                Driver._QueueLock.Wait();
+                var toSort = Queue.New;
+                Queue.New = ShortTermScheduler.InsertSort(toSort);
+                Driver._QueueLock.Release();
+                degree = 1;
+            }
+
             if (Driver._QueueLock.CurrentCount != 0)
             {
                 if (Queue.New.First != null)
@@ -96,10 +109,12 @@ namespace os_project
         /// <returns>True if the memory was written</returns>
         static void WriteToMemory(int allocationStartAddress)
         {
+            Driver._MMULock.Wait();
             var allProgramData = ReadFromDisk;
 
             for (int i = 0; i < allProgramData.Length; i++)
                 MMU.WriteWord(allocationStartAddress + i, currentPointer, allProgramData[i]);
+            Driver._MMULock.Release();
         }
 
         /// <summary>

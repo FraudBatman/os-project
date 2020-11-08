@@ -18,18 +18,20 @@ namespace os_project
                 // Sets the active program to the CPU
                 activeProgram = value;
 
-                // Move Program
+                // Acquire the queue lock and remove the cpu
+                Driver._QueueLock.Wait();
                 Queue.Ready.Remove(activeProgram);
                 Queue.Running.AddLast(activeProgram);
                 activeProgram.State = PCB.PROCESS_STATE.RUNNING;
+                Driver._QueueLock.Release();
 
-                // Set the CPU to running
+                // Set the CPU to not waiting
                 isWaiting = false;
 
                 /*
                 * Timer: Stop the waiting time
                 */
-                // Metrics.Start(activeProgram);
+                Metrics.Start(activeProgram);
                 // Metrics.Stop(activeProgram);
 
                 // Sets the program count at 0 at initialization
@@ -92,6 +94,7 @@ namespace os_project
         public Word[] Cache
         {
             get { return cache; }
+            set { cache = value; }
         }
 
         // Save memory by not assigning if CPU is never instantiated
@@ -136,19 +139,23 @@ namespace os_project
 
             // Adds the pcb to the terminated queue
             activeProgram.Core_Used = ID;
+
+            // Remove the program from the running queue
+            Driver._QueueLock.Wait();
             var pcb = activeProgram;
             Queue.Running.Remove(pcb);
             Queue.Terminated.AddLast(pcb);
+            Driver._QueueLock.Release();
 
             // Clears the CPU & PCB attributes
             this.registers = null;
             this.activeProgram = null;
-            this.cache = null;
             this.PC = 0;
             this.OPCODE = -1;
             this.isWaiting = false;
 
-            // Metrics.Stop(pcb);
+            // Stop the running time
+            Metrics.Stop(pcb);
         }
 
         #endregion
@@ -185,21 +192,6 @@ namespace os_project
 
         string EffectiveAddress()
         {
-            /* COMMENTED OUT DURING THE GREAT PHASE 1 SHIFT
-            var pageNumbers = MMU.getPages(this.activeProgram);
-            var page = pageNumbers[0];
-            var offset = Utilities.DecToHexAddr(addr);
-            if (addr >= MMU.PAGE_SIZE)
-            {
-                page = pageNumbers[1];
-                offset = Utilities.DecToHexAddr(addr - MMU.PAGE_SIZE);
-            }
-            var wordValue = MMU.ReadWord("0x" + Utilities.DecToHex(page) + offset,
-                this.activeProgram
-            );
-            // (i % MMU.PAGE_SIZE == 0 && i != 0)
-            return wordValue.Value;
-            */
             return MMU.ReadWord(addr, this.activeProgram).Value;
         }
         #endregion

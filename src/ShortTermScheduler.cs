@@ -34,8 +34,10 @@ namespace os_project
         /// </summary>
         static void load_PRIO()
         {
+            Driver._QueueLock.Wait();
             var toSort = Queue.Ready;
             Queue.Ready = InsertSort(toSort);
+            Driver._QueueLock.Release();
             SendToDispatcher(Queue.Ready);
         }
 
@@ -73,7 +75,7 @@ namespace os_project
         /// Sorts the queue based on priority from min to max values by insertion
         /// - O(n^2) complexity
         /// </summary>
-        static LinkedList<PCB> InsertSort(LinkedList<PCB> sortee)
+        public static LinkedList<PCB> InsertSort(LinkedList<PCB> sortee)
         {
 
             //Jess, if you're looking at this, I apolgize for what you're about to see.
