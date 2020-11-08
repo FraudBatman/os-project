@@ -25,7 +25,7 @@ namespace os_project
 
 
         #region Job File Configurations
-        static int completetionStatus;
+        static int completionStatus;
         static string jobFile;
         static string dataDir;
 
@@ -59,14 +59,14 @@ namespace os_project
             // if (Console.ReadLine() == "1")
                 // StartCPUs(false);
             // else
-                StartCPUs(true);
+                StartCPUs(false);
 
             // Ask for policy
             Console.WriteLine("Type 1 for FIFO, anything else for priority");
             // if (Console.ReadLine() == "1")
-                ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+                // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
             // else
-                // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
@@ -79,16 +79,16 @@ namespace os_project
             _DiskLock.Release();
 
             // Validates if job completed successfully
-            var completionStatus = 0;
+            completionStatus = 0;
 
             // Run the programs on the cores
             // if (isMultiCPU)
-                completionStatus = RunMultiCore();
+                // completionStatus = RunMultiCore();
             // else
-                // completionStatus = RunSingleCore();
+                completionStatus = RunSingleCore();
 
             // Validate the program finished successully
-            if (completetionStatus == 0)
+            if (completionStatus == 0)
                 System.Console.WriteLine("----- OS SIMULATION PASSED ------");
             else
                 System.Console.WriteLine("----- OS SIMULATION FAILED ------\n");
@@ -121,7 +121,27 @@ namespace os_project
 
             // Export memory information
             // Get the total memory usage
+
+            // int i = 0;
+
+            // foreach(var pcb in Queue.Terminated)
+            // {
+            //     pcb.CacheUsed = (((double)pcb.ProgramSize / (double)largestProgram) * 100).ToString("0.00");
+            //     i++;
+            // }
+
+            // Metrics.ExportPercentageCache("Cache Percentage Used");
             
+
+            // Export the RAM used for Single Core
+
+            // Export RAM used for Multi Core
+        }
+
+        static double UsedRam()
+        {
+            
+            return 0.0;
         }
 
         static int RunSingleCore()

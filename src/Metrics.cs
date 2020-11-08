@@ -78,8 +78,8 @@ namespace os_project
             foreach (var pcb in Queue.Terminated)
             {
                 Driver.WriteToFile("percentagecacheused.txt",
-                "Job Number: " + pcb.ProcessID.ToString() + " | Cache %: "
-                 + pcb.IOOperationCount.ToString() + "\n");
+                "Job Number: " + pcb.ProcessID.ToString() + "| CPU Used " + pcb.Core_Used +  " | Cache %: "
+                 + pcb.CacheUsed.ToString() + "\n");
             }
         }
 

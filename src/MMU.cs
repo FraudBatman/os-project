@@ -122,6 +122,20 @@ namespace os_project
             return -1;
         }
 
+        /// <summary>
+        /// Get the used cache for the RAM
+        /// </summary>
+        public static int GetUsedRAM()
+        {
+            int usedSpace = 0;
+            foreach(var allocatedRAM in used)
+            {
+                if (allocatedRAM != -1)
+                    usedSpace++;
+            }
+            return usedSpace;
+        }
+
         /* Have fun fixing this mess
         #region Constants
 

@@ -219,11 +219,18 @@ namespace os_project
 
         #region Cache Attributes
         private Word[] cache;
+        private string cacheUsed;
 
         public Word[] Cache
         {
             get { return cache; }
             set { cache = value; }
+        }
+
+        public string CacheUsed
+        {
+            get { return cacheUsed; }
+            set { cacheUsed = value; }
         }
         #endregion
 
