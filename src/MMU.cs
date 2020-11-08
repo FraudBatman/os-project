@@ -14,7 +14,7 @@ namespace os_project
         static int[] SetUsedRAM()
         {
             var setUnused = new int[RAM.RAM_SIZE];
-            for(int i = 0; i < setUnused.Length; i++)
+            for (int i = 0; i < setUnused.Length; i++)
             {
                 setUnused[i] = -1;
             }
@@ -29,7 +29,7 @@ namespace os_project
                 int returnValue = 0;
                 foreach (int bule in used)
                 {
-                    if (bule == 0)
+                    if (bule == -1)
                         returnValue++;
                 }
                 return returnValue;
