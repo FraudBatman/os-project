@@ -61,6 +61,8 @@ namespace os_project
                     cache[i] = MMU.ReadWord(i, activeProgram);
                 }
 
+                activeProgram.Cache = cache;
+
                 acc = new Word("0x00000000");
                 registers[1] = new Word("0x00000000");
             }
@@ -153,6 +155,9 @@ namespace os_project
             this.PC = 0;
             this.OPCODE = -1;
             this.isWaiting = false;
+
+            // Clear the cache
+            this.cache = null;
 
             // Stop the running time
             Metrics.Stop(pcb);

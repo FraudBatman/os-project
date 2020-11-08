@@ -56,17 +56,17 @@ namespace os_project
             // Ask for single-core
             // Start CPUs - false == single | true == multi
             Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            if (Console.ReadLine() == "1")
-                StartCPUs(false);
-            else
+            // if (Console.ReadLine() == "1")
+                // StartCPUs(false);
+            // else
                 StartCPUs(true);
 
             // Ask for policy
             Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            if (Console.ReadLine() == "1")
+            // if (Console.ReadLine() == "1")
                 ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            else
-                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            // else
+                // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
@@ -81,10 +81,10 @@ namespace os_project
             var completionStatus = 0;
 
             // Run the programs on the cores
-            if (isMultiCPU)
+            // if (isMultiCPU)
                 completionStatus = RunMultiCore();
-            else
-                completionStatus = RunSingleCore();
+            // else
+                // completionStatus = RunSingleCore();
 
             // Validate the program finished successully
             if (completetionStatus == 0)
@@ -278,10 +278,10 @@ namespace os_project
                     }
                 }
 
-                //not reading info
+                // not reading info
                 else
                 {
-                    //allocated
+                    // allocated
                     if (MMU.used[i] != -1)
                     {
                         returnValue += $"//JOB PID: {Utilities.DecToHex(MMU.used[i])}\n";
@@ -308,6 +308,26 @@ namespace os_project
                 }
             }
             return returnValue;
+        }
+
+        public static int LargestProgram
+        { 
+            get { return FindLargestProgram(); }
+        }
+
+        /// <summary>
+        /// Finds the largest program size for the cache in the CPU
+        /// </summary>
+        /// <returns></returns>
+        public static int FindLargestProgram()
+        {
+            int max = 0;
+            foreach (var pcb in Queue.New)
+            {
+                if (pcb.ProgramSize > max)
+                    max = pcb.ProgramSize;
+            }
+            return max;
         }
         #endregion
 

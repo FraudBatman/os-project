@@ -2,7 +2,7 @@ namespace os_project
 {
     public static class Dispatcher
     {
-        static int cacheSize = SetCacheSizeForCPUs();
+        static int cacheSize;
 
         /// <summary>
         /// Dispatcher function that sends the PCB to the CPU(s)
@@ -30,7 +30,7 @@ namespace os_project
                     return -1;
 
                 // Dispatch to the CPU
-                Driver.Cores[openCoreId].Cache = new Word[cacheSize];
+                Driver.Cores[openCoreId].Cache = new Word[Driver.LargestProgram];
                 Driver.Cores[openCoreId].ActiveProgram = pcb;
 
                 if (Driver.Cores[openCoreId].ActiveProgram == null)
@@ -53,21 +53,6 @@ namespace os_project
             }
 
             return -1;
-        }
-
-        /// <summary>
-        /// Finds the largest program size for the cache in the CPU
-        /// </summary>
-        /// <returns></returns>
-        public static int SetCacheSizeForCPUs()
-        {
-            int max = 0;
-            foreach(var pcb in Queue.New)
-            {
-                if (pcb.ProgramSize > max)
-                    max = pcb.ProgramSize;
-            }
-            return max;
         }
     }
 }

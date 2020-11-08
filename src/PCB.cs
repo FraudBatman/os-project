@@ -223,6 +223,7 @@ namespace os_project
         public Word[] Cache
         {
             get { return cache; }
+            set { cache = value; }
         }
         #endregion
 

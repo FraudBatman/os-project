@@ -9,6 +9,7 @@ namespace os_project
         string absolutePath;
         string[] programFile;
         string[] instructionSet;
+
         public Loader(string path = null)
         {
             if (path == null)
@@ -26,12 +27,6 @@ namespace os_project
 
             instructionSet = RemoveSpecialCharacters(programFile);
         }
-
-        // Data_Builder
-
-        // PCB_Builder
-
-        // PCB_List
 
         public void LoadInstructions() 
         {
