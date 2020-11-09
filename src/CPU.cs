@@ -28,12 +28,6 @@ namespace os_project
                 // Set the CPU to not waiting
                 isWaiting = false;
 
-                /*
-                * Timer: Stop the waiting time
-                */
-                Metrics.Start(activeProgram);
-                // Metrics.Stop(activeProgram);
-
                 // Sets the program count at 0 at initialization
                 // Might need to be refactored
                 PC = 0;
@@ -400,12 +394,14 @@ namespace os_project
         {
             bool reg2ORAddress = false;
             int fourthValue = addr;
-            //if the address is 0, set the 
-            if (addr == 0)
+
+            //if the address is 0, set the addr
+            if (addr == 0) 
             {
                 reg2ORAddress = true;
                 fourthValue = reg2;
             }
+
             switch (OPCODE)
             {
                 case 0: // 00: RD
