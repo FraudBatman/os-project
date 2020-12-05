@@ -26,7 +26,7 @@ namespace os_project
 
         #region Job File Configurations
         static int completionStatus;
-        static string jobFile;
+        public static string jobFile;
         static string dataDir;
 
         static void SetOSPlatform(bool isWin)
@@ -62,11 +62,14 @@ namespace os_project
             StartCPUs(false);
 
             // Ask for policy
-            Console.WriteLine("Type 1 for FIFO, anything else for priority");
-            // if (Console.ReadLine() == "1")
+            Console.WriteLine("Type 1 for FIFO, 2 for PRIO, anything else for SJF");
+            // var rl = Console.ReadLine();
+            // if (rl == "1")
             // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            // else if (rl == "2")
+            // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
             // else
-            ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            ShortTermScheduler.POLICY = SchedulerPolicy.SJF;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");

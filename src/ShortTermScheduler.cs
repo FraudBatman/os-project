@@ -15,6 +15,9 @@ namespace os_project
                 case SchedulerPolicy.Priority:
                     load_PRIO();
                     break;
+                case SchedulerPolicy.SJF:
+                    load_SJF();
+                    break;
 
                 default:
                     throw new System.Exception("Dear you,\nWhat the fuck is this scheduler policy???\n-ShortTermScheduler.Start()");
@@ -37,6 +40,17 @@ namespace os_project
             Driver._QueueLock.Wait();
             var toSort = Queue.Ready;
             Queue.Ready = InsertSort(toSort);
+            Driver._QueueLock.Release();
+            SendToDispatcher(Queue.Ready);
+        }
+
+        /// <summary>
+        /// Sorts the list by job size, then sends them to dispatcher (foreach the third)
+        /// </summary>
+        static void load_SJF()
+        {
+            Driver._QueueLock.Wait();
+            Queue.Ready = InsertSortTheOtherOne(Queue.Ready);
             Driver._QueueLock.Release();
             SendToDispatcher(Queue.Ready);
         }
@@ -112,15 +126,73 @@ namespace os_project
                 sortee.Remove(highestPriority);
 
             }
-            
+
 
             return returnValue;
         }
+
+        /// <summary>
+        /// Look Jess, it's clear he isn't looking at the code. I don't think I can give enough of a shit to make this look better.
+        /// </summary>
+        /// <param name="sortee"></param>
+        /// <returns></returns>
+        public static LinkedList<PCB> InsertSortTheOtherOne(LinkedList<PCB> sortee)
+        {
+            var returnValue = new LinkedList<PCB>();
+            var runCount = sortee.Count;
+
+            string[] programFile = System.IO.File.ReadAllLines(Driver.jobFile);
+
+            for (int run = 0; run < runCount; run++)
+            {
+                //incrementing index for the foreach
+                int currentIndex = 0;
+
+                //index of highest priority
+                int LICindex = 0;    //Also known as the HP Reverb G2 gotemm
+
+                //shitty highest priority tracker
+                //I'm so sorry for your eyes
+                PCB lowestInstructionCount = new PCB(0, 9999, 0, 0, 0, 0, 0);
+
+                //find the highest priority PCB
+                foreach (PCB pcb in sortee)
+                {
+                    int programSize = 9999;
+                    foreach (string line in programFile)
+                    {
+                        if (line.Contains($"// JOB {pcb.ProcessID}"))
+                        {
+                            int[] numbers = Utilities.parseControlCard(line.Substring(3));
+                            programSize = numbers[1];
+                            break;
+                        }
+                    }
+
+                    if (pcb.InstructionCount < lowestInstructionCount.InstructionCount)
+                    {
+                        LICindex = currentIndex;
+                        lowestInstructionCount = pcb;
+                    }
+                    currentIndex++;
+                }
+
+                //add it to the new queue and kill it from the old queue
+                returnValue.AddLast(lowestInstructionCount);
+                sortee.Remove(lowestInstructionCount);
+
+            }
+
+
+            return returnValue;
+        }
+
     }
 
     public enum SchedulerPolicy
     {
         FIFO,
-        Priority
+        Priority,
+        SJF
     }
 }

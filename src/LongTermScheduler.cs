@@ -84,11 +84,21 @@ namespace os_project
         static void __init()
         {
             // For single core priority since the MMU only gets loaded one program at a time, need to select based on priority
-            if (degree == 0 && ShortTermScheduler.POLICY == SchedulerPolicy.Priority) 
+            if (degree == 0 && ShortTermScheduler.POLICY == SchedulerPolicy.Priority)
             {
                 Driver._QueueLock.Wait();
                 var toSort = Queue.New;
                 Queue.New = ShortTermScheduler.InsertSort(toSort);
+                Driver._QueueLock.Release();
+                degree = 1;
+            }
+
+            // What he said but for SJF
+            if (degree == 0 && ShortTermScheduler.POLICY == SchedulerPolicy.SJF)
+            {
+                Driver._QueueLock.Wait();
+                var toSort = Queue.New;
+                Queue.New = ShortTermScheduler.InsertSortTheOtherOne(toSort);
                 Driver._QueueLock.Release();
                 degree = 1;
             }
@@ -163,7 +173,7 @@ namespace os_project
                 var dataWords = diskWords[1];
                 var bufferData = new Word[dataWords.Length];
 
-                for(int i = 0; i < dataWords.Length; i++)
+                for (int i = 0; i < dataWords.Length; i++)
                 {
                     bufferData[i] = dataWords[i];
                 }

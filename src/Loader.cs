@@ -15,12 +15,12 @@ namespace os_project
             if (path == null)
                 throw new FileNotFoundException("File not found, expected path to not be {0}", path);
 
-            try 
+            try
             {
                 absolutePath = path;
                 programFile = File.ReadAllLines(absolutePath);
-            }   
-            catch(FileNotFoundException e)
+            }
+            catch (FileNotFoundException e)
             {
                 System.Console.WriteLine(e.Message);
             }
@@ -28,17 +28,17 @@ namespace os_project
             instructionSet = RemoveSpecialCharacters(programFile);
         }
 
-        public void LoadInstructions() 
+        public void LoadInstructions()
         {
             var isLoaded = false;
             var currentJobPointer = 0;
-            var printJobNumber = 0; 
+            var printJobNumber = 0;
             var currentInstructionPointer = 0;
             string instruction = "";
             List<Word> data = new List<Word>();
-            
+
             // Builds the PCB & Program data based on the control card attribute ranges
-            Dictionary<string, Dictionary<string, int>> PCB_Builder = 
+            Dictionary<string, Dictionary<string, int>> PCB_Builder =
                 new Dictionary<string, Dictionary<string, int>>();
 
             // ["Job_Data"], ["Data_Data"]
@@ -53,7 +53,7 @@ namespace os_project
                 if (currentJobPointer == instructionSet.Length)
                 {
                     isLoaded = true;
-                } 
+                }
                 else
                 {
                     instruction = instructionSet[currentJobPointer];
@@ -67,7 +67,7 @@ namespace os_project
                         counter++;
                     }
                     else if (instruction.Contains("Data")) // => Data
-                    {   
+                    {
                         currentInstructionPointer = 0;
 
                         // Insert the job data then initialize the data list
@@ -124,7 +124,7 @@ namespace os_project
                 instruction = "";
                 currentJobPointer++;
             }
-            
+
             // Print the loading complete once done
             System.Console.WriteLine("Loading Complete: " + Queue.New.Count + " programs added to the job queue");
         }
@@ -153,7 +153,7 @@ namespace os_project
         // Extract Job ID, instruction word count, priority
         private Dictionary<string, int> JobHandler(string _job)
         {
-            int[] job = Utilities.parseControlCard(_job);   
+            int[] job = Utilities.parseControlCard(_job);
             Dictionary<string, int> job_attrs = new Dictionary<string, int>();
             job_attrs.Add("processID", job[0]);
             job_attrs.Add("instructionCount", job[1]);
@@ -163,7 +163,7 @@ namespace os_project
 
         // Loads job control card attributes into PCB
         // Extract input, output, and temp buffer sizes
-        private Dictionary<string, int> DataHandler(string _data) 
+        private Dictionary<string, int> DataHandler(string _data)
         {
             int[] data = Utilities.parseControlCard(_data);
             Dictionary<string, int> data_attrs = new Dictionary<string, int>();
