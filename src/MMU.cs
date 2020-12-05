@@ -5,144 +5,17 @@ namespace os_project
 {
     public static class MMU
     {
-        public static int[] used = SetUsedRAM();
-
-        /// <summary>
-        /// Sets each used address of RAM to -1 at the initial use of 'used'
-        /// </summary>
-        /// <returns></returns>
-        static int[] SetUsedRAM()
-        {
-            var setUnused = new int[RAM.RAM_SIZE];
-            for (int i = 0; i < setUnused.Length; i++)
-            {
-                setUnused[i] = -1;
-            }
-
-            return setUnused;
-        }
-
-        public static int OpenMemory
-        {
-            get
-            {
-                int returnValue = 0;
-                foreach (int bule in used)
-                {
-                    if (bule == -1)
-                        returnValue++;
-                }
-                return returnValue;
-            }
-        }
-
-        /// <summary>
-        /// Please kill me
-        /// </summary>
-        /// <param name="pcb"></param>
-        /// <returns>the start address of the program</returns>
-        public static int AllocateMemory(PCB pcb)
-        {
-            int startIndex = findHole(pcb);
-            if (startIndex != -1)
-            {
-                for (int i = startIndex; i < startIndex + pcb.ProgramSize; i++)
-                {
-                    used[i] = pcb.ProcessID;
-                }
-            }
-            return startIndex;
-        }
-
-        public static void DeallocateMemory(PCB pcb)
-        {
-            for (int i = 0; i < RAM.RAM_SIZE; i++)
-            {
-                if (used[i] == pcb.ProcessID)
-                    used[i] = -1;
-            }
-        }
-
-        public static Word ReadWord(int address, PCB program)
-        {
-            return RAM.Read(program.JobStartAddress + address);
-        }
-
-        public static void WriteWord(int address, PCB program, Word value)
-        {
-            RAM.Write(program.JobStartAddress + address, value);
-        }
-
-        /// <summary>
-        /// finds the first big enough hole and returns it
-        /// </summary>
-        /// <param name="pcb"></param>
-        /// <returns></returns>
-        static int findHole(PCB pcb)
-        {
-            bool inHole = false;
-            int holeIndex = -1;
-            for (int i = 0; i < RAM.RAM_SIZE; i++)
-            {
-                //in hole
-                if (inHole)
-                {
-                    //allocated
-                    if (used[i] != -1)
-                    {
-                        //reset hole stats
-                        inHole = false;
-                        holeIndex = -1;
-                    }
-                    ///not allocated
-                    else
-                    {
-                        //hole is big enough
-                        if ((i - holeIndex) + 1 == pcb.ProgramSize)
-                        {
-                            //return hole index
-                            return holeIndex;
-                        }
-                        //hole isn't big enough
-                    }
-                }
-                //not in hole
-                else
-                {
-                    //not allocated
-                    if (used[i] == -1)
-                    {
-                        //start hole
-                        holeIndex = i;
-                        inHole = true;
-                    }
-                }
-            }
-
-            return -1;
-        }
-
-        /// <summary>
-        /// Get the used cache for the RAM
-        /// </summary>
-        public static int GetUsedRAM()
-        {
-            int usedSpace = 0;
-            foreach(var allocatedRAM in used)
-            {
-                if (allocatedRAM != -1)
-                    usedSpace++;
-            }
-            return usedSpace;
-        }
-
-        /* Have fun fixing this mess
         #region Constants
 
         /// <summary>
         /// Returns the size of each page in words
         /// </summary>
         public const int PAGE_SIZE = 4;
+
+        /// <summary>
+        /// Total number of pages in memory
+        /// </summary>
+        public const int PAGE_COUNT = 256;
 
         #endregion
 
@@ -153,6 +26,10 @@ namespace os_project
         /// </summary>
         static int[] pageList = new int[PAGE_COUNT];
 
+        /// <summary>
+        /// Array of PIDs to be used for page determination
+        /// </summary>
+        static int[] processIDS = new int[PAGE_COUNT];
 
         /// <summary>
         /// bool to make sure MMU is initialized prior to use
@@ -174,11 +51,11 @@ namespace os_project
             __init();
 
             //checks to make sure there's enough space to allocate successfully
-            if (OpenMemory < size)
+            if (OpenMemory < pcb.ProgramSize)
                 return false;
 
             //converts the size into pages to determine how many pages are needed
-            int pagesToAllocate = (size / PAGE_SIZE) + (size % PAGE_SIZE == 0 ? 0 : 1);
+            int pagesToAllocate = (pcb.ProgramSize / PAGE_SIZE) + (pcb.ProgramSize % PAGE_SIZE == 0 ? 0 : 1);
 
             //adds the PCB to the list
             int programIndex = addProgram(pcb);
@@ -448,9 +325,16 @@ namespace os_project
             //convert the logical address string into info we can use
             string purehex = logical.Substring(2);
 
+            /*
             //first H in 0xHHH is the page number in hex
             int pageNumber = Utilities.HexToDec(purehex.ToCharArray()[0].ToString());
             int offset = Utilities.HexToDec(purehex.Substring(1));
+            */
+
+            //first 2 H in 0xHHH is the page number in hex
+            int pageNumber = Utilities.HexToDec(purehex.Substring(0, 2));
+            //should be / 4 to account for last 2 bits being unused, but apparently this is a bug somewhere??
+            int offset = Utilities.HexToDec(purehex.Substring(2));
 
             //find the page number, convert it to physical, then offset
             foreach (var page in programPages)
@@ -504,6 +388,5 @@ namespace os_project
         }
 
         #endregion
-        */
     }
 }
