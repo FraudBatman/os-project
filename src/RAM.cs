@@ -24,8 +24,6 @@ namespace os_project
         /// <returns>The word read or written.</returns>
         public static Word Memory(RWFlag rw, string address, Word writeWord = null)
         {
-            //pre-flight checklist
-
             //address needs to be proper format
             if (!ADDRESS_PATTERN.IsMatch(address))
             {

@@ -276,7 +276,9 @@ namespace os_project
             int target = -1;
             string[] programFile = File.ReadAllLines(jobFile);
             string returnValue = $"COMMENT: {comment}\n";
-            for (int i = 0; i < RAM.RAM_SIZE; i += 4)
+            //it be incrementin' through pages now
+            //Again, "i" is the PAGE number, not the physical address!
+            for (int i = 0; i < MMU.PAGE_COUNT; i++)
             {
                 //CHECK FOR TRANSITION FROM JOB TO DATA
                 if (counter >= target && target != -1 && !dataCalled)
@@ -285,13 +287,19 @@ namespace os_project
                     dataCalled = true;
                 }
 
+                //CHECK FOR TRANSITION FROM DATA OUTTA THERE
+
+
                 //already reading info
                 if (alreadyCalled)
                 {
                     //allocated
-                    if (MMU.used[i] != -1)
+                    if (MMU.PageIsAllocated(i))
                     {
-                        returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
+                        returnValue += RAM.data[i * MMU.PAGE_SIZE] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE].Value + " ";
+                        returnValue += RAM.data[i * MMU.PAGE_SIZE + 1] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 1].Value + " ";
+                        returnValue += RAM.data[i * MMU.PAGE_SIZE + 2] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 2].Value + " ";
+                        returnValue += RAM.data[i * MMU.PAGE_SIZE + 3] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 3].Value + "\n";
                         counter += 4;
                     }
                     //unallocated
@@ -308,9 +316,9 @@ namespace os_project
                 else
                 {
                     // allocated
-                    if (MMU.used[i] != -1)
+                    if (MMU.PageIsAllocated(i))
                     {
-                        returnValue += $"//JOB {Utilities.DecToHex(MMU.used[i])} exec. section:\n";
+                        returnValue += $"//JOB {Utilities.DecToHex(MMU.pageList[i])} exec. section:\n";
                         returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
                         counter += 4;
                         alreadyCalled = true;
@@ -318,7 +326,7 @@ namespace os_project
                         //get job info from jobs-file.txt 
                         foreach (string line in programFile)
                         {
-                            if (line.Contains($"// JOB {Utilities.DecToHex(MMU.used[i])}"))
+                            if (line.Contains($"// JOB {Utilities.DecToHex(MMU.pageList[i])}"))
                             {
                                 int[] numbers = Utilities.parseControlCard(line.Substring(3));
                                 target = numbers[1];

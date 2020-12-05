@@ -22,14 +22,9 @@ namespace os_project
         #region Members
 
         /// <summary>
-        /// Indexes for which pages are used that corelate to the index in pageList
+        /// PIDs for which pages each process uses
         /// </summary>
-        static int[] pageList = new int[PAGE_COUNT];
-
-        /// <summary>
-        /// Array of PIDs to be used for page determination
-        /// </summary>
-        static int[] processIDS = new int[PAGE_COUNT];
+        public static int[] pageList = new int[PAGE_COUNT];
 
         /// <summary>
         /// bool to make sure MMU is initialized prior to use
@@ -44,35 +39,33 @@ namespace os_project
         /// </summary>
         /// <param name="pcb">PCB of the program to allocate</param>
         /// <param name="size">The total size of that needs to be allocated in terms of words</param>
-        /// <returns>True if successfully initialized</returns>
-        public static bool AllocateMemory(PCB pcb)
+        /// <returns>The address of the first page allocated</returns>
+        public static int AllocateMemory(PCB pcb)
         {
             //needs to be called prior to any use of the MMU
             __init();
 
             //checks to make sure there's enough space to allocate successfully
             if (OpenMemory < pcb.ProgramSize)
-                return false;
+                return -1;
 
             //converts the size into pages to determine how many pages are needed
             int pagesToAllocate = (pcb.ProgramSize / PAGE_SIZE) + (pcb.ProgramSize % PAGE_SIZE == 0 ? 0 : 1);
 
-            //adds the PCB to the list
-            int programIndex = addProgram(pcb);
-
             //begin allocation
             for (int i = 0; i < PAGE_COUNT; i++)
             {
-                if (!pageIsAllocated(i))
+                if (!PageIsAllocated(i))
                 {
-                    pageList[i] = programIndex;
+                    pageList[i] = pcb.ProcessID;
+
                     pagesToAllocate--;
                     if (pagesToAllocate == 0)
                         break;
                 }
             }
 
-            return true;
+            return 0;
         }
 
         /// <summary>
@@ -84,18 +77,22 @@ namespace os_project
             //needs to be called prior to any use of the MMU
             __init();
 
-            //get the PID's index in processIDs
-            int PIDindex = getProcessIDLocation(pcb);
-
             //scan for pages to deallocate
             for (int i = 0; i < PAGE_COUNT; i++)
             {
-                if (pageList[i] == PIDindex)
+                if (pageList[i] == pcb.ProcessID)
                     pageList[i] = -1;
             }
+        }
 
-            //remove the PID from processIDs
-            processIDS[PIDindex] = -1;
+        /// <summary>
+        /// Checks if a certain page is allocated
+        /// </summary>
+        /// <param name="index">The page number to check</param>
+        /// <returns>true if allocated</returns>
+        public static bool PageIsAllocated(int index)
+        {
+            return pageList[index] >= 0;
         }
 
         /// <summary>
@@ -120,6 +117,17 @@ namespace os_project
 
             //return the word at that address
             return RAM.Read(physical);
+        }
+
+        /// <summary>
+        /// An overload for compatibility with our current codebase. God this code is a fucking mess
+        /// </summary>
+        /// <param name="addressToConvert"></param>
+        /// <param name="program"></param>
+        /// <returns></returns>
+        public static Word ReadWord(int addressToConvert, PCB program)
+        {
+            return ReadWord(Utilities.WordFill(Utilities.DecToHex(addressToConvert)), program);
         }
 
         /// <summary>
@@ -172,6 +180,18 @@ namespace os_project
 
             //write the word at that address
             RAM.Write(physical, value);
+        }
+
+
+        /// <summary>
+        /// An overload for compatibility with our current codebase. God this code is a fucking mess
+        /// </summary>
+        /// <param name="addressToConvert"></param>
+        /// <param name="program"></param>
+        /// <param name="value"></param>
+        public static void WriteWord(int addressToConvert, PCB program, Word value)
+        {
+            WriteWord(Utilities.WordFill(Utilities.DecToHex(addressToConvert)), program, value);
         }
 
         /// <summary>
@@ -233,32 +253,8 @@ namespace os_project
                 pageList[i] = -1;
             }
 
-            //set all process ids to unset
-            for (int i = 0; i < PAGE_COUNT; i++)
-            {
-                processIDS[i] = -1;
-            }
-
             //make sure init isn't called again
             initialized = true;
-        }
-
-        /// <summary>
-        /// adds a program to the first available spot in processIDs
-        /// </summary>
-        /// <param name="pcb">The program to add</param>
-        /// <returns>The location of the program in processIDs</returns>
-        static int addProgram(PCB pcb)
-        {
-            for (int i = 0; i < PAGE_COUNT; i++)
-            {
-                if (processIDS[i] == -1)
-                {
-                    processIDS[i] = pcb.ProcessID;
-                    return i;
-                }
-            }
-            return -1;
         }
 
         /// <summary>
@@ -270,12 +266,11 @@ namespace os_project
         {
             //holds the size of the return value
             int pageCount = 0;
-            int processLocation = getProcessIDLocation(pcb);
 
             //increases the pagecount for every page found to be allocated
             for (int i = 0; i < PAGE_COUNT; i++)
             {
-                if (pageList[i] == processLocation)
+                if (pageList[i] == pcb.ProcessID)
                 {
                     pageCount++;
                 }
@@ -287,28 +282,13 @@ namespace os_project
             //adds all the allocated pages to the returnvalue
             for (int i = 0; i < PAGE_COUNT; i++)
             {
-                if (pageList[i] == processLocation)
+                if (pageList[i] == pcb.ProcessID)
                 {
                     returnValue[returnValueIndex] = i;
                     returnValueIndex++;
                 }
             }
             return returnValue;
-        }
-
-        /// <summary>
-        /// The index of a PCB as it connects to its PID in processIDS
-        /// </summary>
-        /// <param name="pcb">The pcb to check for</param>
-        /// <returns>The index it is located at, or -1 if not found</returns>
-        static int getProcessIDLocation(PCB pcb)
-        {
-            for (int i = 0; i < PAGE_COUNT; i++)
-            {
-                if (processIDS[i] == pcb.ProcessID)
-                    return i;
-            }
-            return -1;
         }
 
         /// <summary>
@@ -349,16 +329,6 @@ namespace os_project
             return -1;
         }
 
-        /// <summary>
-        /// Checks if a certain page is allocated
-        /// </summary>
-        /// <param name="index">The page number to check</param>
-        /// <returns>true if allocated</returns>
-        static bool pageIsAllocated(int index)
-        {
-            return pageList[index] >= 0;
-        }
-
         #endregion
 
         #region Properties
@@ -380,7 +350,7 @@ namespace os_project
                 int returnValue = 0;
                 for (int i = 0; i < PAGE_COUNT; i++)
                 {
-                    if (!pageIsAllocated(i))
+                    if (!PageIsAllocated(i))
                         returnValue++;
                 }
                 return returnValue;
