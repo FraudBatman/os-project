@@ -57,16 +57,16 @@ namespace os_project
             // Start CPUs - false == single | true == multi
             Console.WriteLine("Type 1 for single-core, anything else for multi-core");
             // if (Console.ReadLine() == "1")
-                // StartCPUs(false);
+            // StartCPUs(false);
             // else
-                StartCPUs(false);
+            StartCPUs(false);
 
             // Ask for policy
             Console.WriteLine("Type 1 for FIFO, anything else for priority");
             // if (Console.ReadLine() == "1")
-                // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
             // else
-                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
@@ -83,9 +83,9 @@ namespace os_project
 
             // Run the programs on the cores
             // if (isMultiCPU)
-                // completionStatus = RunMultiCore();
+            // completionStatus = RunMultiCore();
             // else
-                completionStatus = RunSingleCore();
+            completionStatus = RunSingleCore();
 
             // Validate the program finished successully
             if (completionStatus == 0)
@@ -131,7 +131,7 @@ namespace os_project
             // }
 
             // Metrics.ExportPercentageCache("Cache Percentage Used");
-            
+
 
             // Export the RAM used for Single Core
 
@@ -140,7 +140,7 @@ namespace os_project
 
         static double UsedRam()
         {
-            
+
             return 0.0;
         }
 
@@ -178,7 +178,7 @@ namespace os_project
                     // Dispatch to CPUs
                     ShortTermScheduler.Start();
 
-                    foreach(var core in Cores)
+                    foreach (var core in Cores)
                     {
                         if (!core.isWaiting && core.ActiveProgram != null)
                         {
@@ -238,12 +238,12 @@ namespace os_project
         public static StringWriter DISKDUMP()
         {
             StringWriter writer = new StringWriter();
-            foreach(var partition in Disk.diskPartitions)
+            foreach (var partition in Disk.diskPartitions)
             {
                 System.Console.WriteLine(partition.Key);
                 writer.Write("Disk Partiton For Program " + (partition.Key + 1).ToString() + "\n");
                 var programData = Disk.ReadFromDisk(partition.Key);
-                
+
                 writer.Write("// JOBS\n");
                 for (int i = 0; i < programData[0].Length; i++)
                     writer.Write(programData[0][i].Value + "\n");
@@ -268,16 +268,18 @@ namespace os_project
         public static string RAMDUMP(string comment = null)
         {
             bool alreadyCalled = false;
+            bool dataCalled = false;
             int counter = 0;
             int target = -1;
             string[] programFile = File.ReadAllLines(jobFile);
             string returnValue = $"COMMENT: {comment}\n";
-            for (int i = 0; i < RAM.RAM_SIZE; i++)
+            for (int i = 0; i < RAM.RAM_SIZE; i += 4)
             {
                 //CHECK FOR TRANSITION FROM JOB TO DATA
-                if (counter == target)
+                if (counter >= target && target != -1 && !dataCalled)
                 {
-                    returnValue += "//DATA\n";
+                    returnValue += "\tdata/output/temp section\n";
+                    dataCalled = true;
                 }
 
                 //already reading info
@@ -286,15 +288,14 @@ namespace os_project
                     //allocated
                     if (MMU.used[i] != -1)
                     {
-                        returnValue += RAM.data[i].Value + "\n";
-                        counter++;
+                        returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
+                        counter += 4;
                     }
                     //unallocated
                     else
                     {
-                        returnValue += "//END OF JOB\n";
-                        returnValue += "UNALLOCATED\n";
                         alreadyCalled = false;
+                        dataCalled = false;
                         counter = 0;
                         target = -1;
                     }
@@ -306,9 +307,9 @@ namespace os_project
                     // allocated
                     if (MMU.used[i] != -1)
                     {
-                        returnValue += $"//JOB PID: {Utilities.DecToHex(MMU.used[i])}\n";
-                        returnValue += RAM.data[i].Value + "\n";
-                        counter++;
+                        returnValue += $"//JOB {Utilities.DecToHex(MMU.used[i])} exec. section:\n";
+                        returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
+                        counter += 4;
                         alreadyCalled = true;
 
                         //get job info from jobs-file.txt 
@@ -325,16 +326,16 @@ namespace os_project
                     //unallocated
                     else
                     {
-                        returnValue += "UNALLOCATED\n";
                     }
                 }
             }
             return returnValue;
         }
 
+
         private static int largestProgram = 0;
         public static int LargestProgram
-        { 
+        {
             get { return largestProgram; }
             set { largestProgram = value; }
         }
