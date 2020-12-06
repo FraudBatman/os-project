@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 
-
 namespace os_project
 {
     // This class needs to be object oriented -> encapuslate as much as possible
@@ -32,25 +31,17 @@ namespace os_project
                 // Might need to be refactored
                 PC = 0;
                 registers = new Word[16];
-                cache = new Word[activeProgram.InstructionCount];
+                cache = new Word[activeProgram.ProgramSize];
 
                 for (int i = 0; i < registers.Length; i++)
                 {
                     registers[i] = new Word();
                 }
 
-                for (int i = 0; i < activeProgram.InstructionCount; i++)
-                {
-                    cache[i] = MMU.ReadWord(i, activeProgram);
-                }
-
-                activeProgram.Cache = cache;
-                acc = new Word("0x00000000");
-                registers[1] = new Word("0x00000000");
+                acc = registers[0];
             }
         }
         #endregion
-
 
         #region CPU Attributes
         const string NOPCODE = "13";
@@ -94,25 +85,21 @@ namespace os_project
         #endregion
 
         #region Threads
-        public async Task Run()
+        public void Run()
         {
-            Task thread = Task.Factory.StartNew(() =>
+            while (PC < activeProgram.InstructionCount && !isWaiting)
             {
-                while (PC < activeProgram.InstructionCount && !isWaiting)
-                {
-                    // Fetch data
-                    var instruction = Fetch();
+                // Fetch data
+                var instruction = Fetch();
 
-                    // Decode data
-                    Decode(instruction);
+                // Decode data
+                Decode(instruction);
 
-                    // Execute data
-                    Execute();
-                }
+                // Execute data
+                Execute();
+            }
 
-                EndProcess();
-            });
-            thread.Wait();
+            EndProcess();
         }
 
         // Ends the process
@@ -150,7 +137,7 @@ namespace os_project
         #region Fetch Module
         public Word Fetch()
         {
-            // Grab the instruction from memory
+            // Grab the instruction from the cache
             var instruction = cache[PC];
 
             if (instruction.Value == "" || instruction.Value == null)
@@ -210,7 +197,7 @@ namespace os_project
             //gets first 2 bits of data
             ExecutionPointer = Utilities.HexToDec(data.ToCharArray()[0].ToString()) / 4;
 
-            //gets the opcode. god knows how
+            // Gets the opcode. god knows how
             OPCODE = (((Utilities.HexToDec(data.ToCharArray()[0].ToString()) % 4) * 16))
             + Utilities.HexToDec(data.ToCharArray()[1].ToString());
 
