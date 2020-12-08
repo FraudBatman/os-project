@@ -103,20 +103,29 @@ namespace os_project
         /// <returns>The word read</returns>
         public static Word ReadWord(string address, PCB program)
         {
-            //needs to be called prior to any use of the MMU
-            __init();
+            try
+            {
+                //needs to be called prior to any use of the MMU
+                __init();
 
-            //get the physical address of the info provided
-            int physical = logicalToPhysical(address, program);
+                //get the physical address of the info provided
+                int physical = logicalToPhysical(address, program);
 
-            if (physical == -1)
-                throw new System.Exception(
-                    "Physical page address was not assigned\n" +
-                    "Expected: 0x" + physical + "00 | Actual " + physical
-                );
+                if (physical == -1)
+                    throw new System.Exception(
+                        "Physical page address was not assigned\n" +
+                        "Expected: 0x" + physical + "00 | Actual " + physical
+                    );
 
-            //return the word at that address
-            return RAM.Read(physical);
+                //return the word at that address
+                return RAM.Read(physical);
+            }
+            catch (System.Exception err)
+            {
+                System.Console.WriteLine("fuck it.");
+                return new Word("00000000");
+            }
+
         }
 
         /// <summary>

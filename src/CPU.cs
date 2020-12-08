@@ -85,8 +85,13 @@ namespace os_project
         #endregion
 
         #region Threads
+
+        int dumpcount = 1;
+
         public void Run()
         {
+            Driver.WriteToFile($"RAMDUMPSP2S2/Multi/FIFO/dump{dumpcount}", Driver.RAMDUMP($"Pages Used: {MMU.PAGE_COUNT - MMU.OpenPages} / 256"));
+            dumpcount++;
             while (PC < activeProgram.InstructionCount && !isWaiting)
             {
                 // Fetch data
@@ -256,38 +261,45 @@ namespace os_project
 
         private void ExecuteArith()
         {
-            switch (OPCODE)
+            try
             {
-                case 4: // MOV
-                    registers[dReg] = registers[bReg];
-                    break;
-                case 5: // ADD
-                    registers[dReg] = registers[sReg0];
-                    registers[dReg] += registers[sReg1];
-                    break;
-                case 6: // SUB
-                    registers[dReg] = registers[sReg0];
-                    registers[dReg] -= registers[sReg1];
-                    break;
-                case 7: // MUL
-                    registers[dReg] = registers[sReg0];
-                    registers[dReg] *= registers[sReg1];
-                    break;
-                case 8: // DIV
-                    registers[dReg] = registers[sReg0];
-                    registers[dReg] /= registers[sReg1];
-                    break;
-                case 9: // AND
-                    registers[dReg] = registers[sReg0] & registers[sReg1];
-                    break;
-                case 10: // OR
-                    registers[dReg] = registers[sReg0] | registers[sReg1];
-                    break;
-                case 16: // SLT
-                    registers[dReg].Value = registers[sReg0].ValueAsInt < registers[bReg].ValueAsInt ? "00000000" : "00000001";
-                    break;
-                default:
-                    throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
+                switch (OPCODE)
+                {
+                    case 4: // MOV
+                        registers[dReg] = registers[bReg];
+                        break;
+                    case 5: // ADD
+                        registers[dReg] = registers[sReg0];
+                        registers[dReg] += registers[sReg1];
+                        break;
+                    case 6: // SUB
+                        registers[dReg] = registers[sReg0];
+                        registers[dReg] -= registers[sReg1];
+                        break;
+                    case 7: // MUL
+                        registers[dReg] = registers[sReg0];
+                        registers[dReg] *= registers[sReg1];
+                        break;
+                    case 8: // DIV
+                        registers[dReg] = registers[sReg0];
+                        registers[dReg] /= registers[sReg1];
+                        break;
+                    case 9: // AND
+                        registers[dReg] = registers[sReg0] & registers[sReg1];
+                        break;
+                    case 10: // OR
+                        registers[dReg] = registers[sReg0] | registers[sReg1];
+                        break;
+                    case 16: // SLT
+                        registers[dReg].Value = registers[sReg0].ValueAsInt < registers[bReg].ValueAsInt ? "00000000" : "00000001";
+                        break;
+                    default:
+                        throw new Exception("OPCode invalid, check the hex to dec conversion: " + OPCODE);
+                }
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine("*screeching noises*");
             }
             // Console.WriteLine($"ARITH: OPCODE {OPCODE} | {dReg} = {sReg0} OP {sReg1}");
         }
@@ -383,7 +395,7 @@ namespace os_project
             int fourthValue = addr;
 
             //if the address is 0, set the addr
-            if (addr == 0) 
+            if (addr == 0)
             {
                 reg2ORAddress = true;
                 fourthValue = reg2;

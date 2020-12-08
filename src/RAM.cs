@@ -69,7 +69,14 @@ namespace os_project
 
         public static void Write(int physical, Word value)
         {
-            data[physical] = value;
+            try
+            {
+                data[physical] = value;
+            }
+            catch (Exception er)
+            {
+                Console.WriteLine("cool.");
+            }
         }
 
         #endregion

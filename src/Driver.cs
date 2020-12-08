@@ -265,77 +265,85 @@ namespace os_project
         /// <returns></returns>
         public static string RAMDUMP(string comment = null)
         {
-            bool alreadyCalled = false;
-            bool dataCalled = false;
-            int counter = 0;
-            int target = -1;
-            string[] programFile = File.ReadAllLines(jobFile);
             string returnValue = $"COMMENT: {comment}\n";
-            //it be incrementin' through pages now
-            //Again, "i" is the PAGE number, not the physical address!
-            for (int i = 0; i < MMU.PAGE_COUNT; i++)
+            try
             {
-                //CHECK FOR TRANSITION FROM JOB TO DATA
-                if (counter >= target && target != -1 && !dataCalled)
+                bool alreadyCalled = false;
+                bool dataCalled = false;
+                int counter = 0;
+                int target = -1;
+                string[] programFile = File.ReadAllLines(jobFile);
+                //it be incrementin' through pages now
+                //Again, "i" is the PAGE number, not the physical address!
+                for (int i = 0; i < MMU.PAGE_COUNT; i++)
                 {
-                    returnValue += "\tdata/output/temp section\n";
-                    dataCalled = true;
-                }
-
-                //CHECK FOR TRANSITION FROM DATA OUTTA THERE
-
-
-                //already reading info
-                if (alreadyCalled)
-                {
-                    //allocated
-                    if (MMU.PageIsAllocated(i))
+                    //CHECK FOR TRANSITION FROM JOB TO DATA
+                    if (counter >= target && target != -1 && !dataCalled)
                     {
-                        returnValue += RAM.data[i * MMU.PAGE_SIZE] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE].Value + " ";
-                        returnValue += RAM.data[i * MMU.PAGE_SIZE + 1] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 1].Value + " ";
-                        returnValue += RAM.data[i * MMU.PAGE_SIZE + 2] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 2].Value + " ";
-                        returnValue += RAM.data[i * MMU.PAGE_SIZE + 3] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 3].Value + "\n";
-                        counter += 4;
+                        returnValue += "\tdata/output/temp section\n";
+                        dataCalled = true;
                     }
-                    //unallocated
-                    else
-                    {
-                        alreadyCalled = false;
-                        dataCalled = false;
-                        counter = 0;
-                        target = -1;
-                    }
-                }
 
-                // not reading info
-                else
-                {
-                    // allocated
-                    if (MMU.PageIsAllocated(i))
-                    {
-                        returnValue += $"//JOB {Utilities.DecToHex(MMU.pageList[i])} exec. section:\n";
-                        returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
-                        counter += 4;
-                        alreadyCalled = true;
+                    //CHECK FOR TRANSITION FROM DATA OUTTA THERE
 
-                        //get job info from jobs-file.txt 
-                        foreach (string line in programFile)
+
+                    //already reading info
+                    if (alreadyCalled)
+                    {
+                        //allocated
+                        if (MMU.PageIsAllocated(i))
                         {
-                            if (line.Contains($"// JOB {Utilities.DecToHex(MMU.pageList[i])}"))
-                            {
-                                int[] numbers = Utilities.parseControlCard(line.Substring(3));
-                                target = numbers[1];
-                                break;
-                            }
+                            returnValue += RAM.data[i * MMU.PAGE_SIZE] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE].Value + " ";
+                            returnValue += RAM.data[i * MMU.PAGE_SIZE + 1] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 1].Value + " ";
+                            returnValue += RAM.data[i * MMU.PAGE_SIZE + 2] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 2].Value + " ";
+                            returnValue += RAM.data[i * MMU.PAGE_SIZE + 3] == null ? "00000000" : RAM.data[i * MMU.PAGE_SIZE + 3].Value + "\n";
+                            counter += 4;
+                        }
+                        //unallocated
+                        else
+                        {
+                            alreadyCalled = false;
+                            dataCalled = false;
+                            counter = 0;
+                            target = -1;
                         }
                     }
-                    //unallocated
+
+                    // not reading info
                     else
                     {
+                        // allocated
+                        if (MMU.PageIsAllocated(i))
+                        {
+                            returnValue += $"//JOB {Utilities.DecToHex(MMU.pageList[i])} exec. section:\n";
+                            returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
+                            counter += 4;
+                            alreadyCalled = true;
+
+                            //get job info from jobs-file.txt 
+                            foreach (string line in programFile)
+                            {
+                                if (line.Contains($"// JOB {Utilities.DecToHex(MMU.pageList[i])}"))
+                                {
+                                    int[] numbers = Utilities.parseControlCard(line.Substring(3));
+                                    target = numbers[1];
+                                    break;
+                                }
+                            }
+                        }
+                        //unallocated
+                        else
+                        {
+                        }
                     }
                 }
+                return returnValue;
             }
-            return returnValue;
+            catch
+            {
+                Console.WriteLine("Yeha");
+                return returnValue;
+            }
         }
 
 
