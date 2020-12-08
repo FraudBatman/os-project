@@ -90,7 +90,7 @@ namespace os_project
 
         public void Run()
         {
-            Driver.WriteToFile($"newDumpsP2S1/MCSJF/Dump{dumpcount}", Driver.RAMDUMP());
+            Driver.WriteToFile($"newDumpsP2S1/SCSJF/Dump{dumpcount}", Driver.RAMDUMP($"RAM Used: {MMU.GetUsedRAM()}"));
             dumpcount++;
 
             while (PC < activeProgram.InstructionCount && !isWaiting)
