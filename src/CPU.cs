@@ -85,8 +85,14 @@ namespace os_project
         #endregion
 
         #region Threads
+
+        int dumpcount = 1;
+
         public void Run()
         {
+            Driver.WriteToFile($"newDumpsP2S1/MCSJF/Dump{dumpcount}", Driver.RAMDUMP());
+            dumpcount++;
+
             while (PC < activeProgram.InstructionCount && !isWaiting)
             {
                 // Fetch data
@@ -383,7 +389,7 @@ namespace os_project
             int fourthValue = addr;
 
             //if the address is 0, set the addr
-            if (addr == 0) 
+            if (addr == 0)
             {
                 reg2ORAddress = true;
                 fourthValue = reg2;

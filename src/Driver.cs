@@ -52,20 +52,20 @@ namespace os_project
             // Ask for single-core
             // Start CPUs - false == single | true == multi
             Console.WriteLine("Type 1 for single-core, anything else for multi-core");
-            // if (Console.ReadLine() == "1")
-            // StartCPUs(false);
-            // else
-            StartCPUs(false);
+            if (Console.ReadLine() == "1")
+                StartCPUs(false);
+            else
+                StartCPUs(true);
 
             // Ask for policy
             Console.WriteLine("Type 1 for FIFO, 2 for PRIO, anything else for SJF");
-            // var rl = Console.ReadLine();
-            // if (rl == "1")
-            // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            // else if (rl == "2")
-            // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
-            // else
-            ShortTermScheduler.POLICY = SchedulerPolicy.SJF;
+            var rl = Console.ReadLine();
+            if (rl == "1")
+                ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
+            else if (rl == "2")
+                ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            else
+                ShortTermScheduler.POLICY = SchedulerPolicy.SJF;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
@@ -286,7 +286,14 @@ namespace os_project
                     //allocated
                     if (MMU.used[i] != -1)
                     {
-                        returnValue += RAM.data[i].Value + " " + RAM.data[i + 1].Value + " " + RAM.data[i + 2].Value + " " + RAM.data[i + 3].Value + "\n";
+                        if (RAM.data[i] != null)
+                            returnValue += RAM.data[i].Value + " ";
+                        if (RAM.data[i + 1] != null)
+                            returnValue += RAM.data[i + 1].Value + " ";
+                        if (RAM.data[i + 2] != null)
+                            returnValue += RAM.data[i + 2].Value + " ";
+                        if (RAM.data[i + 3] != null)
+                            returnValue += RAM.data[i + 3].Value + "\n";
                         counter += 4;
                     }
                     //unallocated
