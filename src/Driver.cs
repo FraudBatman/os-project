@@ -1,16 +1,12 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 
 namespace os_project
 {
     public partial class Driver
     {
-        // Implement these once the CPU is complete
         #region Shared Resource Semaphores
         public static SemaphoreSlim _QueueLock = new SemaphoreSlim(1);
         public static SemaphoreSlim _MMULock = new SemaphoreSlim(1);
@@ -62,14 +58,11 @@ namespace os_project
             StartCPUs(false);
 
             // Ask for policy
-            Console.WriteLine("Type 1 for FIFO, 2 for PRIO, anything else for SJF");
-            // var rl = Console.ReadLine();
-            // if (rl == "1")
-            // ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
-            // else if (rl == "2")
-            // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
+            Console.WriteLine("Type 1 for FIFO, anything else for priority");
+            // if (Console.ReadLine() == "1")
+            ShortTermScheduler.POLICY = SchedulerPolicy.FIFO;
             // else
-            ShortTermScheduler.POLICY = SchedulerPolicy.SJF;
+            // ShortTermScheduler.POLICY = SchedulerPolicy.Priority;
 
             // Start of the cpu simulation
             System.Console.WriteLine("----- START OS SIMULATION ------");
@@ -96,7 +89,7 @@ namespace os_project
             else
                 System.Console.WriteLine("----- OS SIMULATION FAILED ------\n");
 
-            System.Console.WriteLine("------ EXPORT METRICS ------");
+            // System.Console.WriteLine("------ EXPORT METRICS ------");
 
             // Wait time export
             // Metrics.ExportWaitTime("Wait Times: Single Core | FIFO Policy");
@@ -135,7 +128,6 @@ namespace os_project
 
             // Metrics.ExportPercentageCache("Cache Percentage Used");
 
-
             // Export the RAM used for Single Core
 
             // Export RAM used for Multi Core
@@ -157,8 +149,8 @@ namespace os_project
 
                 // Waits for the core thread to run
                 System.Console.WriteLine("Running PCB: " + Cores[0].ActiveProgram.ProcessID);
-                Cores[0].Run().Wait();
-                WriteToFile("ramdata", RAMDUMP());
+                Cores[0].Run();
+                // WriteToFile("ramdata", RAMDUMP());
             }
 
             if (Queue.Terminated.Count != 30 || Queue.New.First != null)
@@ -187,7 +179,7 @@ namespace os_project
                         {
                             // Wait for the core thread to start and the CPU acquires the MMU lock in its critical section
                             System.Console.WriteLine("Running PCB: " + core.ActiveProgram.ProcessID);
-                            core.Run().Wait();
+                            core.Run();
                         }
                     }
                 }
