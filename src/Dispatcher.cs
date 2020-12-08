@@ -19,7 +19,12 @@ namespace os_project
                 // Dispatch the first program from the short term scheduler
                 if (Driver.Cores[0].ActiveProgram == null)
                 {
+                    // Load in the PCB 
                     Driver.Cores[0].ActiveProgram = pcb;
+
+                    // Load the instructions from memory into the CPU cache
+                    LoadCPUCache(Driver.Cores[0]);
+
                     return FindOpenCore();
                 }
 
@@ -33,13 +38,27 @@ namespace os_project
                     return -1;
 
                 // Dispatch to the CPU
-                Driver.Cores[openCoreId].Cache = new Word[Driver.LargestProgram];
                 Driver.Cores[openCoreId].ActiveProgram = pcb;
 
                 if (Driver.Cores[openCoreId].ActiveProgram == null)
                     throw new System.Exception("Dispatcher never sent pcb to core, check dispatcher open core logic");
 
+                // Load the instructions from memory into the CPU cache
+                LoadCPUCache(Driver.Cores[openCoreId]);
                 return FindOpenCore();
+            }
+        }
+
+        /// <summary>
+        /// Sets the cache for the CPU passed in with size matching the largest program in the job file
+        /// </summary>
+        /// <param name="core">Core the cache is set for</param>
+        static void LoadCPUCache(CPU core)
+        {
+            core.Cache = new Word[Driver.LargestProgram];
+            for (int i = 0; i < core.ActiveProgram.ProgramSize; i++)
+            {
+                core.Cache[i] = MMU.ReadWord(i, core.ActiveProgram);
             }
         }
 
