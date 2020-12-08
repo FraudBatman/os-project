@@ -6,6 +6,7 @@ namespace os_project
     public class Disk
     {
         public const int DISK_SIZE = 2048;
+        public const int FRAME_SIZE = 4;
 
         public static Dictionary<int, Dictionary<string, List<Word>>> diskPartitions =
             new Dictionary<int, Dictionary<string, List<Word>>>(DISK_SIZE);
